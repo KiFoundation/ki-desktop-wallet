@@ -262,11 +262,13 @@ export default {
               this.account_number = res.account_number;
               this.sequence = res.sequence;
               let coins = res.coins;
-              coins.forEach((coin) => {
-                if (coin.denom == 'uatom') {
-                  this.balances.list.available = parseFloat(coin.amount) / Math.pow(10,6);
-                }
-              });
+              if(coins){
+                coins.forEach((coin) => {
+                  if (coin.denom == 'uatom') {
+                    this.balances.list.available = parseFloat(coin.amount) / Math.pow(10,6);
+                  }
+                });
+              }
               this.balances.sum = this.balances.sum + this.balances.list.available;
             }
           }).then((result1) => {
