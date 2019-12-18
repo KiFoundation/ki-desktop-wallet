@@ -236,7 +236,7 @@ export default {
           let krwPrice = 0;
           //获取汇率
           this.$http.get(this.globalData.domain + 'api/baseCoinPub?v=1.0').then(res => {
-            if (res.data.success) {
+            if (res.data && res.data.success) {
               let result = res.data.data.legal;
               result.forEach((coin) => {
                 if (coin.alias == 'CNY') {
@@ -257,8 +257,8 @@ export default {
         var promise3 = new Promise((resolve, reject) => {
           // 获取可用ATOM
           provider.get('/auth/accounts/' + account).then((res1) => {
-            if (res1.result.value) {
-              let res = res1.result.value;
+            if (res1.result.result.value) {
+              let res = res1.result.result.value;
               this.account_number = res.account_number;
               this.sequence = res.sequence;
               let coins = res.coins;
@@ -274,7 +274,7 @@ export default {
           }).then((result1) => {
             // 获取委托ATOM
             provider.get('/staking/delegators/' + account + '/delegations').then((res2) => {
-              let result = res2.result;
+              let result = res2.result.result;
               if (result) {
                 for (let i = 0; i < result.length; i++) {
                   result[i].shares = parseFloat(result[i].shares) / Math.pow(10,6);
@@ -285,7 +285,7 @@ export default {
             }).then((result2) => {
               // 获取解委托ATOM
               provider.get('/staking/delegators/' + account + '/unbonding_delegations').then((res3) => {
-                let res = res3.result;
+                let res = res3.result.result;
                 if (res) {
                   res.forEach((value) => {
                     value.entries.forEach((undelegate) => {
@@ -359,7 +359,7 @@ export default {
         }
         let transaction = {
           from: account,
-          chain_id: "cosmoshub-2",
+          chain_id: "cosmoshub-3",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
@@ -367,7 +367,7 @@ export default {
             amount: fee
           },
           gas: limit,
-          memo: "",
+          memo: this.transfer.memo,
           type: "transfer",
           msg: {
             to: this.transfer.account,

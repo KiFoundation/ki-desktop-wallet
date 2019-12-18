@@ -5,7 +5,7 @@ export default {
     token: "ATOM",
     network: {
       blockchain: 'cosmos',
-      chainId: "cosmoshub-2"
+      chainId: "cosmoshub-3"
     }
   },
   domain: 'http://localhost/'
