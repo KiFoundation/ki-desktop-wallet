@@ -1,11 +1,11 @@
 export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
-  cosmos: {
-    nodeUrl: "https://cosmos.medishares.net",
-    token: "ATOM",
+  kichain: {
+    nodeUrl: "http://localhost:8080",
+    token: "tki",
     network: {
       blockchain: 'cosmos',
-      chainId: "cosmoshub-3"
+      chainId: "KiChain"
     }
   },
   domain: 'http://localhost/'

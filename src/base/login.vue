@@ -20,7 +20,9 @@ export default {
     }
   },
   created() {
+
     this.getChain()
+
   },
   methods:{
     getChain(){
@@ -35,6 +37,7 @@ export default {
     login(){
       let nodeUrl = this.nodeUrl;
       let network = this.network;
+
       this.webUtil.initMathExtension().then((res) => {
         return mathExtension.getIdentity(network);
       }).then((identity) => {

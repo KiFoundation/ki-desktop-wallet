@@ -31,6 +31,7 @@ module.exports = {
   available: "Available",
   delegate: "Delegated",
   undelegate: "Undelegating",
+  delegatetx: "Delegate",
   transfer: "Transfer",
   transfer_amount: "Transfer Amount",
   memo: "Memo",

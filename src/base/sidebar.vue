@@ -1,7 +1,7 @@
 <template>
 <div>
   <section class="user-info text-center">
-    <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="100%"></div>
+    <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <p id="copyContent">{{account}}</p>
     <div class="operation-list">
