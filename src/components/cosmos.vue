@@ -374,7 +374,6 @@ export default {
                   this.delegations[value.operator_address]= [value.description.moniker];
                 });
               }
-              console.log(this.delegations)
               return 0;
             }).then((result1) => {
             // 获取委托ATOM
@@ -604,7 +603,6 @@ export default {
 
     // ====================================================
     sendUnDelegateTx() {
-      console.log(this.undelegate.validator)
       if (!this.undelegate.validator) {
         alert(this.$t('delegate_account_null'));
         return false;
@@ -654,8 +652,11 @@ export default {
           }
         };
 
-        console.log(transaction)
 
+        if(this.delegations[this.undelegate.validator][1] < this.undelegate.amount){
+          alert("Cannot unbond more than what is bonded!");
+        }
+        else{
         mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
           const opts = {
             data: signedTransaction,
@@ -677,6 +678,7 @@ export default {
           console.log(e.message)
           alert(this.$t('transfer_fail'));
         })
+      }
       })
     }
   },
