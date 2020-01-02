@@ -77,9 +77,15 @@
           <!-- ==================================================== -->
           <div id="delegate-form" class="transfer tab-pane">
             <form class="basic-form">
-              <!-- 接收地址 -->
-              <label>{{$t("webwallet_to_validator")}}</label>
-              <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator">
+              <li class="token">
+                <!-- Token -->
+                <label>{{$t("webwallet_to_validator")}}</label>
+                <select v-model="delegate.validator">
+                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
+                    {{item[0]}} - {{item[1]}}
+                  </option>
+                </select>
+              </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <!-- 转账金额 -->
@@ -100,7 +106,7 @@
           </div>
         </div>
         <!-- ==================================================== -->
-</div>
+      </div>
     </section>
   </template>
 </div>
@@ -164,7 +170,8 @@ export default {
           delegate: 0,
           undelegate: 0,
         }
-      }
+      },
+      validators:[]
     }
   },
   created() {
@@ -340,33 +347,44 @@ export default {
                   this.balances.sum = this.balances.sum + this.balances.list.undelegate;
                 }
                 return this.balances.sum;
-              }).then((balance) => {
-                Promise.all([promise1, promise2]).then(([res1, res2]) => {
+              }).then((result3) => {
+                // 获取解委托ATOM
+                provider.get('/staking/validators').then((res4) => {
+                  let res = res4.result.result;
+                  if (res) {
+                    res.forEach((value) => {
+                      this.validators.push([value.description.moniker, value.operator_address]);
+                      });
+                  }
+                  return 0;
+                }).then((balance) => {
+                  Promise.all([promise1, promise2]).then(([res1, res2]) => {
 
-                  if (res1) {
-                    this.balances.USD = balance * res1.price_usd;
-                    this.balances.CNY = balance * res1.price_cny;
-                  }
-                  if (res1 && res2) {
-                    this.balances.KRW = this.balances.CNY / res2;
-                  }
-                }).then(() => {
-                  // 获取comos系acc代币
-                  new Promise((resolve, reject) => {
-                    let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
-                    this.$http.get(urltest).then(res => {
-                      if (res.data.success) {
-                        var result = res.data.data;
-                        result.forEach((cosmos) => {
-                          this.values.push(cosmos.symbol);
-                        })
-                      }
-                      resolve(result);
-                    }, err => {
-                      reject(err);
+                    if (res1) {
+                      this.balances.USD = balance * res1.price_usd;
+                      this.balances.CNY = balance * res1.price_cny;
+                    }
+                    if (res1 && res2) {
+                      this.balances.KRW = this.balances.CNY / res2;
+                    }
+                  }).then(() => {
+                    // 获取comos系acc代币
+                    new Promise((resolve, reject) => {
+                      let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
+                      this.$http.get(urltest).then(res => {
+                        if (res.data.success) {
+                          var result = res.data.data;
+                          result.forEach((cosmos) => {
+                            this.values.push(cosmos.symbol);
+                          })
+                        }
+                        resolve(result);
+                      }, err => {
+                        reject(err);
+                      });
                     });
-                  });
-                })
+                  })
+                });
               });
             });
           });
@@ -432,7 +450,6 @@ export default {
             }
           };
           provider.post('/txs?sync=true', null, opts).then(res => {
-            console.log('asdasd')
             let result = res.result;
             if (result.code) {
               let log = JSON.parse(result.raw_log);
@@ -452,7 +469,6 @@ export default {
     // ====================================================
 
     sendDelegateTx() {
-      console.log(this.delegate.validator)
       if (!this.delegate.validator) {
         alert(this.$t('delegate_account_null'));
         return false;
