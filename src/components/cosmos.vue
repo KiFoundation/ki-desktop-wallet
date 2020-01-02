@@ -351,7 +351,7 @@ export default {
                     this.balances.KRW = this.balances.CNY / res2;
                   }
                 }).then(() => {
-                  // 获取comos系代币
+                  // 获取comos系acc代币
                   new Promise((resolve, reject) => {
                     let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
                     this.$http.get(urltest).then(res => {
@@ -452,6 +452,7 @@ export default {
     // ====================================================
 
     sendDelegateTx() {
+      console.log(this.delegate.validator)
       if (!this.delegate.validator) {
         alert(this.$t('delegate_account_null'));
         return false;
@@ -493,7 +494,7 @@ export default {
           memo: '',
           type: "delegate",
           msg: {
-            validator_addr: this.delegate.account,
+            validator_addr: this.delegate.validator,
             amount: {
               denom: "tki",
               amount: this.delegate.amount * Math.pow(10, 6)
