@@ -604,6 +604,7 @@ export default {
 
     // ====================================================
     sendUnDelegateTx() {
+      console.log(this.undelegate.validator)
       if (!this.undelegate.validator) {
         alert(this.$t('delegate_account_null'));
         return false;
@@ -643,12 +644,12 @@ export default {
           },
           gas: limit,
           memo: '',
-          type: "delegate",
+          type: "undelegate",
           msg: {
-            validator_addr: this.delegate.validator,
+            validator_addr: this.undelegate.validator,
             amount: {
               denom: "tki",
-              amount: this.delegate.amount * Math.pow(10, 6)
+              amount: this.undelegate.amount * Math.pow(10, 6)
             }
           }
         };
@@ -663,7 +664,6 @@ export default {
             }
           };
           provider.post('/txs?sync=true', null, opts).then(res => {
-            console.log('asdasd')
             let result = res.result;
             if (result.code) {
               let log = JSON.parse(result.raw_log);
