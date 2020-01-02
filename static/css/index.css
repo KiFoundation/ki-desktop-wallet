@@ -1,7 +1,7 @@
 @charset "utf-8";
 :root {
   --darkbg: #2c363f;
-  --blueColor: #007aff;
+  --blueColor: #043bea;
   --greenColor: #4cd964;
   --greyColor: #8a8a8f;
   --pale-grey: #efeff4;
@@ -344,7 +344,7 @@ i {
 }
 
 .tabs {
-  border-bottom: 1px solid var(--pale-grey);
+  border-bottom: 0px solid var(--pale-grey);
   display: flex;
   justify-content: flex-start;
 }

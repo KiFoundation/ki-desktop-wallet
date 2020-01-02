@@ -1,6 +1,6 @@
 <template>
 <div class="login-container main-container">
-  <img :src="'static/img/chain/'+blockchain_lowercase+'_banner.jpg'" width="100%">
+  <img :src="'static/img/chain/'+blockchain_lowercase+'_banner.png'" width="100%">
   <div class="info">
     <h1><span>{{$t('webwallet_your')}}</span> {{blockchain}} <span>{{$t('webwallet_wallet')}}</span></h1>
     <p><span>{{$t('webwallet_home_des1')}}</span> {{blockchain}} ({{token}} & Tokens) <span>{{$t('webwallet_home_des2')}}</span></p>
