@@ -8,6 +8,7 @@
         <ul class="tabs nav nav-tabs">
           <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
+          <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
         </ul>
 
         <!-- 转账内容 -->
@@ -81,6 +82,7 @@
                 <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
                 <select v-model="delegate.validator">
+                  <option value="" disabled selected>Select a validator</option>
                   <option v-for="item in validators" :value="item[1]" :key="item[1]">
                     {{item[0]}} - {{item[1]}}
                   </option>
@@ -104,8 +106,41 @@
               <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
             </form>
           </div>
+          <!-- ==================================================== -->
+
+          <div id="undelegate-form" class="transfer tab-pane">
+            <form class="basic-form">
+              <li class="token">
+                <!-- Token -->
+                <label>{{$t("webwallet_to_validator")}}</label>
+                <select v-model="undelegate.validator" >
+                  <option value="" disabled selected>Select a validator</option>
+                  <option v-for="(item, index) in delegations" :value="index" :key="index">
+                    {{item[0]}} - {{item[1]}} {{delegate.token}}
+                  </option>
+                </select>
+              </li>
+              <ul class="basic-group clearfix">
+                <li class='amount'>
+                  <!-- 转账金额 -->
+                  <label>{{$t("undelegation_amount")}}</label>
+                  <input type="text" placeholder="0" v-model="undelegate.amount">
+                </li>
+                <li class="token">
+                  <!-- Token -->
+                  <label>Token</label>
+                  <select v-model="undelegate.token">
+                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
+                  </select>
+                </li>
+              </ul>
+
+              <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
+            </form>
+          </div>
+          <!-- ==================================================== -->
+
         </div>
-        <!-- ==================================================== -->
       </div>
     </section>
   </template>
@@ -148,6 +183,14 @@ export default {
         'gasPrice': '0.0000005',
         'gasLimit': 200000
       },
+      undelegate: {
+        'validator': '',
+        'amount': 0,
+        'token': 'tki',
+        'fee': 0.001250,
+        'gasPrice': '0.0000005',
+        'gasLimit': 200000
+      },
       account_number: 0,
       sequence: 0,
       values: [],
@@ -171,7 +214,8 @@ export default {
           undelegate: 0,
         }
       },
-      validators:[]
+      validators: [],
+      delegations: {}
     }
   },
   created() {
@@ -322,12 +366,24 @@ export default {
               }
               this.balances.sum = this.balances.sum + this.balances.list.available;
             }
-          }).then((result1) => {
+          }).then((result4) => {
+            provider.get('/staking/delegators/' + this.account + '/validators').then((res5) => {
+              let res = res5.result.result;
+              if (res) {
+                res.forEach((value) => {
+                  this.delegations[value.operator_address]= [value.description.moniker];
+                });
+              }
+              console.log(this.delegations)
+              return 0;
+            }).then((result1) => {
             // 获取委托ATOM
             provider.get('/staking/delegators/' + account + '/delegations').then((res2) => {
               let result = res2.result.result;
               if (result) {
                 for (let i = 0; i < result.length; i++) {
+                  this.delegations[result[i].validator_address].push(parseFloat(result[i].balance) / Math.pow(10, 6));
+
                   result[i].shares = parseFloat(result[i].shares) / Math.pow(10, 6);
                   this.balances.list.delegate = this.balances.list.delegate + result[i].shares;
                 }
@@ -354,36 +410,37 @@ export default {
                   if (res) {
                     res.forEach((value) => {
                       this.validators.push([value.description.moniker, value.operator_address]);
-                      });
+                    });
                   }
                   return 0;
                 }).then((balance) => {
-                  Promise.all([promise1, promise2]).then(([res1, res2]) => {
+                    Promise.all([promise1, promise2]).then(([res1, res2]) => {
 
-                    if (res1) {
-                      this.balances.USD = balance * res1.price_usd;
-                      this.balances.CNY = balance * res1.price_cny;
-                    }
-                    if (res1 && res2) {
-                      this.balances.KRW = this.balances.CNY / res2;
-                    }
-                  }).then(() => {
-                    // 获取comos系acc代币
-                    new Promise((resolve, reject) => {
-                      let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
-                      this.$http.get(urltest).then(res => {
-                        if (res.data.success) {
-                          var result = res.data.data;
-                          result.forEach((cosmos) => {
-                            this.values.push(cosmos.symbol);
-                          })
-                        }
-                        resolve(result);
-                      }, err => {
-                        reject(err);
+                      if (res1) {
+                        this.balances.USD = balance * res1.price_usd;
+                        this.balances.CNY = balance * res1.price_cny;
+                      }
+                      if (res1 && res2) {
+                        this.balances.KRW = this.balances.CNY / res2;
+                      }
+                    }).then(() => {
+                      // 获取comos系acc代币
+                      new Promise((resolve, reject) => {
+                        let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
+                        this.$http.get(urltest).then(res => {
+                          if (res.data.success) {
+                            var result = res.data.data;
+                            result.forEach((cosmos) => {
+                              this.values.push(cosmos.symbol);
+                            })
+                          }
+                          resolve(result);
+                        }, err => {
+                          reject(err);
+                        });
                       });
-                    });
-                  })
+                    })
+                  });
                 });
               });
             });
@@ -543,9 +600,85 @@ export default {
           alert(this.$t('transfer_fail'));
         })
       })
-    }
+    },
 
     // ====================================================
+    sendUnDelegateTx() {
+      if (!this.undelegate.validator) {
+        alert(this.$t('delegate_account_null'));
+        return false;
+      }
+      if (!this.undelegate.amount) {
+        alert(this.$t('delegate_amount_null'));
+        return false;
+      }
+      if (this.undelegate.amount < Math.pow(10, -6)) {
+        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        return false;
+      }
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      this.webUtil.initMathExtension().then((res) => {
+        return mathExtension.getIdentity(this.network);
+      }).then((identity) => {
+        let account = identity.account;
+        let provider = mathExtension.httpProvider(nodeUrl);
+        // 获取手续费
+        // 普通设置
+        let fee = this.delegate.fee * Math.pow(10, 6);
+        let limit = 200000;
+        // 高级设置
+        if (this.selectedSet == 2) {
+          fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+          limit = this.delegate.gasLimit;
+        }
+
+        var transaction = {
+          from: account,
+          chain_id: "KiChain",
+          account_number: this.account_number,
+          sequence: this.sequence,
+          fees: {
+            denom: "tki",
+            amount: 500
+          },
+          gas: limit,
+          memo: '',
+          type: "delegate",
+          msg: {
+            validator_addr: this.delegate.validator,
+            amount: {
+              denom: "tki",
+              amount: this.delegate.amount * Math.pow(10, 6)
+            }
+          }
+        };
+
+        console.log(transaction)
+
+        mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
+          const opts = {
+            data: signedTransaction,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
+          provider.post('/txs?sync=true', null, opts).then(res => {
+            console.log('asdasd')
+            let result = res.result;
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              alert(log.message);
+            } else if (result.txhash) {
+              alert(this.$t('transfer_success'));
+              window.location.reload();
+            }
+          })
+        }).catch(e => {
+          console.log(e.message)
+          alert(this.$t('transfer_fail'));
+        })
+      })
+    }
   },
   components: {
     sideBar,
