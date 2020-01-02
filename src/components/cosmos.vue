@@ -2,7 +2,7 @@
 <div :class="{webwallet:account}">
   <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login>
   <template v-else>
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
         <ul class="tabs nav nav-tabs">
@@ -37,6 +37,7 @@
                 <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
                 <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
                 <!-- 普通设置 -->
+
                 <ul v-show="selectedSet==1" class="basic-group clearfix">
                   <li class="amount slider" ref="slider">
                     <div class="thunk" :style="{left}" ref="thunk">
@@ -63,6 +64,8 @@
                     <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
                   </li>
                 </ul>
+
+
               </div>
               <!-- 备注 -->
               <label>{{$t("memo")}}</label>
@@ -76,61 +79,28 @@
             <form class="basic-form">
               <!-- 接收地址 -->
               <label>{{$t("webwallet_to_validator")}}</label>
-              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
+              <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator">
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <!-- 转账金额 -->
                   <label>{{$t("delegation_amount")}}</label>
-                  <input type="text" placeholder="0" v-model="transfer.amount">
+                  <input type="text" placeholder="0" v-model="delegate.amount">
                 </li>
                 <li class="token">
                   <!-- Token -->
                   <label>Token</label>
-                  <select v-model="transfer.token">
+                  <select v-model="delegate.token">
                     <option v-for="item in values" :value="item" :key="item">{{item}}</option>
                   </select>
                 </li>
               </ul>
-              <div class="fee-set">
-                <!-- 手续费 -->
-                <label>{{$t("webwallet_fee")}}</label>
-                <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
-                <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
-                <!-- 普通设置 -->
-                <ul v-show="selectedSet==1" class="basic-group clearfix">
-                  <li class="amount slider" ref="slider">
-                    <div class="thunk" :style="{left}" ref="thunk">
-                      <div class="block"><img src="static/img/icons/slider@2x.png" width="16"></div>
-                    </div>
-                    <div class="cheap">{{$t("webwallet_cheap")}}</div>
-                    <div class="fast">{{$t("webwallet_fast")}}</div>
-                  </li>
-                  <li class="token">
-                    <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
-                  </li>
-                </ul>
-                <!-- 高级设置 -->
-                <ul class="basic-group clearfix" v-show="selectedSet==2">
-                  <li class='gas-price'>
-                    <span>Gas Price (TKI)</span>
-                    <input type="text" placeholder="0" v-model="transfer.gasPrice">
-                  </li>
-                  <li class="gas-limit">
-                    <span>Gas Limit</span>
-                    <input type="text" placeholder="0" v-model="transfer.gasLimit">
-                  </li>
-                  <li class="token">
-                    <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
-                  </li>
-                </ul>
-              </div>
+
               <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
             </form>
           </div>
         </div>
         <!-- ==================================================== -->
-
-      </div>
+</div>
     </section>
   </template>
 </div>
@@ -162,7 +132,15 @@ export default {
         'memo': '',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 100000
+        'gasLimit': 200000
+      },
+      delegate: {
+        'validator': '',
+        'amount': 0,
+        'token': 'tki',
+        'fee': 0.001250,
+        'gasPrice': '0.0000005',
+        'gasLimit': 200000
       },
       account_number: 0,
       sequence: 0,
@@ -474,16 +452,16 @@ export default {
     // ====================================================
 
     sendDelegateTx() {
-      if (!this.transfer.account) {
-        alert(this.$t('transfer_account_null'));
+      if (!this.delegate.validator) {
+        alert(this.$t('delegate_account_null'));
         return false;
       }
-      if (!this.transfer.amount) {
-        alert(this.$t('transfer_amount_null'));
+      if (!this.delegate.amount) {
+        alert(this.$t('delegate_amount_null'));
         return false;
       }
-      if (this.transfer.amount < Math.pow(10, -6)) {
-        alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
+      if (this.delegate.amount < Math.pow(10, -6)) {
+        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
@@ -494,12 +472,12 @@ export default {
         let provider = mathExtension.httpProvider(nodeUrl);
         // 获取手续费
         // 普通设置
-        let fee = this.transfer.fee * Math.pow(10, 6);
+        let fee = this.delegate.fee * Math.pow(10, 6);
         let limit = 200000;
         // 高级设置
         if (this.selectedSet == 2) {
-          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
-          limit = this.transfer.gasLimit;
+          fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+          limit = this.delegate.gasLimit;
         }
 
         var transaction = {
@@ -512,16 +490,18 @@ export default {
             amount: 500
           },
           gas: limit,
-          memo: this.transfer.memo,
+          memo: '',
           type: "delegate",
           msg: {
-            validator_addr: this.transfer.account,
+            validator_addr: this.delegate.account,
             amount: {
               denom: "tki",
-              amount: this.transfer.amount * Math.pow(10, 6)
+              amount: this.delegate.amount * Math.pow(10, 6)
             }
           }
         };
+
+        console.log(transaction)
 
         mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
           const opts = {

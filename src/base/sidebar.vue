@@ -19,6 +19,10 @@
           <div>{{item?webUtil.addCommas(item,6):0}}</div>
         </li>
       </ul>
+      <ul class="token-list">
+          <li> <div>Sequence</div> <div>{{sequence}}</div> </li>
+        </li>
+      </ul>
     </div>
   </section>
   <div class="refresh-logout">
@@ -33,7 +37,7 @@
 <script>
 import common from 'static/js/common.js'
 export default {
-  props: ['account', 'balances','blockchain'],
+  props: ['account', 'balances','blockchain','sequence'],
   data() {
     return {
       unit:this.webCoin.unit,
