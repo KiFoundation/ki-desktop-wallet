@@ -5,134 +5,130 @@
     <side-bar :balances="balances" :account="account" :blockchain="blockchain"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
-        <div class="tabs">
-          <!-- 转账tab -->
-          <a class="tab" href="#transfer-form">{{$t("transfer")}}</a>
-          <a class="tab" href="#delegate-form">{{$t("delegatetx")}}</a>
-        </div>
+        <ul class="tabs nav nav-tabs">
+          <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
+          <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
+        </ul>
+
         <!-- 转账内容 -->
-        <div id="transfer-form" class="transfer">
-          <form class="basic-form">
-            <!-- 接收地址 -->
-            <label>{{$t("webwallet_to_address")}}</label>
-            <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
-            <ul class="basic-group clearfix">
-              <li class='amount'>
-                <!-- 转账金额 -->
-                <label>{{$t("transfer_amount")}}</label>
-                <input type="text" placeholder="0" v-model="transfer.amount">
-              </li>
-              <li class="token">
-                <!-- Token -->
-                <label>Token</label>
-                <select v-model="transfer.token">
-                  <option v-for="item in values" :value="item" :key="item">{{item}}</option>
-                </select>
-              </li>
-            </ul>
-            <div class="fee-set">
-              <!-- 手续费 -->
-              <label>{{$t("webwallet_fee")}}</label>
-              <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
-              <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
-              <!-- 普通设置 -->
-              <ul v-show="selectedSet==1" class="basic-group clearfix">
-                <li class="amount slider" ref="slider">
-                  <div class="thunk" :style="{left}" ref="thunk">
-                    <div class="block"><img src="static/img/icons/slider@2x.png" width="16"></div>
+        <div class="tab-content">
+          <div id="transfer-form" class="tab-pane in active">
+            <form class="basic-form">
+              <!-- 接收地址 -->
+              <label>{{$t("webwallet_to_address")}}</label>
+              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
+              <ul class="basic-group clearfix">
+                <li class='amount'>
+                  <!-- 转账金额 -->
+                  <label>{{$t("transfer_amount")}}</label>
+                  <input type="text" placeholder="0" v-model="transfer.amount">
+                </li>
+                <li class="token">
+                  <!-- Token -->
+                  <label>Token</label>
+                  <select v-model="transfer.token">
+                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
+                  </select>
+                </li>
+              </ul>
+              <div class="fee-set">
+                <!-- 手续费 -->
+                <label>{{$t("webwallet_fee")}}</label>
+                <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
+                <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
+                <!-- 普通设置 -->
+                <ul v-show="selectedSet==1" class="basic-group clearfix">
+                  <li class="amount slider" ref="slider">
+                    <div class="thunk" :style="{left}" ref="thunk">
+                      <div class="block"><img src="static/img/icons/slider@2x.png" width="16"></div>
                     </div>
                     <div class="cheap">{{$t("webwallet_cheap")}}</div>
                     <div class="fast">{{$t("webwallet_fast")}}</div>
+                  </li>
+                  <li class="token">
+                    <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
+                  </li>
+                </ul>
+                <!-- 高级设置 -->
+                <ul class="basic-group clearfix" v-show="selectedSet==2">
+                  <li class='gas-price'>
+                    <span>Gas Price (TKI)</span>
+                    <input type="text" placeholder="0" v-model="transfer.gasPrice">
+                  </li>
+                  <li class="gas-limit">
+                    <span>Gas Limit</span>
+                    <input type="text" placeholder="0" v-model="transfer.gasLimit">
+                  </li>
+                  <li class="token">
+                    <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
+                  </li>
+                </ul>
+              </div>
+              <!-- 备注 -->
+              <label>{{$t("memo")}}</label>
+              <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
+              <a class="btn" @click="sendTransfer">{{$t("transfer")}}</a>
+            </form>
+          </div>
+
+          <!-- ==================================================== -->
+          <div id="delegate-form" class="transfer tab-pane">
+            <form class="basic-form">
+              <!-- 接收地址 -->
+              <label>{{$t("webwallet_to_validator")}}</label>
+              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
+              <ul class="basic-group clearfix">
+                <li class='amount'>
+                  <!-- 转账金额 -->
+                  <label>{{$t("delegation_amount")}}</label>
+                  <input type="text" placeholder="0" v-model="transfer.amount">
                 </li>
                 <li class="token">
-                  <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
+                  <!-- Token -->
+                  <label>Token</label>
+                  <select v-model="transfer.token">
+                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
+                  </select>
                 </li>
               </ul>
-              <!-- 高级设置 -->
-              <ul class="basic-group clearfix" v-show="selectedSet==2">
-                <li class='gas-price'>
-                  <span>Gas Price (TKI)</span>
-                  <input type="text" placeholder="0" v-model="transfer.gasPrice">
-                </li>
-                <li class="gas-limit">
-                  <span>Gas Limit</span>
-                  <input type="text" placeholder="0" v-model="transfer.gasLimit">
-                </li>
-                <li class="token">
-                  <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
-                </li>
-              </ul>
-            </div>
-            <!-- 备注 -->
-            <label>{{$t("memo")}}</label>
-            <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
-            <a class="btn" @click="sendTransfer">{{$t("transfer")}}</a>
-          </form>
+              <div class="fee-set">
+                <!-- 手续费 -->
+                <label>{{$t("webwallet_fee")}}</label>
+                <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
+                <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
+                <!-- 普通设置 -->
+                <ul v-show="selectedSet==1" class="basic-group clearfix">
+                  <li class="amount slider" ref="slider">
+                    <div class="thunk" :style="{left}" ref="thunk">
+                      <div class="block"><img src="static/img/icons/slider@2x.png" width="16"></div>
+                    </div>
+                    <div class="cheap">{{$t("webwallet_cheap")}}</div>
+                    <div class="fast">{{$t("webwallet_fast")}}</div>
+                  </li>
+                  <li class="token">
+                    <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
+                  </li>
+                </ul>
+                <!-- 高级设置 -->
+                <ul class="basic-group clearfix" v-show="selectedSet==2">
+                  <li class='gas-price'>
+                    <span>Gas Price (TKI)</span>
+                    <input type="text" placeholder="0" v-model="transfer.gasPrice">
+                  </li>
+                  <li class="gas-limit">
+                    <span>Gas Limit</span>
+                    <input type="text" placeholder="0" v-model="transfer.gasLimit">
+                  </li>
+                  <li class="token">
+                    <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
+                  </li>
+                </ul>
+              </div>
+              <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
+            </form>
+          </div>
         </div>
-<hr>
-
-<!-- ==================================================== -->
-<div id="delegate-form" class="transfer">
-  <form class="basic-form">
-    <!-- 接收地址 -->
-    <label>{{$t("webwallet_to_address")}}</label>
-    <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
-    <ul class="basic-group clearfix">
-      <li class='amount'>
-        <!-- 转账金额 -->
-        <label>{{$t("transfer_amount")}}</label>
-        <input type="text" placeholder="0" v-model="transfer.amount">
-      </li>
-      <li class="token">
-        <!-- Token -->
-        <label>Token</label>
-        <select v-model="transfer.token">
-          <option v-for="item in values" :value="item" :key="item">{{item}}</option>
-        </select>
-      </li>
-    </ul>
-    <div class="fee-set">
-      <!-- 手续费 -->
-      <label>{{$t("webwallet_fee")}}</label>
-      <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
-      <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
-      <!-- 普通设置 -->
-      <ul v-show="selectedSet==1" class="basic-group clearfix">
-        <li class="amount slider" ref="slider">
-          <div class="thunk" :style="{left}" ref="thunk">
-            <div class="block"><img src="static/img/icons/slider@2x.png" width="16"></div>
-            </div>
-            <div class="cheap">{{$t("webwallet_cheap")}}</div>
-            <div class="fast">{{$t("webwallet_fast")}}</div>
-        </li>
-        <li class="token">
-          <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
-        </li>
-      </ul>
-      <!-- 高级设置 -->
-      <ul class="basic-group clearfix" v-show="selectedSet==2">
-        <li class='gas-price'>
-          <span>Gas Price (TKI)</span>
-          <input type="text" placeholder="0" v-model="transfer.gasPrice">
-        </li>
-        <li class="gas-limit">
-          <span>Gas Limit</span>
-          <input type="text" placeholder="0" v-model="transfer.gasLimit">
-        </li>
-        <li class="token">
-          <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
-        </li>
-      </ul>
-    </div>
-    <!-- 备注 -->
-    <label>{{$t("memo")}}</label>
-    <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
-    <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
-  </form>
-</div>
-
-<!-- ==================================================== -->
-
+        <!-- ==================================================== -->
 
       </div>
     </section>
@@ -147,14 +143,14 @@ import common from 'static/js/common.js'
 export default {
   data() {
     return {
-      blockchain:'kichain',
+      blockchain: 'kichain',
       account: '',
       network: this.globalData.kichain.network,
       unit: this.webCoin.unit,
       selectedSet: 1,
       slider: null, //滚动条DOM元素
       thunk: null, //拖拽DOM元素
-      progress:{
+      progress: {
         per: 50, //当前值
         min: 10,
         max: 100
@@ -185,7 +181,7 @@ export default {
         USD: 0,
         CNY: 0,
         KRW: 0,
-        list:{
+        list: {
           available: 0,
           delegate: 0,
           undelegate: 0,
@@ -234,7 +230,7 @@ export default {
   },
   methods: {
     getAccount() {
-    // console.log(this.webUtil.getCookie('identity_kichain'))
+      // console.log(this.webUtil.getCookie('identity_kichain'))
       if (this.webUtil.getCookie('identity_kichain')) {
         this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
         // this.account = 'cosmos10mdlxmrewp2vjlyly2q8yp44aqau0re5xuz3l9'
@@ -255,10 +251,10 @@ export default {
       this.thunk = this.$refs.thunk;
       let _this = this;
       this.transfer.fee = 0.015 * (this.progress.per / this.progress.max)
-      this.thunk.onmousedown = function (e) {
+      this.thunk.onmousedown = function(e) {
         let width = parseInt(_this.width);
         let disX = e.clientX;
-        document.onmousemove = function (e){
+        document.onmousemove = function(e) {
           // value, left, width
           // 当value变化的时候，会通过计算属性修改left，width
 
@@ -275,7 +271,7 @@ export default {
           _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6)
 
         }
-        document.onmouseup =  function (e) {
+        document.onmouseup = function(e) {
           document.onmousemove = document.onmouseup = null;
         }
         return false;
@@ -329,14 +325,13 @@ export default {
           provider.get('/auth/accounts/' + account).then((res1) => {
             if (res1.result.result.value) {
               let res = res1.result.result.value;
-              console.log(res)
               this.account_number = res.account_number;
               this.sequence = res.sequence;
               let coins = res.coins;
-              if(coins){
+              if (coins) {
                 coins.forEach((coin) => {
                   if (coin.denom == 'tki') {
-                    this.balances.list.available = parseFloat(coin.amount) / Math.pow(10,6);
+                    this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6);
                   }
                 });
               }
@@ -348,7 +343,7 @@ export default {
               let result = res2.result.result;
               if (result) {
                 for (let i = 0; i < result.length; i++) {
-                  result[i].shares = parseFloat(result[i].shares) / Math.pow(10,6);
+                  result[i].shares = parseFloat(result[i].shares) / Math.pow(10, 6);
                   this.balances.list.delegate = this.balances.list.delegate + result[i].shares;
                 }
                 this.balances.sum = this.balances.sum + this.balances.list.delegate;
@@ -360,7 +355,7 @@ export default {
                 if (res) {
                   res.forEach((value) => {
                     value.entries.forEach((undelegate) => {
-                      let balance = parseFloat(undelegate.balance) / Math.pow(10,6);
+                      let balance = parseFloat(undelegate.balance) / Math.pow(10, 6);
                       this.balances.list.undelegate = this.balances.list.undelegate + balance;
                     });
                   });
@@ -403,16 +398,16 @@ export default {
 
 
     sendTransfer() {
-      if(!this.transfer.account){
+      if (!this.transfer.account) {
         alert(this.$t('transfer_account_null'));
         return false;
       }
-      if(!this.transfer.amount){
+      if (!this.transfer.amount) {
         alert(this.$t('transfer_amount_null'));
         return false;
       }
-      if(this.transfer.amount<Math.pow(10,-6)){
-        alert(this.$t('transfer_amount_min')+Math.pow(10,-6));
+      if (this.transfer.amount < Math.pow(10, -6)) {
+        alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
@@ -423,11 +418,11 @@ export default {
         let provider = mathExtension.httpProvider(nodeUrl);
         // 获取手续费
         // 普通设置
-        let fee = this.transfer.fee * Math.pow(10,6);
+        let fee = this.transfer.fee * Math.pow(10, 6);
         let limit = 200000;
         // 高级设置
         if (this.selectedSet == 2) {
-          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10,6);
+          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
           limit = this.transfer.gasLimit;
         }
         let transaction = {
@@ -446,7 +441,7 @@ export default {
             to: this.transfer.account,
             coins: [{
               denom: "tki",
-              amount: this.transfer.amount*Math.pow(10,6)
+              amount: this.transfer.amount * Math.pow(10, 6)
             }]
           }
         };
@@ -460,7 +455,7 @@ export default {
           };
           provider.post('/txs?sync=true', null, opts).then(res => {
             console.log('asdasd')
-            let result=res.result;
+            let result = res.result;
             if (result.code) {
               let log = JSON.parse(result.raw_log);
               alert(log.message);
@@ -479,16 +474,16 @@ export default {
     // ====================================================
 
     sendDelegateTx() {
-      if(!this.transfer.account){
+      if (!this.transfer.account) {
         alert(this.$t('transfer_account_null'));
         return false;
       }
-      if(!this.transfer.amount){
+      if (!this.transfer.amount) {
         alert(this.$t('transfer_amount_null'));
         return false;
       }
-      if(this.transfer.amount<Math.pow(10,-6)){
-        alert(this.$t('transfer_amount_min')+Math.pow(10,-6));
+      if (this.transfer.amount < Math.pow(10, -6)) {
+        alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
@@ -499,11 +494,11 @@ export default {
         let provider = mathExtension.httpProvider(nodeUrl);
         // 获取手续费
         // 普通设置
-        let fee = this.transfer.fee * Math.pow(10,6);
+        let fee = this.transfer.fee * Math.pow(10, 6);
         let limit = 200000;
         // 高级设置
         if (this.selectedSet == 2) {
-          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10,6);
+          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
           limit = this.transfer.gasLimit;
         }
 
@@ -513,18 +508,18 @@ export default {
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
-              denom: "tki",
-              amount: 500
+            denom: "tki",
+            amount: 500
           },
           gas: limit,
           memo: this.transfer.memo,
           type: "delegate",
           msg: {
-              validator_addr: this.transfer.account,
-              amount: {
-                  denom: "tki",
-                  amount: this.transfer.amount*Math.pow(10,6)
-              }
+            validator_addr: this.transfer.account,
+            amount: {
+              denom: "tki",
+              amount: this.transfer.amount * Math.pow(10, 6)
+            }
           }
         };
 
@@ -537,7 +532,7 @@ export default {
           };
           provider.post('/txs?sync=true', null, opts).then(res => {
             console.log('asdasd')
-            let result=res.result;
+            let result = res.result;
             if (result.code) {
               let log = JSON.parse(result.raw_log);
               alert(log.message);
