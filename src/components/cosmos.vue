@@ -138,11 +138,38 @@
               <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
             </form>
           </div>
-          <!-- ==================================================== -->
-
         </div>
       </div>
+
+          <!-- ==================================================== -->
     </section>
+
+    <section class="main-info">
+      <div class="main-container transfer-container">
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Tx</th>
+              <th scope="col">type</th>
+              <th scope="col">To</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Fees</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in transactions">
+              <td class="text"><span><a :href="explorer+ 'transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
+              <td class="text"><span>{{item[1]}}</span></td>
+              <td class="text"><span><a :href="explorer+ 'account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
+              <td class="text"><span>{{item[3]}}</span></td>
+              <td class="text"><span>{{item[4]}}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!-- ==================================================== -->
+
   </template>
 </div>
 </template>
@@ -156,6 +183,7 @@ export default {
     return {
       blockchain: 'kichain',
       account: '',
+      explorer: this.globalData.explorer,
       network: this.globalData.kichain.network,
       unit: this.webCoin.unit,
       selectedSet: 1,
@@ -215,7 +243,8 @@ export default {
         }
       },
       validators: [],
-      delegations: {}
+      delegations: {},
+      transactions: []
     }
   },
   created() {
@@ -326,6 +355,7 @@ export default {
             reject(err);
           });
         });
+
         var promise2 = new Promise((resolve, reject) => {
           let krwPrice = 0;
           //获取汇率
@@ -348,6 +378,29 @@ export default {
           //   reject(err);
           // });
         });
+
+        var promise4 = new Promise((resolve, reject) => {
+          provider.get('/txs?message.sender=' + this.account + '&message.action=send').then((res5) => {
+            let res = res5.result.txs;
+
+            if (res) {
+              res.forEach((value) => {
+                  let fee = 0
+
+                  if (value.tx.value.fee.amount.length > 0) {
+                    fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+                   }
+
+                  this.transactions.push([  value.txhash, 'send',
+                    value.tx.value.msg[0].value.to_address,
+                    value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
+                    fee])
+
+              });
+            }
+        })
+        })
+
         var promise3 = new Promise((resolve, reject) => {
           // 获取可用ATOM
 
@@ -445,7 +498,8 @@ export default {
             });
           });
         });
-      })
+      });
+
     },
 
 

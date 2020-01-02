@@ -8,5 +8,6 @@ export default {
       chainId: "KiChain"
     }
   },
-  domain: 'http://localhost/'
+  domain: 'http://localhost/',
+  explorer: 'http://localhost:3000/'
 }

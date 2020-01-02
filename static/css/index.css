@@ -176,7 +176,7 @@ i {
 .main-container {
   overflow: hidden;
   margin: 96px auto 32px;
-  width: 824px;
+  width: 1000px;
   background: #fff;
 }
 
@@ -616,4 +616,15 @@ i {
 .fee-set .gas-limit input {
   text-align: right;
   padding-left: 130px;
+}
+
+.table td.text {
+    max-width: 190px;
+}
+.table td.text span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
 }
