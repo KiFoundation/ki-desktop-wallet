@@ -533,7 +533,7 @@ export default {
         }
         let transaction = {
           from: account,
-          chain_id: "KiChain",
+          chain_id: "KiChain-1",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
@@ -609,7 +609,7 @@ export default {
 
         var transaction = {
           from: account,
-          chain_id: "KiChain",
+          chain_id: "KiChain-1",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
@@ -687,7 +687,7 @@ export default {
 
         var transaction = {
           from: account,
-          chain_id: "KiChain",
+          chain_id: "KiChain-1",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {

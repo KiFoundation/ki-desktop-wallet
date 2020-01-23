@@ -1,11 +1,11 @@
 export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   kichain: {
-    nodeUrl: "http://localhost:8080",
+    nodeUrl: "http://localhost:8282",
     token: "tki",
     network: {
       blockchain: 'cosmos',
-      chainId: "KiChain"
+      chainId: "KiChain-1"
     }
   },
   domain: 'http://localhost/',
