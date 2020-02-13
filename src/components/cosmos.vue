@@ -181,7 +181,7 @@ import common from 'static/js/common.js'
 export default {
   data() {
     return {
-      blockchain: 'kichain',
+      blockchain: 'KiChain',
       account: '',
       explorer: this.globalData.explorer,
       network: this.globalData.kichain.network,
@@ -288,10 +288,8 @@ export default {
   },
   methods: {
     getAccount() {
-      // console.log(this.webUtil.getCookie('identity_kichain'))
       if (this.webUtil.getCookie('identity_kichain')) {
         this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
-        // this.account = 'cosmos10mdlxmrewp2vjlyly2q8yp44aqau0re5xuz3l9'
         this.initExtension()
       }
     },
@@ -341,7 +339,6 @@ export default {
         let account = this.account;
         this.progressSlide();
         let provider = mathExtension.httpProvider(nodeUrl);
-        // console.log(provider)
         let promise1 = new Promise((resolve, reject) => {
           //获取ATOM价格
           this.$http.get('https://api.coinmarketcap.com/v1/ticker/cosmos/?convert=CNY').then(res => {
@@ -358,25 +355,6 @@ export default {
 
         var promise2 = new Promise((resolve, reject) => {
           let krwPrice = 0;
-          //获取汇率
-          //this.$http.get(this.globalData.domain + 'api/baseCoinPub?v=1.0').then(res => {
-          //   if (res.data && res.data.success) {
-          //     let result = res.data.data.legal;
-          //     result.forEach((coin) => {
-          //       if (coin.alias == 'CNY') {
-          //         this.coin.cny = coin.rmb;
-          //       } else if (coin.alias == 'USD') {
-          //         this.coin.usd = coin.rmb;
-          //       } else if (coin.alias == 'KRW') {
-          //         this.coin.krw = coin.rmb;
-          //         krwPrice = coin.rmb;
-          //       }
-          //     });
-          //     resolve(krwPrice);
-          //   }
-          // }, err => {
-          //   reject(err);
-          // });
         });
 
         var promise4 = new Promise((resolve, reject) => {
@@ -406,7 +384,14 @@ export default {
 
           provider.get('/auth/accounts/' + account).then((res1) => {
             if (res1.result.result.value) {
-              let res = res1.result.result.value;
+              let res ='';
+              if (res1.result.result.type=="cosmos-sdk/ContinuousVestingAccount"){
+                res = res1.result.result.value.BaseVestingAccount.BaseAccount;
+              }
+              else{
+                res = res1.result.result.value;
+              }
+
               this.account_number = res.account_number;
               this.sequence = res.sequence;
               let coins = res.coins;
@@ -533,7 +518,7 @@ export default {
         }
         let transaction = {
           from: account,
-          chain_id: "KiChain-1",
+          chain_id: "KiChain",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
@@ -593,6 +578,7 @@ export default {
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
       this.webUtil.initMathExtension().then((res) => {
+
         return mathExtension.getIdentity(this.network);
       }).then((identity) => {
         let account = identity.account;
@@ -609,7 +595,7 @@ export default {
 
         var transaction = {
           from: account,
-          chain_id: "KiChain-1",
+          chain_id: "KiChain",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {
@@ -628,8 +614,6 @@ export default {
           }
         };
 
-        console.log(transaction)
-
         mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
           const opts = {
             data: signedTransaction,
@@ -638,7 +622,6 @@ export default {
             }
           };
           provider.post('/txs?sync=true', null, opts).then(res => {
-            console.log('asdasd')
             let result = res.result;
             if (result.code) {
               let log = JSON.parse(result.raw_log);
@@ -649,7 +632,6 @@ export default {
             }
           })
         }).catch(e => {
-          console.log(e.message)
           alert(this.$t('transfer_fail'));
         })
       })
@@ -687,7 +669,7 @@ export default {
 
         var transaction = {
           from: account,
-          chain_id: "KiChain-1",
+          chain_id: "KiChain",
           account_number: this.account_number,
           sequence: this.sequence,
           fees: {

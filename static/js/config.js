@@ -5,7 +5,7 @@ export default {
     token: "tki",
     network: {
       blockchain: 'cosmos',
-      chainId: "KiChain-1"
+      chainId: "KiChain"
     }
   },
   domain: 'http://localhost/',
