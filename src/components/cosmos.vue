@@ -113,7 +113,7 @@
               <li class="token">
                 <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
-                <select v-model="undelegate.validator" >
+                <select v-model="undelegate.validator">
                   <option value="" disabled selected>Select a validator</option>
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
@@ -141,7 +141,7 @@
         </div>
       </div>
 
-          <!-- ==================================================== -->
+      <!-- ==================================================== -->
     </section>
 
     <section class="main-info">
@@ -178,6 +178,16 @@
 import login from 'base/login'
 import sideBar from 'base/sidebar'
 import common from 'static/js/common.js'
+import {
+  signTx,
+  verifyTx,
+  createWalletFromMnemonic,
+  createBroadcastTx
+} from '@tendermint/sig';
+
+
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -363,20 +373,44 @@ export default {
 
             if (res) {
               res.forEach((value) => {
-                  let fee = 0
+                let fee = 0
 
-                  if (value.tx.value.fee.amount.length > 0) {
-                    fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-                   }
+                if (value.tx.value.fee.amount.length > 0) {
+                  fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+                }
 
-                  this.transactions.push([  value.txhash, 'send',
-                    value.tx.value.msg[0].value.to_address,
-                    value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-                    fee])
+                this.transactions.push([value.txhash, 'send',
+                  value.tx.value.msg[0].value.to_address,
+                  value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
+                  fee
+                ])
 
               });
             }
+          })
         })
+
+        var promise5 = new Promise((resolve, reject) => {
+          provider.get('/txs?message.sender=' + this.account + '&message.action=delegate').then((res6) => {
+            let res = res6.result.txs;
+
+            if (res) {
+              res.forEach((value) => {
+                let fee = 0
+
+                if (value.tx.value.fee.amount.length > 0) {
+                  fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+                }
+
+                this.transactions.push([value.txhash, 'delegate',
+                  value.tx.value.msg[0].value.validator_address,
+                  value.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
+                  fee
+                ])
+
+              });
+            }
+          })
         })
 
         var promise3 = new Promise((resolve, reject) => {
@@ -384,11 +418,10 @@ export default {
 
           provider.get('/auth/accounts/' + account).then((res1) => {
             if (res1.result.result.value) {
-              let res ='';
-              if (res1.result.result.type=="cosmos-sdk/ContinuousVestingAccount"){
+              let res = '';
+              if (res1.result.result.type == "cosmos-sdk/ContinuousVestingAccount") {
                 res = res1.result.result.value.BaseVestingAccount.BaseAccount;
-              }
-              else{
+              } else {
                 res = res1.result.result.value;
               }
 
@@ -409,48 +442,48 @@ export default {
               let res = res5.result.result;
               if (res) {
                 res.forEach((value) => {
-                  this.delegations[value.operator_address]= [value.description.moniker];
+                  this.delegations[value.operator_address] = [value.description.moniker];
                 });
               }
               return 0;
             }).then((result1) => {
-            // 获取委托ATOM
-            provider.get('/staking/delegators/' + account + '/delegations').then((res2) => {
-              let result = res2.result.result;
-              if (result) {
-                for (let i = 0; i < result.length; i++) {
-                  this.delegations[result[i].validator_address].push(parseFloat(result[i].balance) / Math.pow(10, 6));
+              // 获取委托ATOM
+              provider.get('/staking/delegators/' + account + '/delegations').then((res2) => {
+                let result = res2.result.result;
+                if (result) {
+                  for (let i = 0; i < result.length; i++) {
+                    this.delegations[result[i].validator_address].push(parseFloat(result[i].balance) / Math.pow(10, 6));
 
-                  result[i].shares = parseFloat(result[i].shares) / Math.pow(10, 6);
-                  this.balances.list.delegate = this.balances.list.delegate + result[i].shares;
+                    result[i].shares = parseFloat(result[i].shares) / Math.pow(10, 6);
+                    this.balances.list.delegate = this.balances.list.delegate + result[i].shares;
+                  }
+                  this.balances.sum = this.balances.sum + this.balances.list.delegate;
                 }
-                this.balances.sum = this.balances.sum + this.balances.list.delegate;
-              }
-            }).then((result2) => {
-              // 获取解委托ATOM
-              provider.get('/staking/delegators/' + account + '/unbonding_delegations').then((res3) => {
-                let res = res3.result.result;
-                if (res) {
-                  res.forEach((value) => {
-                    value.entries.forEach((undelegate) => {
-                      let balance = parseFloat(undelegate.balance) / Math.pow(10, 6);
-                      this.balances.list.undelegate = this.balances.list.undelegate + balance;
-                    });
-                  });
-                  this.balances.sum = this.balances.sum + this.balances.list.undelegate;
-                }
-                return this.balances.sum;
-              }).then((result3) => {
+              }).then((result2) => {
                 // 获取解委托ATOM
-                provider.get('/staking/validators').then((res4) => {
-                  let res = res4.result.result;
+                provider.get('/staking/delegators/' + account + '/unbonding_delegations').then((res3) => {
+                  let res = res3.result.result;
                   if (res) {
                     res.forEach((value) => {
-                      this.validators.push([value.description.moniker, value.operator_address]);
+                      value.entries.forEach((undelegate) => {
+                        let balance = parseFloat(undelegate.balance) / Math.pow(10, 6);
+                        this.balances.list.undelegate = this.balances.list.undelegate + balance;
+                      });
                     });
+                    this.balances.sum = this.balances.sum + this.balances.list.undelegate;
                   }
-                  return 0;
-                }).then((balance) => {
+                  return this.balances.sum;
+                }).then((result3) => {
+                  // 获取解委托ATOM
+                  provider.get('/staking/validators').then((res4) => {
+                    let res = res4.result.result;
+                    if (res) {
+                      res.forEach((value) => {
+                        this.validators.push([value.description.moniker, value.operator_address]);
+                      });
+                    }
+                    return 0;
+                  }).then((balance) => {
                     Promise.all([promise1, promise2]).then(([res1, res2]) => {
 
                       if (res1) {
@@ -516,48 +549,65 @@ export default {
           fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
           limit = this.transfer.gasLimit;
         }
-        let transaction = {
-          from: account,
-          chain_id: "KiChain",
-          account_number: this.account_number,
-          sequence: this.sequence,
-          fees: {
-            denom: "tki",
-            amount: fee
+
+        const transaction = {
+          'msg': [{
+            'type': 'cosmos-sdk/MsgSend',
+            'value': {
+              'from_address': account,
+              'to_address': this.transfer.account,
+              'amount': [{
+                'denom': 'tki',
+                'amount': (this.transfer.amount * Math.pow(10, 6)).toString()
+              }]
+            }
+          }],
+          'fee': {
+            'amount': [{
+              'denom': 'tki',
+              'amount': fee.toString()
+            }],
+            'gas': limit.toString()
           },
-          gas: limit,
-          memo: this.transfer.memo,
-          type: "transfer",
-          msg: {
-            to: this.transfer.account,
-            coins: [{
-              denom: "tki",
-              amount: this.transfer.amount * Math.pow(10, 6)
-            }]
+          'memo': this.transfer.memo,
+        }
+
+        const signMeta = {
+          chain_id: "KiChain",
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        //TEMP
+        const mnemonic = 'blablabla';
+        const wallet = createWalletFromMnemonic(mnemonic);
+        let signedTransactionme = signTx(transaction, signMeta, wallet);
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+        let url = nodeUrl+`/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
           }
         };
 
-        mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
-          const opts = {
-            data: signedTransaction,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
-          provider.post('/txs?sync=true', null, opts).then(res => {
-            let result = res.result;
-            if (result.code) {
+      axios(opts).then(res => {
+          console.log(res)
+
+          let result = res.data;
+          console.log(result)
+          if (result.code) {
               let log = JSON.parse(result.raw_log);
               alert(log.message);
             } else if (result.txhash) {
               alert(this.$t('transfer_success'));
               window.location.reload();
             }
-          })
-        }).catch(e => {
-          console.log(e.message)
-          alert(this.$t('transfer_fail'));
-        })
+        });
       })
     },
 
@@ -689,32 +739,31 @@ export default {
         };
 
 
-        if(this.delegations[this.undelegate.validator][1] < this.undelegate.amount){
+        if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
           alert("Cannot unbond more than what is bonded!");
-        }
-        else{
-        mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
-          const opts = {
-            data: signedTransaction,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
-          provider.post('/txs?sync=true', null, opts).then(res => {
-            let result = res.result;
-            if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              alert(log.message);
-            } else if (result.txhash) {
-              alert(this.$t('transfer_success'));
-              window.location.reload();
-            }
+        } else {
+          mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
+            const opts = {
+              data: signedTransaction,
+              headers: {
+                "Content-Type": "text/plain",
+              }
+            };
+            provider.post('/txs?sync=true', null, opts).then(res => {
+              let result = res.result;
+              if (result.code) {
+                let log = JSON.parse(result.raw_log);
+                alert(log.message);
+              } else if (result.txhash) {
+                alert(this.$t('transfer_success'));
+                window.location.reload();
+              }
+            })
+          }).catch(e => {
+            console.log(e.message)
+            alert(this.$t('transfer_fail'));
           })
-        }).catch(e => {
-          console.log(e.message)
-          alert(this.$t('transfer_fail'));
-        })
-      }
+        }
       })
     }
   },

@@ -12,6 +12,8 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'static/css/index.css'
 import clipboard from 'clipboard'
+
+
 Vue.config.productionTip = false
 Vue.use(vueResource)
 
