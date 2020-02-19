@@ -175,9 +175,11 @@ i {
 
 .main-container {
   overflow: hidden;
-  margin: 96px auto 32px;
+  margin: 60px auto 32px;
   width: 1000px;
   background: #fff;
+  border-radius: 5px;
+
 }
 
 .login-container {
@@ -227,7 +229,8 @@ i {
 .user-info {
   position: fixed;
   left: 0;
-  top: 64px;
+  top: 0px;
+  /* height: 50%; */
   bottom: 48px;
   width: 400px;
   background: #fff;
@@ -235,7 +238,7 @@ i {
   padding: 32px 24px 0;
   font-size: 12px;
   line-height: 16px;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 
 .user-info .avator {
@@ -264,8 +267,12 @@ i {
 
 .user-info .token-info {
   margin-top: 32px;
+  margin-bottom: 0px;
+
   padding: 32px 0;
   border-top: 1px solid var(--pale-grey);
+  border-bottom: 1px solid var(--pale-grey);
+
 }
 
 .user-info .token-list {
@@ -627,4 +634,14 @@ i {
     text-overflow: ellipsis;
     display: inline-block;
     max-width: 100%;
+}
+
+.wallet-list{
+  padding: 0px 0px;
+  margin-top: 50px;
+  margin-bottom: 25px;
+  max-height: 250px;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }

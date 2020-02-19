@@ -13,10 +13,10 @@ export default {
   props: ['blockchain'],
   data() {
     return {
-      blockchain_lowercase:'',
-      nodeUrl:'',
-      network:'',
-      token:''
+      blockchain_lowercase: '',
+      nodeUrl: '',
+      network: '',
+      token: ''
     }
   },
   created() {
@@ -24,8 +24,8 @@ export default {
     this.getChain()
 
   },
-  methods:{
-    getChain(){
+  methods: {
+    getChain() {
       if (this.blockchain) {
         let blockchain = this.blockchain.toLowerCase()
         this.blockchain_lowercase = blockchain
@@ -34,19 +34,21 @@ export default {
         this.token = this.globalData[blockchain].token
       }
     },
-    login(){
+    login() {
       let nodeUrl = this.nodeUrl;
       let network = this.network;
 
       this.webUtil.initMathExtension().then((res) => {
+        console.log(res);
         return mathExtension.getIdentity(network);
       }).then((identity) => {
-        this.webUtil.setCookie("identity_"+this.blockchain_lowercase, JSON.stringify(identity), {
+        console.log(JSON.stringify(identity));
+        this.webUtil.setCookie("identity_" + this.blockchain_lowercase, JSON.stringify(identity), {
           expires: 30,
           path: '/'
         });
         this.$emit('sendAccount', identity)
-      }).catch(err=>{
+      }).catch(err => {
         alert(this.$t('noMathExtension'));
       })
     }
