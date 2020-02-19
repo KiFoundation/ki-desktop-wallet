@@ -5,6 +5,10 @@
     <h4>{{blockchain}} Wallet</h4>
     <p>{{accountName}}</p>
     <p id="copyContent">{{account}}</p>
+    <div class="refresh-logout">
+            <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
+
+    </div>
     <!-- <div class="operation-list">
       <a class="grey-fsz" id="copyBtn" data-clipboard-target="#copyContent" data-clipboard-action="copy">{{$t("webwallet_copy_address")}}</a>
     </div> -->
@@ -46,9 +50,9 @@
     </div>
 
     <div>
-      <p>
+      <!-- <p>
         <b-button size="sm" @click="switchAccount">Use account</b-button>
-      </p>
+      </p> -->
       <!-- <p>
       Selected Rows:<br>
       {{ selected }}
@@ -79,24 +83,15 @@
       </b-table>
     </div>
 
-    <div>
+    <!-- <div>
       <p>
         <b-button size="sm" @click="switchAccount">Use account</b-button>
       </p>
-      <!-- <p>
-      Selected Rows:<br>
-      {{ selected }}
-    </p> -->
-    </div>
+    </div> -->
   </section>
 
 
-  <div class="refresh-logout">
-    <!-- 刷新 -->
-    <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
-    <!-- 退出 -->
-    <!-- <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a> -->
-  </div>
+
 
 
 </div>
@@ -129,8 +124,7 @@ export default {
       fields: ['account', {key:'address', formatter: value => {
               return value.substring(0,24)+"...";
             }}],
-      items:
-      [],
+      items:[],
 
       selectMode: 'single',
       selected: []
@@ -139,6 +133,7 @@ export default {
   },
   created() {
     this.getChain();
+    this.getAccounts();
   },
   mounted() {
     this.copyAddress();
@@ -148,23 +143,27 @@ export default {
 
     onRowSelected(items) {
       this.selected = items
+      this.switchAccount();
     },
 
     switchAccount() {
-      if (this.selected.length > 0) {
-        console.log(JSON.stringify(this.selected[0].account), JSON.stringify(this.selected[0].address));
-      } else {
+      if (!(this.selected.length > 0)) {
         alert("select an account");
       }
 
+      else{
+      var confirmed = confirm("You will switch to the selected account");
+      if (confirmed){
       let identity = '{"blockchain":"cosmos","chainId":"KiChain","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "key": '+JSON.stringify(this.selected[0].key)+ '}';
-      console.log(identity)
+
       this.webUtil.setCookie("identity_"+this.blockchain_lowercase, identity, {
         expires: 30,
         path: '/'
       });
       this.$emit('sendAccount', identity)
       this.refresh();
+      }
+      }
     },
 
     refresh() {
@@ -180,19 +179,19 @@ export default {
         this.token = this.globalData[blockchain].token
       }
     },
-    logout() {
-      this.webUtil.initMathExtension().then((res) => {
-        return mathExtension.getIdentity(this.network);
-      }).then((identity) => {
-        mathExtension.forgetIdentity(this.network).then(() => {
-          this.webUtil.setCookie("identity_" + this.blockchain_lowercase, '', {
-            expires: -30,
-            path: '/'
-          });
-          window.location.reload();
-        });
-      });
-    },
+    // logout() {
+    //   this.webUtil.initMathExtension().then((res) => {
+    //     return mathExtension.getIdentity(this.network);
+    //   }).then((identity) => {
+    //     mathExtension.forgetIdentity(this.network).then(() => {
+    //       this.webUtil.setCookie("identity_" + this.blockchain_lowercase, '', {
+    //         expires: -30,
+    //         path: '/'
+    //       });
+    //       window.location.reload();
+    //     });
+    //   });
+    // },
     copyAddress() {
       var clipboard = new this.clipboard("#copyBtn");
       clipboard.on("success", (element => { //复制成功的回调
@@ -207,6 +206,9 @@ export default {
       common.$on('val', (data) => {
         this.unit = data
       })
+    },
+    getAccounts(){
+      this.items = this.accounts.accounts
     }
   }
 }

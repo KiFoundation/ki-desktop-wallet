@@ -1,14 +1,5 @@
 class Util {
-  async initMathExtension() {
-      var tries = 10;
-      for (var i = 0; i < tries; i++) {
-        var loaded = await new Promise((resolve, reject) => {
-          setTimeout(function() {
-            resolve(typeof window.mathExtension != 'undefined');
-          }, 100);
-        });
-        if (loaded) return window.mathExtension;
-      }
+  async init() {
       return false;
     }
     // 时间戳转换日期 （秒）

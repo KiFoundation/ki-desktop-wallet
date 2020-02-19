@@ -1,7 +1,7 @@
 export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   kichain: {
-    nodeUrl: "http://localhost:8282",
+    nodeUrl: "https://api-testnet.blockchain.ki",
     token: "tki",
     prefix: "cosmos",
     network: {

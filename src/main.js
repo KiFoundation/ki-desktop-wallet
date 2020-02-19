@@ -7,6 +7,7 @@ import vueResource from 'vue-resource'
 import i18n from 'static/js/i18n'
 import webUtil from 'static/js/util'
 import globalData from 'static/js/config.js'
+import accounts from 'static/accounts.js'
 import webCoin from 'static/js/coinUnit.js'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -22,6 +23,8 @@ Vue.prototype.globalData = globalData;
 Vue.prototype.clipboard = clipboard;
 Vue.prototype.webUtil = webUtil;
 Vue.prototype.webCoin = webCoin;
+Vue.prototype.accounts = accounts;
+
 
 
 /* eslint-disable no-new */

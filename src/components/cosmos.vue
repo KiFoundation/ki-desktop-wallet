@@ -161,9 +161,6 @@
         </table>
       </div>
     </section>
-    <!-- ==================================================== -->
-
-
   </template>
 </div>
 </template>
@@ -185,19 +182,22 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      blockchain_lowercase: '',
+      nodeUrl: '',
+      network: '',
+      token: '',
       blockchain: 'KiChain',
-      prefix: this.globalData.kichain.prefix,
+      prefix: '',
       account: '',
       accountName: '',
       key: '',
       explorer: this.globalData.explorer,
-      network: this.globalData.kichain.network,
       unit: this.webCoin.unit,
       selectedSet: 1,
-      slider: null, //滚动条DOM元素
-      thunk: null, //拖拽DOM元素
+      slider: null,
+      thunk: null,
       progress: {
-        per: 50, //当前值
+        per: 50,
         min: 10,
         max: 100
       },
@@ -255,13 +255,13 @@ export default {
     }
   },
   created() {
-    this.getAccount();
+    this.getChain();
   },
   mounted() {
     this.getUnit();
   },
   computed: {
-// slider stuff
+    // slider stuff
     scale() {
       return (this.progress.per - this.progress.min) / (this.progress.max - this.progress.min);
     },
@@ -291,8 +291,18 @@ export default {
 
     }
   },
+
   methods: {
-    getAccount() {
+    getChain() {
+      if (this.blockchain) {
+        let blockchain = this.blockchain.toLowerCase()
+        this.blockchain_lowercase = blockchain
+        this.nodeUrl = this.globalData[blockchain].nodeUrl
+        this.network = this.globalData[blockchain].network
+        this.token = this.globalData[blockchain].token
+        this.prefix = this.globalData.kichain.prefix
+      }
+
       if (this.webUtil.getCookie('identity_kichain')) {
         this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
         this.accountName = JSON.parse(this.webUtil.getCookie('identity_kichain')).accountName;
@@ -317,12 +327,7 @@ export default {
         let width = parseInt(_this.width);
         let disX = e.clientX;
         document.onmousemove = function(e) {
-          // value, left, width
-          // 当value变化的时候，会通过计算属性修改left，width
-
-          // 拖拽的时候获取的新width
           let newWidth = e.clientX - disX + width;
-          // 拖拽的时候得到新的百分比
           let scale = newWidth / _this.slider.offsetWidth;
           let max = _this.progress.max;
           let min = _this.progress.min;
@@ -341,31 +346,18 @@ export default {
     },
     initExtension() {
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      this.webUtil.initMathExtension().then((res) => {
+      this.webUtil.init().then((res10) => {
         let account = this.account;
         this.progressSlide();
-        let provider = mathExtension.httpProvider(nodeUrl);
-        let promise1 = new Promise((resolve, reject) => {
-          //获取ATOM价格
-          this.$http.get('https://api.coinmarketcap.com/v1/ticker/cosmos/?convert=CNY').then(res => {
-            if (res) {
-              let cosmos = res.data[0];
-              this.tokenPrice.rmb = cosmos.price_cny;
-              this.tokenPrice.usd = cosmos.price_usd;
-            }
-            resolve(res.data[0]);
-          }, err => {
-            reject(err);
-          });
-        });
+        // let provider = mathExtension.httpProvider(nodeUrl);
 
         var promise2 = new Promise((resolve, reject) => {
           let krwPrice = 0;
         });
 
         var promise4 = new Promise((resolve, reject) => {
-          provider.get('/txs?message.sender=' + this.account + '&message.action=send').then((res5) => {
-            let res = res5.result.txs;
+          axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send').then((res5) => {
+            let res = res5.data.txs;
 
             if (res) {
               res.forEach((value) => {
@@ -387,8 +379,8 @@ export default {
         })
 
         var promise5 = new Promise((resolve, reject) => {
-          provider.get('/txs?message.sender=' + this.account + '&message.action=delegate').then((res6) => {
-            let res = res6.result.txs;
+          axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate').then((res6) => {
+            let res = res6.data.txs;
 
             if (res) {
               res.forEach((value) => {
@@ -410,13 +402,13 @@ export default {
         })
 
         var promise3 = new Promise((resolve, reject) => {
-          provider.get('/auth/accounts/' + account).then((res1) => {
-            if (res1.result.result.value) {
+          axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+            if (res1.data.result.value) {
               let res = '';
-              if (res1.result.result.type == "cosmos-sdk/ContinuousVestingAccount") {
-                res = res1.result.result.value.BaseVestingAccount.BaseAccount;
+              if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+                res = res1.data.result.value.BaseVestingAccount.BaseAccount;
               } else {
-                res = res1.result.result.value;
+                res = res1.data.result.value;
               }
 
               this.account_number = res.account_number;
@@ -432,8 +424,8 @@ export default {
               this.balances.sum = this.balances.sum + this.balances.list.available;
             }
           }).then((result4) => {
-            provider.get('/staking/delegators/' + this.account + '/validators').then((res5) => {
-              let res = res5.result.result;
+            axios.get(nodeUrl + '/staking/delegators/' + this.account + '/validators').then((res5) => {
+              let res = res5.data.result;
               if (res) {
                 res.forEach((value) => {
                   this.delegations[value.operator_address] = [value.description.moniker];
@@ -442,8 +434,8 @@ export default {
               return 0;
             }).then((result1) => {
               // 获取委托ATOM
-              provider.get('/staking/delegators/' + account + '/delegations').then((res2) => {
-                let result = res2.result.result;
+              axios.get(nodeUrl + '/staking/delegators/' + account + '/delegations').then((res2) => {
+                let result = res2.data.result;
                 if (result) {
                   for (let i = 0; i < result.length; i++) {
                     this.delegations[result[i].validator_address].push(parseFloat(result[i].balance) / Math.pow(10, 6));
@@ -455,8 +447,8 @@ export default {
                 }
               }).then((result2) => {
                 // 获取解委托ATOM
-                provider.get('/staking/delegators/' + account + '/unbonding_delegations').then((res3) => {
-                  let res = res3.result.result;
+                axios.get(nodeUrl + '/staking/delegators/' + account + '/unbonding_delegations').then((res3) => {
+                  let res = res3.data.result;
                   if (res) {
                     res.forEach((value) => {
                       value.entries.forEach((undelegate) => {
@@ -469,25 +461,14 @@ export default {
                   return this.balances.sum;
                 }).then((result3) => {
                   // 获取解委托ATOM
-                  provider.get('/staking/validators').then((res4) => {
-                    let res = res4.result.result;
+                  axios.get(nodeUrl + '/staking/validators').then((res4) => {
+                    let res = res4.data.result;
                     if (res) {
                       res.forEach((value) => {
                         this.validators.push([value.description.moniker, value.operator_address]);
                       });
                     }
                     return 0;
-                  }).then((balance) => {
-                    Promise.all([promise1, promise2]).then(([res1, res2]) => {
-
-                      if (res1) {
-                        this.balances.USD = balance * res1.price_usd;
-                        this.balances.CNY = balance * res1.price_cny;
-                      }
-                      if (res1 && res2) {
-                        this.balances.KRW = this.balances.CNY / res2;
-                      }
-                    })
                   });
                 });
               });
@@ -567,7 +548,6 @@ export default {
           "Content-Type": "text/plain",
         }
       };
-      console.log(JSON.stringify(bcTransactionme));
 
       axios(opts).then(res => {
         let result = res.data;
@@ -599,8 +579,6 @@ export default {
       let nodeUrl = this.globalData.kichain.nodeUrl;
 
       let account = this.account;
-      let provider = mathExtension.httpProvider(nodeUrl);
-
 
       let fee = this.delegate.fee * Math.pow(10, 6);
       let limit = 200000;
@@ -688,84 +666,82 @@ export default {
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
 
-        let account = this.account;
-        let provider = mathExtension.httpProvider(nodeUrl);
-        // 获取手续费
-        // 普通设置
-        let fee = this.delegate.fee * Math.pow(10, 6);
-        let limit = 200000;
-        // 高级设置
-        if (this.selectedSet == 2) {
-          fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
-          limit = this.delegate.gasLimit;
-        }
+      let account = this.account;
 
+      let fee = this.delegate.fee * Math.pow(10, 6);
+      let limit = 200000;
 
-        const transaction = {
-          'msg': [{
-            'type': 'cosmos-sdk/MsgUndelegate',
-            'value': {
-              'delegator_address': account,
-              'validator_address': this.undelegate.validator,
-              'amount': {
-                'denom': 'tki',
-                'amount': (this.undelegate.amount * Math.pow(10, 6)).toString()
-              }
-            }
-          }, ],
-          'fee': {
-            'amount': [{
-              'denom': 'tki',
-              'amount': "7500"
-            }],
-            'gas': limit.toString()
-          },
-          'memo': "",
-        }
-
-        if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
-          alert("Cannot unbond more than what is bonded!");
-        } else {
-
-          const signMeta = {
-            chain_id: "KiChain",
-            account_number: this.account_number.toString(),
-            sequence: this.sequence.toString(),
-          };
-
-          //TEMP
-          const mnemonic = this.key;
-          const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
-
-          let signedTransactionme = signTx(transaction, signMeta, wallet);
-          let bcTransactionme = createBroadcastTx(signedTransactionme);
-
-
-          let url = nodeUrl + `/txs?sync=true`;
-          const opts = {
-            method: 'post',
-            url: url,
-            data: bcTransactionme,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
-
-          console.log(JSON.stringify(bcTransactionme));
-
-          axios(opts).then(res => {
-            let result = res.data;
-
-            if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              alert(log.message);
-            } else if (result.txhash) {
-              alert(this.$t('transfer_success'));
-              window.location.reload();
-            }
-          });
-        }
+      if (this.selectedSet == 2) {
+        fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+        limit = this.delegate.gasLimit;
       }
+
+
+      const transaction = {
+        'msg': [{
+          'type': 'cosmos-sdk/MsgUndelegate',
+          'value': {
+            'delegator_address': account,
+            'validator_address': this.undelegate.validator,
+            'amount': {
+              'denom': 'tki',
+              'amount': (this.undelegate.amount * Math.pow(10, 6)).toString()
+            }
+          }
+        }, ],
+        'fee': {
+          'amount': [{
+            'denom': 'tki',
+            'amount': "7500"
+          }],
+          'gas': limit.toString()
+        },
+        'memo': "",
+      }
+
+      if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
+        alert("Cannot unbond more than what is bonded!");
+      } else {
+
+        const signMeta = {
+          chain_id: "KiChain",
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        //TEMP
+        const mnemonic = this.key;
+        const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+
+        let signedTransactionme = signTx(transaction, signMeta, wallet);
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+        let url = nodeUrl + `/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        };
+
+        console.log(JSON.stringify(bcTransactionme));
+
+        axios(opts).then(res => {
+          let result = res.data;
+
+          if (result.code) {
+            let log = JSON.parse(result.raw_log);
+            alert(log.message);
+          } else if (result.txhash) {
+            alert(this.$t('transfer_success'));
+            window.location.reload();
+          }
+        });
+      }
+    }
   },
   components: {
     sideBar,
