@@ -663,3 +663,25 @@ i {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+.card{
+  margin: 10px;
+}
+
+.card-text{
+  margin-top: 40px;
+}
+
+.card:hover{
+  background-color: var(--pale-grey);;
+
+}
+
+.deck{
+  margin-top: 25px;
+}
+
+a.custom-card,
+a.custom-card:hover {
+  color: inherit;
+}
