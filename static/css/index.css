@@ -4,7 +4,7 @@
   --blueColor: #043bea;
   --greenColor: #4cd964;
   --greyColor: #8a8a8f;
-  --pale-grey: #efeff4;
+  --pale-grey: #f3f4f7;
 }
 
 @font-face {
@@ -179,7 +179,7 @@ i {
   width: 1000px;
   background: #fff;
   border-radius: 5px;
-
+  box-shadow: 0 10px 10px rgba(154,160,185,.05), 0 15px 40px rgba(166,173,201,.2);
 }
 
 .login-container {
@@ -293,7 +293,7 @@ i {
   width: 400px;
   padding: 16px 24px;
   background: #fff;
-  text-align: left;
+  text-align: center;
 }
 
 .refresh-logout a {
@@ -304,17 +304,17 @@ i {
   background: url(../img/icons/refresh_grey@2x.png) no-repeat left center/16px;
 }
 
-.refresh-logout a:last-child {
+/* .refresh-logout a:last-child {
   background: url(../img/icons/logout_grey@2x.png) no-repeat left center/16px;
-}
+} */
 
 .refresh-logout a:hover:first-child {
   background: url(../img/icons/refresh_blue@2x.png) no-repeat left center/16px;
 }
 
-.refresh-logout a:hover:last-child {
+/* .refresh-logout a:hover:last-child {
   background: url(../img/icons/logout_blue@2x.png) no-repeat left center/16px;
-}
+} */
 
 .operation-list a:nth-child(2) {
   border-left: 1px solid var(--pale-grey);
@@ -625,15 +625,33 @@ i {
   padding-left: 130px;
 }
 
+.table td {
+  border-top: 0px;
+}
+
 .table td.text {
     max-width: 190px;
 }
+
 .table td.text span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
     max-width: 100%;
+}
+
+.table thead th {
+    vertical-align: bottom;
+    border: 0px solid #dee2e6;
+}
+
+.table thead {
+  font-family: Roboto,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;
+  color: #2d1d67;
+  text-transform: uppercase;
+  border-top: 0px ;
+  font-weight: bold;
 }
 
 .wallet-list{

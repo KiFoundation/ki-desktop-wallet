@@ -1,6 +1,6 @@
 <template>
-<div>
-  <section class="user-info text-center">
+<div >
+  <section v-if="account" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <p>{{accountName}}</p>
@@ -47,7 +47,41 @@
 
     <div>
       <p>
-        <b-button size="sm" @click="switchAccount">Switch account</b-button>
+        <b-button size="sm" @click="switchAccount">Use account</b-button>
+      </p>
+      <!-- <p>
+      Selected Rows:<br>
+      {{ selected }}
+    </p> -->
+    </div>
+  </section>
+  <section v-else class="user-info text-center">
+    <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
+    <h4>{{blockchain}} Wallet</h4>
+    <div class="token-info">
+      Selest an account to use
+    </div>
+
+    <div class="wallet-list">
+
+      <b-table sticky-header  no-border-collapse hover borderless ref="selectableTable"  selectable select-mode="single" :items="items" :fields="fields" @row-selected="onRowSelected" head-variant="null" responsive="sm">
+        <!-- Example scoped slot for select state illustrative purposes -->
+        <template v-slot:cell(selected)="{ rowSelected }">
+          <template v-if="rowSelected">
+            <span aria-hidden="true">&check;</span>
+            <span class="sr-only">Selected</span>
+          </template>
+          <template v-else>
+            <span aria-hidden="true">&nbsp;</span>
+            <span class="sr-only">Not selected</span>
+          </template>
+        </template>
+      </b-table>
+    </div>
+
+    <div>
+      <p>
+        <b-button size="sm" @click="switchAccount">Use account</b-button>
       </p>
       <!-- <p>
       Selected Rows:<br>
@@ -57,12 +91,11 @@
   </section>
 
 
-
   <div class="refresh-logout">
     <!-- 刷新 -->
     <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
     <!-- 退出 -->
-    <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
+    <!-- <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a> -->
   </div>
 
 
@@ -92,7 +125,7 @@ export default {
       nodeUrl: '',
       network: '',
       token: '',
-      modes: ['multi', 'single', 'range'],
+
       fields: ['account', {key:'address', formatter: value => {
               return value.substring(0,24)+"...";
             }}],

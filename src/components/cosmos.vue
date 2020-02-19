@@ -1,7 +1,7 @@
 <template>
 <div :class="{webwallet:account}">
-  <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login>
-  <template v-else>
+  <!-- <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login> -->
+  <template>
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
@@ -130,42 +130,17 @@
               <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
             </form>
           </div>
-
-          <!-- ========================Transaction list============================ -->
-          <!-- <div id="transaction-list" class="transfer-container tab-pane">
-            <table class="table">
-              <thead class="thead-dark">
-                <tr>
-                  <th scope="col">Tx</th>
-                  <th scope="col">type</th>
-                  <th scope="col">To</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Fees</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in transactions">
-                  <td class="text"><span><a :href="explorer+ 'transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
-                  <td class="text"><span>{{item[1]}}</span></td>
-                  <td class="text"><span><a :href="explorer+ 'account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
-                  <td class="text"><span>{{item[3]}}</span></td>
-                  <td class="text"><span>{{item[4]}}</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div> -->
-
         </div>
       </div>
 
 
-      <!-- ==================================================== -->
+      <!-- =======================Mini explorer============================= -->
     </section>
 
     <section class="main-info">
       <div class="main-container transfer-container">
         <table class="table">
-          <thead class="thead-dark">
+          <thead class="thead-null">
             <tr>
               <th scope="col">Tx</th>
               <th scope="col">type</th>
@@ -286,9 +261,7 @@ export default {
     this.getUnit();
   },
   computed: {
-    // 设置一个百分比，提供计算slider进度宽度和trunk的left值
-    // 对应公式为  当前值-最小值/最大值-最小值 = slider进度width / slider总width
-    // trunk left =  slider进度width + trunk宽度/2
+// slider stuff
     scale() {
       return (this.progress.per - this.progress.min) / (this.progress.max - this.progress.min);
     },
@@ -328,7 +301,6 @@ export default {
       }
     },
     getUnit() {
-      // 用$on事件来接收参数
       common.$on('val', (data) => {
         this.unit = data
       })
