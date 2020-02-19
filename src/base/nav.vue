@@ -1,7 +1,5 @@
 <template>
-<nav class="math-nav clearfix">
-  <a class="logo" href="https://mathwallet.org" target="_blank"><img src="static/img/icons/mathwallet_webwallet@2x.png" height="32"></a>
-</nav>
+
 </template>
 <script>
 import common from 'static/js/common.js'
