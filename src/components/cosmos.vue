@@ -2,42 +2,38 @@
 <div :class="{webwallet:account}">
   <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login>
   <template v-else>
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
         <ul class="tabs nav nav-tabs">
           <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
+          <!-- <li><a class="tab" data-toggle="tab" href="#transaction-list">{{$t("transaction_list")}}</a></li> -->
+
         </ul>
 
-        <!-- 转账内容 -->
+        <!-- ========================Transfer form============================ -->
         <div class="tab-content">
           <div id="transfer-form" class="tab-pane in active">
             <form class="basic-form">
-              <!-- 接收地址 -->
               <label>{{$t("webwallet_to_address")}}</label>
               <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
               <ul class="basic-group clearfix">
                 <li class='amount'>
-                  <!-- 转账金额 -->
                   <label>{{$t("transfer_amount")}}</label>
                   <input type="text" placeholder="0" v-model="transfer.amount">
                 </li>
                 <li class="token">
                   <!-- Token -->
                   <label>Token</label>
-                  <select v-model="transfer.token">
-                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
-                  </select>
+                  <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
               </ul>
               <div class="fee-set">
-                <!-- 手续费 -->
                 <label>{{$t("webwallet_fee")}}</label>
                 <label v-show="selectedSet==2" class="setBtn" @click="setToggle(1)">{{$t("webwallet_simple")}}</label>
                 <label v-show="selectedSet==1" class="setBtn" @click="setToggle(2)">{{$t("webwallet_advanced")}}</label>
-                <!-- 普通设置 -->
 
                 <ul v-show="selectedSet==1" class="basic-group clearfix">
                   <li class="amount slider" ref="slider">
@@ -51,7 +47,7 @@
                     <div class="input">{{transfer.fee.toFixed(6)}} TKI</div>
                   </li>
                 </ul>
-                <!-- 高级设置 -->
+
                 <ul class="basic-group clearfix" v-show="selectedSet==2">
                   <li class='gas-price'>
                     <span>Gas Price (TKI)</span>
@@ -68,14 +64,13 @@
 
 
               </div>
-              <!-- 备注 -->
               <label>{{$t("memo")}}</label>
               <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
               <a class="btn" @click="sendTransfer">{{$t("transfer")}}</a>
             </form>
           </div>
 
-          <!-- ==================================================== -->
+          <!-- ========================Delegation form============================ -->
           <div id="delegate-form" class="transfer tab-pane">
             <form class="basic-form">
               <li class="token">
@@ -97,17 +92,15 @@
                 <li class="token">
                   <!-- Token -->
                   <label>Token</label>
-                  <select v-model="delegate.token">
-                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
-                  </select>
+                  <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
               </ul>
 
               <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
             </form>
           </div>
-          <!-- ==================================================== -->
 
+          <!-- ========================Undonding form============================ -->
           <div id="undelegate-form" class="transfer tab-pane">
             <form class="basic-form">
               <li class="token">
@@ -129,17 +122,42 @@
                 <li class="token">
                   <!-- Token -->
                   <label>Token</label>
-                  <select v-model="undelegate.token">
-                    <option v-for="item in values" :value="item" :key="item">{{item}}</option>
-                  </select>
+                  <input type="text" placeholder="0" v-model="transfer.token" disabled>
+
                 </li>
               </ul>
 
               <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
             </form>
           </div>
+
+          <!-- ========================Transaction list============================ -->
+          <!-- <div id="transaction-list" class="transfer-container tab-pane">
+            <table class="table">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col">Tx</th>
+                  <th scope="col">type</th>
+                  <th scope="col">To</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Fees</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in transactions">
+                  <td class="text"><span><a :href="explorer+ 'transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
+                  <td class="text"><span>{{item[1]}}</span></td>
+                  <td class="text"><span><a :href="explorer+ 'account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
+                  <td class="text"><span>{{item[3]}}</span></td>
+                  <td class="text"><span>{{item[4]}}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div> -->
+
         </div>
       </div>
+
 
       <!-- ==================================================== -->
     </section>
@@ -170,6 +188,7 @@
     </section>
     <!-- ==================================================== -->
 
+
   </template>
 </div>
 </template>
@@ -192,7 +211,10 @@ export default {
   data() {
     return {
       blockchain: 'KiChain',
+      prefix: this.globalData.kichain.prefix,
       account: '',
+      accountName: '',
+      key: '',
       explorer: this.globalData.explorer,
       network: this.globalData.kichain.network,
       unit: this.webCoin.unit,
@@ -231,7 +253,7 @@ export default {
       },
       account_number: 0,
       sequence: 0,
-      values: [],
+      values: ['TKI'],
       coin: {
         'cny': 0,
         'usd': 0,
@@ -300,6 +322,8 @@ export default {
     getAccount() {
       if (this.webUtil.getCookie('identity_kichain')) {
         this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
+        this.accountName = JSON.parse(this.webUtil.getCookie('identity_kichain')).accountName;
+        this.key = JSON.parse(this.webUtil.getCookie('identity_kichain')).key;
         this.initExtension()
       }
     },
@@ -414,8 +438,6 @@ export default {
         })
 
         var promise3 = new Promise((resolve, reject) => {
-          // 获取可用ATOM
-
           provider.get('/auth/accounts/' + account).then((res1) => {
             if (res1.result.result.value) {
               let res = '';
@@ -493,22 +515,6 @@ export default {
                       if (res1 && res2) {
                         this.balances.KRW = this.balances.CNY / res2;
                       }
-                    }).then(() => {
-                      // 获取comos系acc代币
-                      new Promise((resolve, reject) => {
-                        let urltest = this.globalData.domain + 'api/tokenListPub?type=16';
-                        this.$http.get(urltest).then(res => {
-                          if (res.data.success) {
-                            var result = res.data.data;
-                            result.forEach((cosmos) => {
-                              this.values.push(cosmos.symbol);
-                            })
-                          }
-                          resolve(result);
-                        }, err => {
-                          reject(err);
-                        });
-                      });
                     })
                   });
                 });
@@ -517,10 +523,10 @@ export default {
           });
         });
       });
-
     },
 
 
+    // ========================Transfer Transaction============================
     sendTransfer() {
       if (!this.transfer.account) {
         alert(this.$t('transfer_account_null'));
@@ -535,84 +541,76 @@ export default {
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      this.webUtil.initMathExtension().then((res) => {
-        return mathExtension.getIdentity(this.network);
-      }).then((identity) => {
-        let account = identity.account;
-        let provider = mathExtension.httpProvider(nodeUrl);
-        // 获取手续费
-        // 普通设置
-        let fee = this.transfer.fee * Math.pow(10, 6);
-        let limit = 200000;
-        // 高级设置
-        if (this.selectedSet == 2) {
-          fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
-          limit = this.transfer.gasLimit;
-        }
+      let account = this.account;
+      let fee = this.transfer.fee * Math.pow(10, 6);
+      let limit = 200000;
 
-        const transaction = {
-          'msg': [{
-            'type': 'cosmos-sdk/MsgSend',
-            'value': {
-              'from_address': account,
-              'to_address': this.transfer.account,
-              'amount': [{
-                'denom': 'tki',
-                'amount': (this.transfer.amount * Math.pow(10, 6)).toString()
-              }]
-            }
-          }],
-          'fee': {
+      if (this.selectedSet == 2) {
+        fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
+        limit = this.transfer.gasLimit;
+      }
+
+      const transaction = {
+        'msg': [{
+          'type': 'cosmos-sdk/MsgSend',
+          'value': {
+            'from_address': account,
+            'to_address': this.transfer.account,
             'amount': [{
               'denom': 'tki',
-              'amount': fee.toString()
-            }],
-            'gas': limit.toString()
-          },
-          'memo': this.transfer.memo,
-        }
-
-        const signMeta = {
-          chain_id: "KiChain",
-          account_number: this.account_number.toString(),
-          sequence: this.sequence.toString(),
-        };
-
-        //TEMP
-        const mnemonic = 'blablabla';
-        const wallet = createWalletFromMnemonic(mnemonic);
-        let signedTransactionme = signTx(transaction, signMeta, wallet);
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
-
-
-        let url = nodeUrl+`/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
+              'amount': (this.transfer.amount * Math.pow(10, 6)).toString()
+            }]
           }
-        };
+        }],
+        'fee': {
+          'amount': [{
+            'denom': 'tki',
+            'amount': fee.toString()
+          }],
+          'gas': limit.toString()
+        },
+        'memo': this.transfer.memo,
+      }
+
+      const signMeta = {
+        chain_id: "KiChain",
+        account_number: this.account_number.toString(),
+        sequence: this.sequence.toString(),
+      };
+
+      //TEMP
+      const mnemonic = this.key;
+      const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+
+      let signedTransactionme = signTx(transaction, signMeta, wallet);
+      let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+      let url = nodeUrl + `/txs?sync=true`;
+      const opts = {
+        method: 'post',
+        url: url,
+        data: bcTransactionme,
+        headers: {
+          "Content-Type": "text/plain",
+        }
+      };
+      console.log(JSON.stringify(bcTransactionme));
 
       axios(opts).then(res => {
-          console.log(res)
+        let result = res.data;
 
-          let result = res.data;
-          console.log(result)
-          if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              alert(log.message);
-            } else if (result.txhash) {
-              alert(this.$t('transfer_success'));
-              window.location.reload();
-            }
-        });
-      })
+        if (result.code) {
+          let log = JSON.parse(result.raw_log);
+          alert(log.message);
+        } else if (result.txhash) {
+          alert(this.$t('transfer_success'));
+          window.location.reload();
+        }
+      });
     },
 
-    // ====================================================
-
+    // ========================Delegation Transaction============================
     sendDelegateTx() {
       if (!this.delegate.validator) {
         alert(this.$t('delegate_account_null'));
@@ -627,67 +625,82 @@ export default {
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      this.webUtil.initMathExtension().then((res) => {
 
-        return mathExtension.getIdentity(this.network);
-      }).then((identity) => {
-        let account = identity.account;
-        let provider = mathExtension.httpProvider(nodeUrl);
-        // 获取手续费
-        // 普通设置
-        let fee = this.delegate.fee * Math.pow(10, 6);
-        let limit = 200000;
-        // 高级设置
-        if (this.selectedSet == 2) {
-          fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
-          limit = this.delegate.gasLimit;
-        }
+      let account = this.account;
+      let provider = mathExtension.httpProvider(nodeUrl);
 
-        var transaction = {
-          from: account,
-          chain_id: "KiChain",
-          account_number: this.account_number,
-          sequence: this.sequence,
-          fees: {
-            denom: "tki",
-            amount: 500
-          },
-          gas: limit,
-          memo: '',
-          type: "delegate",
-          msg: {
-            validator_addr: this.delegate.validator,
-            amount: {
-              denom: "tki",
-              amount: this.delegate.amount * Math.pow(10, 6)
+
+      let fee = this.delegate.fee * Math.pow(10, 6);
+      let limit = 200000;
+
+      if (this.selectedSet == 2) {
+        fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+        limit = this.delegate.gasLimit;
+      }
+
+
+      const transaction = {
+        'msg': [{
+          'type': 'cosmos-sdk/MsgDelegate',
+          'value': {
+            'delegator_address': account,
+            'validator_address': this.delegate.validator,
+            'amount': {
+              'denom': 'tki',
+              'amount': (this.delegate.amount * Math.pow(10, 6)).toString()
             }
           }
-        };
+        }, ],
+        'fee': {
+          'amount': [{
+            'denom': 'tki',
+            'amount': "7500"
+          }],
+          'gas': limit.toString()
+        },
+        'memo': "",
+      }
 
-        mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
-          const opts = {
-            data: signedTransaction,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
-          provider.post('/txs?sync=true', null, opts).then(res => {
-            let result = res.result;
-            if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              alert(log.message);
-            } else if (result.txhash) {
-              alert(this.$t('transfer_success'));
-              window.location.reload();
-            }
-          })
-        }).catch(e => {
-          alert(this.$t('transfer_fail'));
-        })
-      })
+      const signMeta = {
+        chain_id: "KiChain",
+        account_number: this.account_number.toString(),
+        sequence: this.sequence.toString(),
+      };
+
+      //TEMP
+      const mnemonic = this.key;
+      const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+
+      let signedTransactionme = signTx(transaction, signMeta, wallet);
+      let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+      let url = nodeUrl + `/txs?sync=true`;
+      const opts = {
+        method: 'post',
+        url: url,
+        data: bcTransactionme,
+        headers: {
+          "Content-Type": "text/plain",
+        }
+      };
+
+      console.log(JSON.stringify(bcTransactionme));
+
+      axios(opts).then(res => {
+        let result = res.data;
+
+        if (result.code) {
+          let log = JSON.parse(result.raw_log);
+          alert(log.message);
+        } else if (result.txhash) {
+          alert(this.$t('transfer_success'));
+          window.location.reload();
+        }
+      });
     },
 
-    // ====================================================
+    // =========================Unbonding transaction===========================
     sendUnDelegateTx() {
       if (!this.undelegate.validator) {
         alert(this.$t('delegate_account_null'));
@@ -702,10 +715,8 @@ export default {
         return false;
       }
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      this.webUtil.initMathExtension().then((res) => {
-        return mathExtension.getIdentity(this.network);
-      }).then((identity) => {
-        let account = identity.account;
+
+        let account = this.account;
         let provider = mathExtension.httpProvider(nodeUrl);
         // 获取手续费
         // 普通设置
@@ -717,55 +728,72 @@ export default {
           limit = this.delegate.gasLimit;
         }
 
-        var transaction = {
-          from: account,
-          chain_id: "KiChain",
-          account_number: this.account_number,
-          sequence: this.sequence,
-          fees: {
-            denom: "tki",
-            amount: 500
-          },
-          gas: limit,
-          memo: '',
-          type: "undelegate",
-          msg: {
-            validator_addr: this.undelegate.validator,
-            amount: {
-              denom: "tki",
-              amount: this.undelegate.amount * Math.pow(10, 6)
-            }
-          }
-        };
 
+        const transaction = {
+          'msg': [{
+            'type': 'cosmos-sdk/MsgUndelegate',
+            'value': {
+              'delegator_address': account,
+              'validator_address': this.undelegate.validator,
+              'amount': {
+                'denom': 'tki',
+                'amount': (this.undelegate.amount * Math.pow(10, 6)).toString()
+              }
+            }
+          }, ],
+          'fee': {
+            'amount': [{
+              'denom': 'tki',
+              'amount': "7500"
+            }],
+            'gas': limit.toString()
+          },
+          'memo': "",
+        }
 
         if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
           alert("Cannot unbond more than what is bonded!");
         } else {
-          mathExtension.requestSignature(transaction, this.network).then(signedTransaction => {
-            const opts = {
-              data: signedTransaction,
-              headers: {
-                "Content-Type": "text/plain",
-              }
-            };
-            provider.post('/txs?sync=true', null, opts).then(res => {
-              let result = res.result;
-              if (result.code) {
-                let log = JSON.parse(result.raw_log);
-                alert(log.message);
-              } else if (result.txhash) {
-                alert(this.$t('transfer_success'));
-                window.location.reload();
-              }
-            })
-          }).catch(e => {
-            console.log(e.message)
-            alert(this.$t('transfer_fail'));
-          })
+
+          const signMeta = {
+            chain_id: "KiChain",
+            account_number: this.account_number.toString(),
+            sequence: this.sequence.toString(),
+          };
+
+          //TEMP
+          const mnemonic = this.key;
+          const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+
+          let signedTransactionme = signTx(transaction, signMeta, wallet);
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
+
+          console.log(JSON.stringify(bcTransactionme));
+
+          axios(opts).then(res => {
+            let result = res.data;
+
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              alert(log.message);
+            } else if (result.txhash) {
+              alert(this.$t('transfer_success'));
+              window.location.reload();
+            }
+          });
         }
-      })
-    }
+      }
   },
   components: {
     sideBar,

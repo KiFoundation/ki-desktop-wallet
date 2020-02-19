@@ -36,6 +36,7 @@ module.exports = {
   delegatetx: "Delegate",
   delegation_amount: "Amount to bond",
   undelegatetx: "Undelegate",
+  transaction_list:"Transactions",
   undelegation_amount: "Amount to unbond",
   transfer: "Transfer",
   transfer_amount: "Transfer Amount",

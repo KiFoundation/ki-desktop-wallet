@@ -3,11 +3,12 @@ export default {
   kichain: {
     nodeUrl: "http://localhost:8282",
     token: "tki",
+    prefix: "cosmos",
     network: {
       blockchain: 'cosmos',
       chainId: "KiChain"
     }
   },
   domain: 'http://localhost/',
-  explorer: 'http://localhost:3000/'
+  explorer: 'http://blockchain-0.srv.kifoundation.tech/'
 }
