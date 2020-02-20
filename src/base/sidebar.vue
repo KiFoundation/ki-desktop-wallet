@@ -1,5 +1,5 @@
 <template>
-<div >
+<div>
   <section v-if="account" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
@@ -7,7 +7,7 @@
     <p id="copyContent">{{account}}</p>
     <div class="refresh-logout">
             <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
-
+            <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
     </div>
     <!-- <div class="operation-list">
       <a class="grey-fsz" id="copyBtn" data-clipboard-target="#copyContent" data-clipboard-action="copy">{{$t("webwallet_copy_address")}}</a>
@@ -48,24 +48,18 @@
         </template>
       </b-table>
     </div>
-
-    <div>
-      <!-- <p>
-        <b-button size="sm" @click="switchAccount">Use account</b-button>
-      </p> -->
-      <!-- <p>
-      Selected Rows:<br>
-      {{ selected }}
-    </p> -->
-    </div>
   </section>
+
   <section v-else class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <div class="token-info">
       Selest an account to use
     </div>
-
+    <div class="refresh-logout">
+            <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
+            <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
+    </div>
     <div class="wallet-list">
 
       <b-table sticky-header  no-border-collapse hover borderless ref="selectableTable"  selectable select-mode="single" :items="items" :fields="fields" @row-selected="onRowSelected" head-variant="null" responsive="sm">
@@ -120,7 +114,7 @@ export default {
       nodeUrl: '',
       network: '',
       token: '',
-
+      fields: [],
       fields: ['account', {key:'address', formatter: value => {
               return value.substring(0,24)+"...";
             }}],
@@ -152,7 +146,9 @@ export default {
       }
 
       else{
-      var confirmed = confirm("You will switch to the selected account");
+      // var confirmed = confirm("You will switch to the selected account");
+      var confirmed = true;
+
       if (confirmed){
       let identity = '{"blockchain":"cosmos","chainId":"KiChain","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "key": '+JSON.stringify(this.selected[0].key)+ '}';
 
@@ -179,19 +175,16 @@ export default {
         this.token = this.globalData[blockchain].token
       }
     },
-    // logout() {
-    //   this.webUtil.initMathExtension().then((res) => {
-    //     return mathExtension.getIdentity(this.network);
-    //   }).then((identity) => {
-    //     mathExtension.forgetIdentity(this.network).then(() => {
-    //       this.webUtil.setCookie("identity_" + this.blockchain_lowercase, '', {
-    //         expires: -30,
-    //         path: '/'
-    //       });
-    //       window.location.reload();
-    //     });
-    //   });
-    // },
+    logout() {
+
+          this.webUtil.setCookie("identity_" + this.blockchain_lowercase, '', {
+            expires: -30,
+            path: '/'
+          });
+          window.location.reload();
+
+
+    },
     copyAddress() {
       var clipboard = new this.clipboard("#copyBtn");
       clipboard.on("success", (element => { //复制成功的回调
@@ -208,7 +201,14 @@ export default {
       })
     },
     getAccounts(){
-      this.items = this.accounts.accounts
+      if (localStorage.getItem("wallet_list")) {
+        console.log(localStorage.getItem("wallet_list"))
+
+        let wallet_list = localStorage.getItem("wallet_list").split(',');
+        for (var w in wallet_list){
+          this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address});
+        }
+      }
     }
   }
 }

@@ -1,7 +1,11 @@
 <template>
 <div :class="{webwallet:account}">
+
   <!-- <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login> -->
-  <template>
+  <login v-if="false" ></login>
+
+  <template v-else>
+
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
@@ -300,7 +304,7 @@ export default {
         this.nodeUrl = this.globalData[blockchain].nodeUrl
         this.network = this.globalData[blockchain].network
         this.token = this.globalData[blockchain].token
-        this.prefix = this.globalData.kichain.prefix
+        this.prefix = this.globalData[blockchain].prefix
       }
 
       if (this.webUtil.getCookie('identity_kichain')) {

@@ -293,7 +293,7 @@ i {
   width: 400px;
   padding: 16px 24px;
   background: #fff;
-  text-align: center;
+  text-align: left;
 }
 
 .refresh-logout a {
@@ -304,17 +304,17 @@ i {
   background: url(../img/icons/refresh_grey@2x.png) no-repeat left center/16px;
 }
 
-/* .refresh-logout a:last-child {
+.refresh-logout a:last-child {
   background: url(../img/icons/logout_grey@2x.png) no-repeat left center/16px;
-} */
+}
 
 .refresh-logout a:hover:first-child {
   background: url(../img/icons/refresh_blue@2x.png) no-repeat left center/16px;
 }
 
-/* .refresh-logout a:hover:last-child {
+.refresh-logout a:hover:last-child {
   background: url(../img/icons/logout_blue@2x.png) no-repeat left center/16px;
-} */
+}
 
 .operation-list a:nth-child(2) {
   border-left: 1px solid var(--pale-grey);
@@ -380,6 +380,7 @@ i {
 
 .basic-form input,
 .basic-form select,
+.basic-form textarea,
 .basic-form .input {
   display: block;
   padding: 12px;
@@ -407,6 +408,7 @@ i {
   margin-left: 24px;
   float: right;
 }
+
 
 .basic-group select {
   background: url(../img/icons/dropdown_black@2x.png)no-repeat 140px center/12px;
@@ -681,7 +683,46 @@ i {
   margin-top: 25px;
 }
 
+.login-box{
+  color: #000;
+  padding: 25px;
+  margin-top: 25px;
+  background-color: var(--pale-grey);
+}
+
 a.custom-card,
 a.custom-card:hover {
   color: inherit;
+}
+
+.mnemonic-group{
+  padding: 40px;
+  text-align: center;
+}
+
+.mnemonic-error{
+  color: #dc3545;
+  font-size: 11px;
+}
+
+.modal-dialog{
+  width: 500px;
+  border: 0px;
+}
+
+.modal-header {
+    font-size: 12px;
+    color: #fff;
+    background-color: var(--blueColor);
+    /* background-color: var(--pale-grey);  */
+    border-bottom: 0px solid #dee2e6;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+}
+
+.modal-content {
+    background-clip: padding-box;
+    border: 0px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    outline: 0;
 }
