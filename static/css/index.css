@@ -110,6 +110,14 @@ i {
   font-weight: 500;
 }
 
+.btn-secondary {
+  color: #fff !important;
+  background: var(--greyColor);
+  padding: 12px 24px;
+  font-family: Gotham-Medium;
+  font-weight: 500;
+}
+
 .grey-fsz {
   font-size: 12px;
   line-height: 16px;
@@ -235,10 +243,10 @@ i {
   width: 400px;
   background: #fff;
   z-index: 100;
-  padding: 32px 24px 0;
+  padding: 20px 24px 0;
   font-size: 12px;
   line-height: 16px;
-  /* overflow-y: scroll; */
+  overflow-y: scroll;
 }
 
 .user-info .avator {
@@ -658,12 +666,12 @@ i {
 
 .wallet-list{
   padding: 0px 0px;
-  margin-top: 50px;
-  margin-bottom: 25px;
-  max-height: 250px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  max-height: 50%;
   width: 100%;
   overflow-x: hidden;
-  overflow-y: auto;
+  /* overflow-y:visible; */
 }
 
 .card{
@@ -725,4 +733,10 @@ a.custom-card:hover {
     border: 0px solid rgba(0,0,0,.2);
     border-radius: .3rem;
     outline: 0;
+}
+
+.stealth-link{
+  margin: 25px;
+  font-size: 11px;
+  color: var(--blueColor);
 }

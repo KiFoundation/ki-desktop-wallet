@@ -1,67 +1,115 @@
 <template>
-
-<div class="login-container main-container">
-  <div  id="imported_alert">
+<div>
+  <div class="alert alert-warning alert-dismissible fade show" style="position:relative;" role="alert">
+    This tool aims at testing the functionnalities of the <strong>Kichain Testnet</strong> only!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
   </div>
-  <img :src="'static/img/icons/ki-chain.png'" style="margin-top:50px;">
-  <div class="info">
-    <h1>{{blockchain}} <span>{{$t('webwallet_wallet')}}</span></h1>
-    <p><span>{{$t('webwallet_home_create')}}</span></p>
-
-    <div class="deck">
-      <a role="button" @click="resetModal" data-toggle="modal" data-target="#import-form" class="custom-card">
-        <div class="card" style="width: 15rem; display: inline-block">
-          <img src="/static/img/chain/kichain_banner.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <p class="card-text">Import an existing Wallet</p>
-          </div>
-        </div>
-      </a>
-
-      <a role="button" data-toggle="modal" data-target="#add-form" class="custom-card">
-        <div class="card" style="width: 15rem; display: inline-block">
-          <img src="/static/img/chain/kichain_banner.png" class="card-img-top" alt="...">
-          <div class="card-body">
-            <p class="card-text">Generate a new Wallet</p>
-          </div>
-        </div>
-      </a>
+  <div class="login-container main-container">
+    <div id="imported_alert">
     </div>
+    <img :src="'static/img/icons/ki-chain.png'" style="margin-top:50px;">
+    <div class="info">
+      <h1>{{blockchain}} <span>{{$t('webwallet_wallet')}}</span></h1>
+      <p><span>{{$t('webwallet_home_create')}}</span></p>
 
-    <div class="modal fade" id="import-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true">
-      <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="importTitle">Import wallet by mnemonic phrase</h5>
-          </div>
-
-          <div class="basic-form modal-body">
-            <img src="/static/img/chain/kichain_banner.png" class="card-img-top" alt="...">
-            <div class="mnemonic-group">
-              <li>
-                <!-- Token -->
-                <label>{{$t("enter_wallet_name")}}</label>
-                <input type="text" @input="validateWalltName" v-model="wallet_name" rows="6"></textarea>
-                <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span>
-
-                <label>{{$t("enter_mnemonic")}}</label>
-                <textarea @input="validate" v-model="mnemonic" rows="6"></textarea>
-                <span class="mnemonic-error" v-if="!phrase_correct">{{$t('error_mnemonic')}}</span>
-              </li>
+      <div class="deck">
+        <a role="button" @click="resetModal" data-toggle="modal" data-target="#import-form" class="custom-card">
+          <div class="card" style="width: 15rem; display: inline-block">
+            <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+            <div class="card-body">
+              <p class="card-text">Import an existing Wallet</p>
             </div>
-            <button type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
+          </div>
+        </a>
+
+        <a role="button" data-toggle="modal" data-target="#add-form" class="custom-card">
+          <div class="card" style="width: 15rem; display: inline-block">
+            <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+            <div class="card-body">
+              <p class="card-text">Generate a new Wallet</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="modal fade" id="import-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="importTitle">{{$t('webwallet_import_title')}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true" style="color:white;">&times;</span>
+              </button>
+            </div>
+
+            <div class="basic-form modal-body">
+              <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+              <div class="mnemonic-group">
+                <li>
+                  <!-- Token -->
+                  <label>{{$t("enter_wallet_name")}}</label>
+                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
+                  <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span>
+                  <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span>
+
+                  <label>{{$t("enter_mnemonic")}}</label>
+                  <textarea @input="validate(0)" v-model="mnemonic" rows="6"></textarea>
+                  <span class="mnemonic-error" v-if="!phrase_correct">{{$t('error_mnemonic')}}</span>
+                </li>
+              </div>
+              <button type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
+              <!-- <button type="button" @click="resetModal" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
+            </div>
           </div>
         </div>
       </div>
+
+      <div class="modal fade" id="add-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="importTitle">{{$t('webwallet_create_title')}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true" style="color:white;">&times;</span>
+              </button>
+            </div>
+
+            <div class="basic-form modal-body">
+              <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+              <div class="mnemonic-group">
+                <li>
+                  <!-- Token -->
+                  <label>{{$t("enter_wallet_name")}}</label>
+                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
+                  <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span>
+                  <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span>
+
+                  <div v-if="generated">
+                    <label>{{$t("save_mnemonic")}}</label>
+                    <textarea @change="validate(1);"  v-model="mnemonic_create" rows="6" readonly></textarea>
+                  </div>
+                </li>
+              </div>
+              <button v-if="!generated" type="button" @click="generateWallet();validate(1);" class="btn btn-primary" :disabled="!this.wallet_name">Generate</button>
+              <button v-else type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled">Import</button>
+              <!-- <button type="button" @click="resetModal" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="wallets_found" class="login-box card" style="width: 31.75rem; display: inline-block">
+        <p><span>{{$t('webwallet_home_login')}}</span></p>
+        <button type="button" @click="login" class="btn btn-primary">Login</button>
+        <p><span class="stealth-link"> or <a @click="clear">Clear Local storage</a> here</span></p>
+
+
+
+      </div>
+
     </div>
-
-
-
-  <div v-if="wallets_found" class="login-box card" style="width: 31.75rem; display: inline-block">
-    <p><span>{{$t('webwallet_home_login')}}</span></p>
-  <button type="button" @click="login" class="btn btn-primary">Login</button>
-</div>
-
   </div>
 </div>
 </div>
@@ -80,11 +128,14 @@ export default {
       network: '',
       token: '',
       mnemonic: '',
-      wallets_found: false,
+      mnemonic_create: '',
       wallet_name: '',
-      phrase_correct: true,
+      wallets_found: false,
+      name_exists: false,
+      phrase_correct: false,
       name_correct: true,
       disabled: false,
+      generated: false
     }
   },
   created() {
@@ -96,15 +147,15 @@ export default {
       this.wallets_found = true;
     }
 
-    if (this.webUtil.getCookie("import_success")=='true'){
-      console.log("asd")
-      $('#imported_alert').html('<div class="alert alert-success alert-dismissible fade show" role="alert"> Wallet imported <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+    if (this.webUtil.getCookie("import_success") == 'true') {
+      $('#imported_alert').html(
+        '<div class="alert alert-success alert-dismissible fade show" role="alert"> Wallet imported <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
     }
 
     this.webUtil.setCookie("import_success", 'false', {
-        expires: 30,
-        path: '/'
-      });
+      expires: 30,
+      path: '/'
+    });
   },
 
   methods: {
@@ -119,10 +170,15 @@ export default {
       }
     },
 
-    validate(evt) {
+    validate(type) {
+      let input = '';
+      if (type == 0){
+        input = this.mnemonic;
+      }
 
-
-      let input = this.mnemonic;
+      if (type == 1){
+        input = this.mnemonic_create;
+      }
 
       input = input.replace(/(^\s*)|(\s*$)/gi, "");
       input = input.replace(/[ ]{2,}/gi, " ");
@@ -137,12 +193,12 @@ export default {
         this.phrase_correct = false;
       }
 
-      this.disabled = this.phrase_correct && this.name_correct
+      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
 
       if (!this.wallet_name || !this.mnemonic) {
         this.disabled = false
       }
-      },
+    },
 
     validateWalltName() {
       if (!this.wallet_name) {
@@ -154,7 +210,26 @@ export default {
           this.name_correct = true;
         }
       }
-      this.disabled = this.phrase_correct && this.name_correct
+      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
+
+      if (!this.wallet_name || !this.mnemonic) {
+        this.disabled = false
+      }
+    },
+
+    validateWalltNameExist() {
+      let wallet_list = this.wallet_name;
+
+      if (localStorage.getItem("wallet_list")) {
+        let wallet_list_old = localStorage.getItem("wallet_list").split(',');
+        if (wallet_list_old.includes(wallet_list)) {
+          this.name_exists = true;
+        } else {
+          this.name_exists = false;
+        }
+      }
+
+      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
 
       if (!this.wallet_name || !this.mnemonic) {
         this.disabled = false
@@ -166,44 +241,67 @@ export default {
       let wallet_list = this.wallet_name;
 
       if (localStorage.getItem("wallet_list")) {
-        wallet_list = wallet_list + ',' + localStorage.getItem("wallet_list");
+        let wallet_list_old = localStorage.getItem("wallet_list").split(',');
+        if (wallet_list_old.includes(wallet_list)) {
+          this.name_exists = true;
+        } else {
+          wallet_list = wallet_list + ',' + localStorage.getItem("wallet_list");
+        }
       }
       localStorage.setItem("wallet_list", wallet_list);
       localStorage.setItem(this.wallet_name, JSON.stringify(wallet));
 
       this.webUtil.setCookie("import_success", 'true', {
-          expires: 30,
-          path: '/'
-        });
+        expires: 30,
+        path: '/'
+      });
 
-        window.location.reload();
+      window.location.reload();
     },
 
-    resetModal(){
-      this.mnemonic= '';
+    generateWallet() {
+      const bip39 = require('bip39')
+      this.mnemonic_create = bip39.generateMnemonic(256);
+      const wallet = createWalletFromMnemonic(this.mnemonic, "", this.prefix);
+      this.generated = true;
+      this.mnemonic = this.mnemonic_create
+      // this.validate(1);
+      this.name = this.name_create
+    },
+
+    resetModal() {
+      this.mnemonic = '';
+      this.mnemonic_create = '';
       this.wallet_name = '';
       this.phrase_correct = true;
       this.name_correct = true;
       this.disabled = false;
+      this.name_exists = false
+      this.generated = false;
     },
 
     login() {
       let nodeUrl = this.nodeUrl;
       let network = this.network;
-      //
-      // this.webUtil.initMathExtension().then((res) => {
-      //   console.log(res);
-      //   return mathExtension.getIdentity(network);
-      // }).then((identity) => {
-      //   console.log(JSON.stringify(identity));
-      //   this.webUtil.setCookie("identity_" + this.blockchain_lowercase, JSON.stringify(identity), {
-      //     expires: 30,
-      //     path: '/'
-      //   });
-      //   this.$emit('sendAccount', identity)
-      // }).catch(err => {
-      //   alert(this.$t('noMathExtension'));
-      // })
+
+      if (localStorage.getItem("wallet_list")) {
+        let wallet_list = localStorage.getItem("wallet_list").split(',');
+        let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
+          wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
+
+        console.log(identity)
+        this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {
+          expires: 30,
+          path: '/'
+        });
+        this.$emit('sendAccount', identity)
+      }
+    },
+
+    clear() {
+      localStorage.clear();
+      window.location.reload();
+
     }
   }
 }

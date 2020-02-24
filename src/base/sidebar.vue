@@ -5,15 +5,8 @@
     <h4>{{blockchain}} Wallet</h4>
     <p>{{accountName}}</p>
     <p id="copyContent">{{account}}</p>
-    <div class="refresh-logout">
-            <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
-            <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
-    </div>
-    <!-- <div class="operation-list">
-      <a class="grey-fsz" id="copyBtn" data-clipboard-target="#copyContent" data-clipboard-action="copy">{{$t("webwallet_copy_address")}}</a>
-    </div> -->
+
     <div class="token-info">
-      <!-- 总计 -->
       <p>{{$t("webwallet_total")}} {{token}}</p>
       <h4>{{webUtil.addCommas(balances.sum,6)}} </h4>
       <!-- <p class="grey-fsz">≈ {{webUtil.addCommas(balances[unit])}} {{unit}}</p> -->
@@ -21,15 +14,14 @@
         <li v-for="(item,index) in balances.list" :key="index">
           <div>{{$t(index)}} {{token}}</div>
           <div>{{item?webUtil.addCommas(item,6):0}}</div>
+
         </li>
-      </ul>
-      <ul class="token-list">
         <li>
           <div>Sequence</div>
           <div>{{sequence}}</div>
         </li>
-        </li>
       </ul>
+
     </div>
 
     <div class="wallet-list">
@@ -48,6 +40,10 @@
         </template>
       </b-table>
     </div>
+    <div class="refresh-logout">
+            <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
+            <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
+    </div>
   </section>
 
   <section v-else class="user-info text-center">
@@ -56,10 +52,7 @@
     <div class="token-info">
       Selest an account to use
     </div>
-    <div class="refresh-logout">
-            <a class="grey-fsz refresh" @click="refresh">{{$t('webwallet_refresh')}}</a>
-            <a class="grey-fsz logout" @click="logout">{{$t('webwallet_logout')}}</a>
-    </div>
+
     <div class="wallet-list">
 
       <b-table sticky-header  no-border-collapse hover borderless ref="selectableTable"  selectable select-mode="single" :items="items" :fields="fields" @row-selected="onRowSelected" head-variant="null" responsive="sm">
@@ -83,11 +76,6 @@
       </p>
     </div> -->
   </section>
-
-
-
-
-
 </div>
 </template>
 
@@ -150,8 +138,8 @@ export default {
       var confirmed = true;
 
       if (confirmed){
-      let identity = '{"blockchain":"cosmos","chainId":"KiChain","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "key": '+JSON.stringify(this.selected[0].key)+ '}';
-
+      let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "privatekey": '+JSON.stringify(this.selected[0].privatekey)+ ', "publickey": '+JSON.stringify(this.selected[0].publickey)+ '}';
+      // console.log(identity)
       this.webUtil.setCookie("identity_"+this.blockchain_lowercase, identity, {
         expires: 30,
         path: '/'
@@ -202,14 +190,12 @@ export default {
     },
     getAccounts(){
       if (localStorage.getItem("wallet_list")) {
-        console.log(localStorage.getItem("wallet_list"))
-
         let wallet_list = localStorage.getItem("wallet_list").split(',');
         for (var w in wallet_list){
-          this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address});
+          this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
         }
       }
-    }
+    },
   }
 }
 </script>

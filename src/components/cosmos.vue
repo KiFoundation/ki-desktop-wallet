@@ -1,8 +1,8 @@
 <template>
 <div :class="{webwallet:account}">
 
-  <!-- <login v-if="!account" @sendAccount="getAccount" :blockchain="blockchain"></login> -->
-  <login v-if="false" ></login>
+  <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
+  <!-- <login v-if="false" ></login> -->
 
   <template v-else>
 
@@ -174,6 +174,7 @@ import login from 'base/login'
 import sideBar from 'base/sidebar'
 import common from 'static/js/common.js'
 import {
+  KeyPair,
   signTx,
   verifyTx,
   createWalletFromMnemonic,
@@ -195,6 +196,7 @@ export default {
       account: '',
       accountName: '',
       key: '',
+      publickey:'',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
       selectedSet: 1,
@@ -310,7 +312,9 @@ export default {
       if (this.webUtil.getCookie('identity_kichain')) {
         this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
         this.accountName = JSON.parse(this.webUtil.getCookie('identity_kichain')).accountName;
-        this.key = JSON.parse(this.webUtil.getCookie('identity_kichain')).key;
+        this.key = JSON.parse(this.webUtil.getCookie('identity_kichain')).privatekey;
+        this.publickey = JSON.parse(this.webUtil.getCookie('identity_kichain')).publickey;
+
         this.initExtension()
       }
     },
@@ -530,16 +534,16 @@ export default {
       }
 
       const signMeta = {
-        chain_id: "KiChain",
+        chain_id: "KiChain-t",
         account_number: this.account_number.toString(),
         sequence: this.sequence.toString(),
       };
 
-      //TEMP
-      const mnemonic = this.key;
-      const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
 
-      let signedTransactionme = signTx(transaction, signMeta, wallet);
+      const key = Buffer.from(this.key, 'hex');
+      const publickey = Buffer.from(this.publickey, 'hex');
+
+      let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
       let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
@@ -616,16 +620,16 @@ export default {
       }
 
       const signMeta = {
-        chain_id: "KiChain",
+        chain_id: "KiChain-t",
         account_number: this.account_number.toString(),
         sequence: this.sequence.toString(),
       };
 
       //TEMP
-      const mnemonic = this.key;
-      const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+      const key = Buffer.from(this.key, 'hex');
+      const publickey = Buffer.from(this.publickey, 'hex');
 
-      let signedTransactionme = signTx(transaction, signMeta, wallet);
+      let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
       let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
@@ -639,7 +643,7 @@ export default {
         }
       };
 
-      console.log(JSON.stringify(bcTransactionme));
+      // console.log(JSON.stringify(bcTransactionme));
 
       axios(opts).then(res => {
         let result = res.data;
@@ -708,16 +712,16 @@ export default {
       } else {
 
         const signMeta = {
-          chain_id: "KiChain",
+          chain_id: "KiChain-t",
           account_number: this.account_number.toString(),
           sequence: this.sequence.toString(),
         };
 
         //TEMP
-        const mnemonic = this.key;
-        const wallet = createWalletFromMnemonic(mnemonic, "", this.prefix);
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, wallet);
+        let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
         let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
@@ -731,7 +735,7 @@ export default {
           }
         };
 
-        console.log(JSON.stringify(bcTransactionme));
+        // console.log(JSON.stringify(bcTransactionme));
 
         axios(opts).then(res => {
           let result = res.data;
@@ -748,8 +752,8 @@ export default {
     }
   },
   components: {
-    sideBar,
-    login
+    login,
+    sideBar
   }
 }
 </script>
