@@ -85,12 +85,20 @@
               <li class="token">
                 <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
-                <select v-model="delegate.validator">
+
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator" list="validator_list" >
+                <datalist id="validator_list">
+                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
+                    {{item[0]}} - {{item[1]}}
+                  </option>
+                </datalist>
+
+                <!-- <select v-model="delegate.validator">
                   <option value="" disabled selected>Select a validator</option>
                   <option v-for="item in validators" :value="item[1]" :key="item[1]">
                     {{item[0]}} - {{item[1]}}
                   </option>
-                </select>
+                </select> -->
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
@@ -115,12 +123,20 @@
               <li class="token">
                 <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
-                <select v-model="undelegate.validator">
+
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="undelegate.validator" list="validator_unbond_list" >
+                <datalist id="validator_unbond_list">
+                  <option v-for="(item, index) in delegations" :value="index" :key="index">
+                    {{item[0]}} - {{item[1]}} {{delegate.token}}
+                  </option>
+                </datalist>
+
+                <!-- <select v-model="undelegate.validator">
                   <option value="" disabled selected>Select a validator</option>
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
                   </option>
-                </select>
+                </select> -->
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
