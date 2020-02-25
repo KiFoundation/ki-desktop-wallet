@@ -3,7 +3,7 @@ module.exports = {
   webwallet_mobile_app: "APP",
   webwallet_your: "Your",
   webwallet_wallet: "Wallet",
-  webwallet_home_login: "Ki wallets where found on this device! login to use one of them",
+  webwallet_home_login: "Ki wallets were found on this device! ",
   webwallet_home_create: "Import an existing wallet or create a new one",
   webwallet_home_des1: "Send, Request and Swap",
   webwallet_home_des2: "directly from your Blockchain Wallet.",

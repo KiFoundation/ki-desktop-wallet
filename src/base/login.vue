@@ -102,11 +102,16 @@
 
       <div v-if="wallets_found" class="login-box card" style="width: 31.75rem; display: inline-block">
         <p><span>{{$t('webwallet_home_login')}}</span></p>
+        <div >
+          <select class="transactions wallet-select" v-model="selected_wallet">
+          <option value="" disabled selected>Select a wallet to use</option>
+          <option v-for="item in wallets" :value="item[0]" :key="item[0]">
+            {{item[0]}}
+          </option>
+        </select>
+      </div>
         <button type="button" @click="login" class="btn btn-primary">Login</button>
         <p><span class="stealth-link"> or <a @click="clear">Clear Local storage</a> here</span></p>
-
-
-
       </div>
 
     </div>
@@ -135,7 +140,9 @@ export default {
       phrase_correct: false,
       name_correct: true,
       disabled: false,
-      generated: false
+      generated: false,
+      wallets: [],
+      selected_wallet:'',
     }
   },
   created() {
@@ -146,6 +153,8 @@ export default {
     if (localStorage.getItem("wallet_list")) {
       this.wallets_found = true;
     }
+
+    this.getwallets();
 
     if (this.webUtil.getCookie("import_success") == 'true') {
       $('#imported_alert').html(
@@ -280,14 +289,28 @@ export default {
       this.generated = false;
     },
 
+
+    getwallets(){
+      if (localStorage.getItem("wallet_list")) {
+        let wallet_list = localStorage.getItem("wallet_list").split(',');
+        for (var w in wallet_list){
+            this.wallets.push([wallet_list[w], JSON.parse(localStorage.getItem(wallet_list[w])).address]);
+        }
+      }
+    },
+
+
     login() {
       let nodeUrl = this.nodeUrl;
       let network = this.network;
 
       if (localStorage.getItem("wallet_list")) {
-        let wallet_list = localStorage.getItem("wallet_list").split(',');
-        let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
-          wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
+        // let wallet_list = localStorage.getItem("wallet_list").split(',');
+        // let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
+        //   wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
+console.log(this.selected_wallet)
+        let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
+          this.selected_wallet)).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
 
         console.log(identity)
         this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {

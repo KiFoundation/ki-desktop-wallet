@@ -740,3 +740,10 @@ a.custom-card:hover {
   font-size: 11px;
   color: var(--blueColor);
 }
+
+.wallet-select {
+  padding: 5px 10px 5px 10px;  
+  font-size: 14px;
+  line-height: 16px;
+  margin-top: 20px;
+}
