@@ -94,7 +94,7 @@ Vue.component('b-button', BButton);
 
 
 export default {
-  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName'],
+  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName', 'items'],
   data() {
     return {
       unit: this.webCoin.unit,
@@ -106,7 +106,7 @@ export default {
       fields: ['account', {key:'address', formatter: value => {
               return value.substring(0,24)+"...";
             }}],
-      items:[],
+      // items:[],
 
       selectMode: 'single',
       selected: []
@@ -115,7 +115,7 @@ export default {
   },
   created() {
     this.getChain();
-    this.getAccounts();
+    // this.getAccounts();
   },
   mounted() {
     this.copyAddress();
@@ -139,7 +139,7 @@ export default {
 
       if (confirmed){
       let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "privatekey": '+JSON.stringify(this.selected[0].privatekey)+ ', "publickey": '+JSON.stringify(this.selected[0].publickey)+ '}';
-      // console.log(identity)
+
       this.webUtil.setCookie("identity_"+this.blockchain_lowercase, identity, {
         expires: 30,
         path: '/'
@@ -188,14 +188,14 @@ export default {
         this.unit = data
       })
     },
-    getAccounts(){
-      if (localStorage.getItem("wallet_list")) {
-        let wallet_list = localStorage.getItem("wallet_list").split(',');
-        for (var w in wallet_list){
-          this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
-        }
-      }
-    },
+    // getAccounts(){
+    //   if (localStorage.getItem("wallet_list")) {
+    //     let wallet_list = localStorage.getItem("wallet_list").split(',');
+    //     for (var w in wallet_list){
+    //       this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
+    //     }
+    //   }
+    // },
   }
 }
 </script>

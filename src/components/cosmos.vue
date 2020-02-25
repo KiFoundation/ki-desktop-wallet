@@ -6,7 +6,7 @@
 
   <template v-else>
 
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets"></side-bar>
     <section class="main-info">
       <div class="main-container transfer-container">
         <ul class="tabs nav nav-tabs">
@@ -22,7 +22,12 @@
           <div id="transfer-form" class="tab-pane in active">
             <form class="basic-form">
               <label>{{$t("webwallet_to_address")}}</label>
-              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account">
+              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account" list="self_wallets">
+              <datalist id="self_wallets">
+                <option v-for="item in wallets" :value="item.address" :key="item.address">
+                  {{item.account}}
+                </option>
+              </datalist>
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <label>{{$t("transfer_amount")}}</label>
@@ -256,12 +261,14 @@ export default {
         }
       },
       validators: [],
+      wallets: [],
       delegations: {},
       transactions: []
     }
   },
   created() {
     this.getChain();
+    this.getAccounts();
   },
   mounted() {
     this.getUnit();
@@ -643,8 +650,6 @@ export default {
         }
       };
 
-      // console.log(JSON.stringify(bcTransactionme));
-
       axios(opts).then(res => {
         let result = res.data;
 
@@ -735,8 +740,6 @@ export default {
           }
         };
 
-        // console.log(JSON.stringify(bcTransactionme));
-
         axios(opts).then(res => {
           let result = res.data;
 
@@ -749,7 +752,15 @@ export default {
           }
         });
       }
-    }
+    },
+    getAccounts(){
+      if (localStorage.getItem("wallet_list")) {
+        let wallet_list = localStorage.getItem("wallet_list").split(',');
+        for (var w in wallet_list){
+          this.wallets.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
+        }
+      }
+    },
   },
   components: {
     login,
