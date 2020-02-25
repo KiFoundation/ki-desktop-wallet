@@ -39,7 +39,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="importTitle">{{$t('webwallet_import_title')}}</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" @click="resetModal" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true" style="color:white;">&times;</span>
               </button>
             </div>
@@ -71,7 +71,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="importTitle">{{$t('webwallet_create_title')}}</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" @click="resetModal" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true" style="color:white;">&times;</span>
               </button>
             </div>
@@ -308,11 +308,10 @@ export default {
         // let wallet_list = localStorage.getItem("wallet_list").split(',');
         // let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
         //   wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
-console.log(this.selected_wallet)
+
         let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
           this.selected_wallet)).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
 
-        console.log(identity)
         this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {
           expires: 30,
           path: '/'
