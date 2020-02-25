@@ -6,7 +6,7 @@ Vue.use(vueI18n)
 /*
 设置一下网站支持的语言种类
   */
-var webLanguage = ['cn', 'en', 'ko'];
+var webLanguage = ['en'];
 
 /**
  * 获取浏览器语言类型
@@ -30,9 +30,9 @@ let i18n = new vueI18n({
   locale: 'en', // 语言标识
   //this.$i18n.locale // 通过切换locale的值来实现语言切换
   messages: {
-    'cn': require('static/lang/cn'),
+    // 'cn': require('static/lang/cn'),
     'en': require('static/lang/en'),
-    'ko': require('static/lang/ko')
+    // 'ko': require('static/lang/ko')
   }
 })
 
