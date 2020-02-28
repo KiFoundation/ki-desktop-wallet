@@ -110,7 +110,7 @@
           </option>
         </select>
       </div>
-        <button type="button" @click="login" class="btn btn-primary">Login</button>
+        <button type="button" @click="login" class="btn btn-primary">Continue</button>
         <p><span class="stealth-link"> or <a @click="clear">Clear Local storage</a> here</span></p>
       </div>
 
@@ -276,6 +276,19 @@ export default {
       this.mnemonic = this.mnemonic_create
       // this.validate(1);
       this.name = this.name_create
+
+      // var mnemonics = []
+      // for (let i=0; i<10; i++){
+      //   const bip39 = require('bip39')
+      //   this.mnemonic_create = bip39.generateMnemonic(256);
+      //   mnemonics.push(this.mnemonic_create);
+      //   const wallet = createWalletFromMnemonic(this.mnemonic_create, "", this.prefix);
+      //   console.log('"' +  JSON.stringify(wallet.address) + '": [[' + JSON.parse(JSON.stringify(wallet.privateKey)).data+ '],[' +  JSON.parse(JSON.stringify(wallet.publicKey)).data + ']],')
+      // }
+      //
+      // for (let i=0; i<10; i++){
+      //   console.log(mnemonics[i])
+      // }
     },
 
     resetModal() {

@@ -13,6 +13,7 @@
           <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
+          <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
           <!-- <li><a class="tab" data-toggle="tab" href="#transaction-list">{{$t("transaction_list")}}</a></li> -->
 
         </ul>
@@ -92,13 +93,6 @@
                     {{item[0]}} - {{item[1]}}
                   </option>
                 </datalist>
-
-                <!-- <select v-model="delegate.validator">
-                  <option value="" disabled selected>Select a validator</option>
-                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
-                    {{item[0]}} - {{item[1]}}
-                  </option>
-                </select> -->
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
@@ -130,13 +124,6 @@
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
                   </option>
                 </datalist>
-
-                <!-- <select v-model="undelegate.validator">
-                  <option value="" disabled selected>Select a validator</option>
-                  <option v-for="(item, index) in delegations" :value="index" :key="index">
-                    {{item[0]}} - {{item[1]}} {{delegate.token}}
-                  </option>
-                </select> -->
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
@@ -155,9 +142,50 @@
               <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
             </form>
           </div>
-        </div>
-      </div>
 
+      <!-- ========================Redelegation form============================ -->
+
+      <div id="redelegate-form" class="transfer tab-pane">
+        <form class="basic-form">
+          <li class="token">
+            <!-- Token -->
+            <label>{{$t("webwallet_from_validator")}}</label>
+
+            <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.from_validator" list="validator_unbond_list" >
+            <datalist id="validator_unbond_list">
+              <option v-for="(item, index) in delegations" :value="index" :key="index">
+                {{item[0]}} - {{item[1]}} {{delegate.token}}
+              </option>
+            </datalist>
+
+            <label>{{$t("webwallet_to_validator")}}</label>
+
+            <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list" >
+            <datalist id="validator_list">
+              <option v-for="item in validators" :value="item[1]" :key="item[1]">
+                {{item[0]}} - {{item[1]}}
+              </option>
+            </datalist>
+          </li>
+          <ul class="basic-group clearfix">
+            <li class='amount'>
+              <!-- 转账金额 -->
+              <label>{{$t("undelegation_amount")}}</label>
+              <input type="text" placeholder="0" v-model="redelegate.amount">
+            </li>
+            <li class="token">
+              <!-- Token -->
+              <label>Token</label>
+              <input type="text" placeholder="0" v-model="transfer.token" disabled>
+
+            </li>
+          </ul>
+
+          <a class="btn" @click="sendReDelegateTx">{{$t("redelegatetx")}}</a>
+        </form>
+      </div>
+      </div>
+      </div>
 
       <!-- =======================Mini explorer============================= -->
     </section>
@@ -182,8 +210,15 @@
               <td class="text"><span>{{item[3]}}</span></td>
               <td class="text"><span>{{item[4]}}</span></td>
             </tr>
+
           </tbody>
+
         </table>
+        <div class="table-footer">
+          <span><a :href="explorer+ 'account/' + this.account" target="_blank">See all transactions</a></span>
+        </div>
+
+
       </div>
     </section>
   </template>
@@ -235,7 +270,7 @@ export default {
         'memo': '',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 200000
+        'gasLimit': 300000
       },
       delegate: {
         'validator': '',
@@ -243,7 +278,7 @@ export default {
         'token': 'tki',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 200000
+        'gasLimit': 300000
       },
       undelegate: {
         'validator': '',
@@ -251,8 +286,18 @@ export default {
         'token': 'tki',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 200000
+        'gasLimit': 300000
       },
+      redelegate: {
+        'to_validator': '',
+        'from_validator': '',
+        'amount': 0,
+        'token': 'tki',
+        'fee': 0.001250,
+        'gasPrice': '0.0000005',
+        'gasLimit': 300000
+      },
+
       account_number: 0,
       sequence: 0,
       values: ['TKI'],
@@ -340,7 +385,10 @@ export default {
 
         this.initExtension()
       }
+
+
     },
+
     getUnit() {
       common.$on('val', (data) => {
         this.unit = data
@@ -388,8 +436,11 @@ export default {
 
         var promise4 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send').then((res5) => {
-            let res = res5.data.txs;
+            let page = res5.data.page_total && res5.data.page_total>0  ? res5.data.page_total : 1;
+            return page
+          }).then((res) => { axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send&page=' + res).then((res5) => {
 
+            res = res5.data.txs
             if (res) {
               res.forEach((value) => {
                 let fee = 0
@@ -401,16 +452,34 @@ export default {
                 this.transactions.push([value.txhash, 'send',
                   value.tx.value.msg[0].value.to_address,
                   value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-                  fee
+                  fee, value.timestamp
                 ])
 
               });
             }
+          }).then((resx) => {
+            this.transactions.sort(
+              function(a, b){
+              const date_a = Date.parse(a[5])
+              const date_b = Date.parse(b[5])
+
+              let comparison = 0;
+              if (date_a > date_b) {
+                comparison = 1;
+              } else if (date_a < date_b) {
+                comparison = -1;
+              }
+              return comparison * -1;
+            })
           })
         })
+      })
 
         var promise5 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate').then((res6) => {
+            let page = res6.data.page_total && res6.data.page_total>0  ? res6.data.page_total : 1;
+            return page
+          }).then((res) => { axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate&page=' + res).then((res6) => {
             let res = res6.data.txs;
 
             if (res) {
@@ -424,13 +493,28 @@ export default {
                 this.transactions.push([value.txhash, 'delegate',
                   value.tx.value.msg[0].value.validator_address,
                   value.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
-                  fee
+                  fee, value.timestamp
                 ])
 
               });
             }
+          }).then((resx) => {
+
+            this.transactions.sort(function(a, b){
+              const date_a = Date.parse(a[5])
+              const date_b = Date.parse(b[5])
+
+              let comparison = 0;
+              if (date_a > date_b) {
+                comparison = 1;
+              } else if (date_a < date_b) {
+                comparison = -1;
+              }
+              return comparison * -1;
+            })
           })
         })
+      })
 
         var promise3 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -527,7 +611,7 @@ export default {
       let nodeUrl = this.globalData.kichain.nodeUrl;
       let account = this.account;
       let fee = this.transfer.fee * Math.pow(10, 6);
-      let limit = 200000;
+      let limit = 300000;
 
       if (this.selectedSet == 2) {
         fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
@@ -565,6 +649,7 @@ export default {
 
       const key = Buffer.from(this.key, 'hex');
       const publickey = Buffer.from(this.publickey, 'hex');
+
 
       let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
       let bcTransactionme = createBroadcastTx(signedTransactionme);
@@ -612,7 +697,7 @@ export default {
       let account = this.account;
 
       let fee = this.delegate.fee * Math.pow(10, 6);
-      let limit = 200000;
+      let limit = 300000;
 
       if (this.selectedSet == 2) {
         fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
@@ -655,7 +740,6 @@ export default {
       let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
       let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-
       let url = nodeUrl + `/txs?sync=true`;
       const opts = {
         method: 'post',
@@ -697,8 +781,8 @@ export default {
 
       let account = this.account;
 
-      let fee = this.delegate.fee * Math.pow(10, 6);
-      let limit = 200000;
+      let fee = this.undelegate.fee * Math.pow(10, 6);
+      let limit = 300000;
 
       if (this.selectedSet == 2) {
         fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
@@ -769,6 +853,102 @@ export default {
         });
       }
     },
+    // =========================Redelegate transaction===========================
+    sendReDelegateTx() {
+      if (!this.redelegate.to_validator) {
+        alert(this.$t('delegate_account_null'));
+        return false;
+      }
+      if (!this.redelegate.from_validator) {
+        alert(this.$t('delegate_account_null'));
+        return false;
+      }
+      if (!this.redelegate.amount) {
+        alert(this.$t('delegate_amount_null'));
+        return false;
+      }
+      if (this.redelegate.amount < Math.pow(10, -6)) {
+        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        return false;
+      }
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+
+      let account = this.account;
+
+      let fee = this.redelegate.fee * Math.pow(10, 6);
+      let limit = 300000;
+
+      if (this.selectedSet == 2) {
+        fee = this.redelegate.gasPrice * this.redelegate.gasLimit * Math.pow(10, 6);
+        limit = this.redelegate.gasLimit;
+      }
+
+
+      const transaction = {
+        'msg': [{
+          'type': 'cosmos-sdk/MsgBeginRedelegate',
+          'value': {
+            'delegator_address': account,
+            'validator_src_address': this.redelegate.from_validator,
+            'validator_dst_address': this.redelegate.to_validator,
+            'amount': {
+              'denom': 'tki',
+              'amount': (this.redelegate.amount * Math.pow(10, 6)).toString()
+            }
+          }
+        }, ],
+        'fee': {
+          'amount': [{
+            'denom': 'tki',
+            'amount': "7500"
+          }],
+          'gas': limit.toString()
+        },
+        'memo': "",
+      }
+
+      if (this.delegations[this.redelegate.from_validator][1] < this.redelegate.amount) {
+        alert("Cannot unbond more than what is bonded!");
+      } else {
+
+        const signMeta = {
+          chain_id: "KiChain-t",
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        //TEMP
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+
+        let url = nodeUrl + `/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        };
+
+        axios(opts).then(res => {
+          let result = res.data;
+
+          if (result.code) {
+            let log = JSON.parse(result.raw_log);
+            alert(log.message);
+          } else if (result.txhash) {
+            alert(this.$t('transfer_success'));
+            window.location.reload();
+          }
+        });
+      }
+    },
+
     getAccounts(){
       if (localStorage.getItem("wallet_list")) {
         let wallet_list = localStorage.getItem("wallet_list").split(',');
@@ -777,7 +957,7 @@ export default {
         }
       }
     },
-  },
+},
   components: {
     login,
     sideBar

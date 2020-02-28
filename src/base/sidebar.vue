@@ -106,8 +106,6 @@ export default {
       fields: ['account', {key:'address', formatter: value => {
               return value.substring(0,24)+"...";
             }}],
-      // items:[],
-
       selectMode: 'single',
       selected: []
 

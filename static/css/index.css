@@ -746,3 +746,7 @@ a.custom-card:hover {
   line-height: 16px;
   margin-top: 20px;
 }
+
+.table-footer{
+  text-align: center;
+}
