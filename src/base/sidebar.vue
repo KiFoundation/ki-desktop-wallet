@@ -3,8 +3,12 @@
   <section v-if="account" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
-    <p>{{accountName}}</p>
+    <h5>{{accountName}}</h5>
     <p id="copyContent">{{account}}</p>
+    <div class="operation-list">
+      <a class="grey-fsz" @click="removeWallet">{{$t("webwallet_remove_wallet")}}</a>
+    </div>
+
 
     <div class="token-info">
       <p>{{$t("webwallet_total")}} {{token}}</p>
@@ -107,13 +111,16 @@ export default {
               return value.substring(0,24)+"...";
             }}],
       selectMode: 'single',
-      selected: []
-
+      selected: [],
+      selected_index: 0
     }
   },
   created() {
     this.getChain();
-    // this.getAccounts();
+
+    this.selected_index = this.items.findIndex(function(wallet) {
+      return wallet.account == this.accountName
+    })
   },
   mounted() {
     this.copyAddress();
@@ -143,9 +150,11 @@ export default {
         path: '/'
       });
       this.$emit('sendAccount', identity)
+
       this.refresh();
       }
       }
+
     },
 
     refresh() {
@@ -186,14 +195,25 @@ export default {
         this.unit = data
       })
     },
-    // getAccounts(){
-    //   if (localStorage.getItem("wallet_list")) {
-    //     let wallet_list = localStorage.getItem("wallet_list").split(',');
-    //     for (var w in wallet_list){
-    //       this.items.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
-    //     }
-    //   }
-    // },
+    removeWallet() {
+
+
+      var confirmed = confirm("Are you sure you want to delete this wallet?");
+
+
+
+      if (confirmed){
+      localStorage.removeItem(this.accountName);
+      if (localStorage.getItem("wallet_list")) {
+         let wallet_list = localStorage.getItem("wallet_list").replace(this.accountName + ",", "");
+         localStorage.setItem("wallet_list", wallet_list);
+       }
+       if (this.items.length > 0){
+         this.selected = [this.items[this.selected_index+1]];
+         this.switchAccount();
+       }
+     }
+    },
   }
 }
 </script>

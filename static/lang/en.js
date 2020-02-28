@@ -18,6 +18,7 @@ module.exports = {
   error_wallet_name: "Wallet name cannot contain specific characters and spaces",
   error_wallet_name_exists: "Wallet name already exists",
   webwallet_copy_address: "Copy Address",
+  webwallet_remove_wallet: "Remove wallet", 
   webwallet_qr_code: "QR Code",
   webwallet_estimated_value: "Estimated Value",
   webwallet_total: "Total",
