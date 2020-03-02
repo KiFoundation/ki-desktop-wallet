@@ -117,11 +117,9 @@ export default {
   },
   created() {
     this.getChain();
-
-    this.selected_index = this.items.findIndex(function(wallet) {
-      return wallet.account == this.accountName
-    })
+    this.selected_index = this.items.findIndex(p => p.account == this.accountName)
   },
+
   mounted() {
     this.copyAddress();
     this.getUnit();
