@@ -3,7 +3,7 @@
 </p>
 
 # Ki Web Wallet
-This repository hosts `ki-webwallet`, a web wallet for **testing purposes** on the KiChain **Testnet**.
+This repository hosts `ki-web-wallet`, a web wallet for **testing purposes** on the KiChain **Testnet**.
 
 
 ## Functionalities
