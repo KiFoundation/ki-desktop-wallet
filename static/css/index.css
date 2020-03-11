@@ -750,3 +750,8 @@ a.custom-card:hover {
 .table-footer{
   text-align: center;
 }
+
+.local-alert{
+  color: #666;
+  font-size: 11px;
+}

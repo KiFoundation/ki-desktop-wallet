@@ -2,11 +2,11 @@
 <div :class="{webwallet:account}">
 
   <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
-  <!-- <login v-if="false" ></login> -->
 
   <template v-else>
-
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets"></side-bar>
+
+    <!-- =======================Transaction forms============================= -->
     <section class="main-info">
       <div class="main-container transfer-container">
         <ul class="tabs nav nav-tabs">
@@ -14,12 +14,11 @@
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
-          <!-- <li><a class="tab" data-toggle="tab" href="#transaction-list">{{$t("transaction_list")}}</a></li> -->
-
+          <li><a class="tab"  data-toggle="tab"  href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
         </ul>
 
-        <!-- ========================Transfer form============================ -->
         <div class="tab-content">
+          <!-- ========================Transfer form============================ -->
           <div id="transfer-form" class="tab-pane in active">
             <form class="basic-form">
               <label>{{$t("webwallet_to_address")}}</label>
@@ -35,7 +34,7 @@
                   <input type="text" placeholder="0" v-model="transfer.amount">
                 </li>
                 <li class="token">
-                  <!-- Token -->
+
                   <label>Token</label>
                   <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
@@ -84,10 +83,9 @@
           <div id="delegate-form" class="transfer tab-pane">
             <form class="basic-form">
               <li class="token">
-                <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator" list="validator_list" >
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
                   <option v-for="item in validators" :value="item[1]" :key="item[1]">
                     {{item[0]}} - {{item[1]}}
@@ -96,12 +94,10 @@
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
-                  <!-- 转账金额 -->
                   <label>{{$t("delegation_amount")}}</label>
                   <input type="text" placeholder="0" v-model="delegate.amount">
                 </li>
                 <li class="token">
-                  <!-- Token -->
                   <label>Token</label>
                   <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
@@ -115,10 +111,9 @@
           <div id="undelegate-form" class="transfer tab-pane">
             <form class="basic-form">
               <li class="token">
-                <!-- Token -->
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="undelegate.validator" list="validator_unbond_list" >
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="undelegate.validator" list="validator_unbond_list">
                 <datalist id="validator_unbond_list">
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
@@ -127,15 +122,12 @@
               </li>
               <ul class="basic-group clearfix">
                 <li class='amount'>
-                  <!-- 转账金额 -->
                   <label>{{$t("undelegation_amount")}}</label>
                   <input type="text" placeholder="0" v-model="undelegate.amount">
                 </li>
                 <li class="token">
-                  <!-- Token -->
                   <label>Token</label>
                   <input type="text" placeholder="0" v-model="transfer.token" disabled>
-
                 </li>
               </ul>
 
@@ -143,53 +135,82 @@
             </form>
           </div>
 
-      <!-- ========================Redelegation form============================ -->
+          <!-- ========================Redelegation form============================ -->
+          <div id="redelegate-form" class="transfer tab-pane">
+            <form class="basic-form">
+              <li class="token">
 
-      <div id="redelegate-form" class="transfer tab-pane">
-        <form class="basic-form">
-          <li class="token">
-            <!-- Token -->
-            <label>{{$t("webwallet_from_validator")}}</label>
+                <label>{{$t("webwallet_from_validator")}}</label>
 
-            <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.from_validator" list="validator_unbond_list" >
-            <datalist id="validator_unbond_list">
-              <option v-for="(item, index) in delegations" :value="index" :key="index">
-                {{item[0]}} - {{item[1]}} {{delegate.token}}
-              </option>
-            </datalist>
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.from_validator" list="validator_unbond_list">
+                <datalist id="validator_unbond_list">
+                  <option v-for="(item, index) in delegations" :value="index" :key="index">
+                    {{item[0]}} - {{item[1]}} {{delegate.token}}
+                  </option>
+                </datalist>
 
-            <label>{{$t("webwallet_to_validator")}}</label>
+                <label>{{$t("webwallet_to_validator")}}</label>
 
-            <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list" >
-            <datalist id="validator_list">
-              <option v-for="item in validators" :value="item[1]" :key="item[1]">
-                {{item[0]}} - {{item[1]}}
-              </option>
-            </datalist>
-          </li>
-          <ul class="basic-group clearfix">
-            <li class='amount'>
-              <!-- 转账金额 -->
-              <label>{{$t("undelegation_amount")}}</label>
-              <input type="text" placeholder="0" v-model="redelegate.amount">
-            </li>
-            <li class="token">
-              <!-- Token -->
-              <label>Token</label>
-              <input type="text" placeholder="0" v-model="transfer.token" disabled>
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list">
+                <datalist id="validator_list">
+                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
+                    {{item[0]}} - {{item[1]}}
+                  </option>
+                </datalist>
+              </li>
+              <ul class="basic-group clearfix">
+                <li class='amount'>
+                  <label>{{$t("undelegation_amount")}}</label>
+                  <input type="text" placeholder="0" v-model="redelegate.amount">
+                </li>
+                <li class="token">
+                  <label>Token</label>
+                  <input type="text" placeholder="0" v-model="transfer.token" disabled>
 
-            </li>
-          </ul>
+                </li>
+              </ul>
 
-          <a class="btn" @click="sendReDelegateTx">{{$t("redelegatetx")}}</a>
-        </form>
+              <a class="btn" @click="sendReDelegateTx">{{$t("redelegatetx")}}</a>
+            </form>
+          </div>
+          <!-- ========================Withdraw form============================ -->
+          <div id="withdraw-form" class="transfer tab-pane">
+            <form class="basic-form">
+              <li class="token">
+
+                <label>{{$t("webwallet_from_validator")}}</label>
+
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="withdraw.validator_address" list="validator_withdraw_list">
+                <datalist id="validator_withdraw_list">
+                  <option v-for="(item, index) in delegations" :value="index" :key="index">
+                    {{item[0]}}
+                  </option>
+                </datalist>
+               </li>
+              <ul >
+                <li >
+                  <!-- <label for="checkbox">{{$t("withdraw_with_commission")}}</label>
+                  <input type="checkbox" id="checkbox" > -->
+                  <label>{{$t("withdraw_config")}}</label>
+                  <select v-model="withdraw.config">
+                    <option value="0" key="0">Reward only</option>
+                    <option value="1" key="1">Commision only</option>
+                    <option value="2" key="2">Reward and commission</option>
+                  </select>
+                  <span class="local-alert" v-if="(withdraw.config==1 || withdraw.config==2)">{{$t('withdraw_with_commission_alert')}}</span>
+
+                </li>
+              </ul>
+
+              <a class="btn" @click="sendWithdrawTx">{{$t("withdrawtx")}}</a>
+            </form>
+          </div>
+
+        </div>
       </div>
-      </div>
-      </div>
-
-      <!-- =======================Mini explorer============================= -->
     </section>
 
+      <!-- =======================Mini explorer============================= -->
     <section class="main-info">
       <div class="main-container transfer-container">
         <table class="table">
@@ -221,6 +242,7 @@
 
       </div>
     </section>
+
   </template>
 </div>
 </template>
@@ -252,7 +274,7 @@ export default {
       account: '',
       accountName: '',
       key: '',
-      publickey:'',
+      publickey: '',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
       selectedSet: 1,
@@ -296,6 +318,10 @@ export default {
         'fee': 0.001250,
         'gasPrice': '0.0000005',
         'gasLimit': 300000
+      },
+      withdraw: {
+        'validator_address': '',
+        'config': 0,
       },
 
       account_number: 0,
@@ -388,7 +414,6 @@ export default {
 
 
     },
-
     getUnit() {
       common.$on('val', (data) => {
         this.unit = data
@@ -436,85 +461,87 @@ export default {
 
         var promise4 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send').then((res5) => {
-            let page = res5.data.page_total && res5.data.page_total>0  ? res5.data.page_total : 1;
+            let page = res5.data.page_total && res5.data.page_total > 0 ? res5.data.page_total : 1;
             return page
-          }).then((res) => { axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send&page=' + res).then((res5) => {
+          }).then((res) => {
+            axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=send&page=' + res).then((res5) => {
 
-            res = res5.data.txs
-            if (res) {
-              res.forEach((value) => {
-                let fee = 0
+              res = res5.data.txs
+              if (res) {
+                res.forEach((value) => {
+                  let fee = 0
 
-                if (value.tx.value.fee.amount.length > 0) {
-                  fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-                }
+                  if (value.tx.value.fee.amount.length > 0) {
+                    fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+                  }
 
-                this.transactions.push([value.txhash, 'send',
-                  value.tx.value.msg[0].value.to_address,
-                  value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-                  fee, value.timestamp
-                ])
+                  this.transactions.push([value.txhash, 'send',
+                    value.tx.value.msg[0].value.to_address,
+                    value.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
+                    fee, value.timestamp
+                  ])
 
-              });
-            }
-          }).then((resx) => {
-            this.transactions.sort(
-              function(a, b){
-              const date_a = Date.parse(a[5])
-              const date_b = Date.parse(b[5])
-
-              let comparison = 0;
-              if (date_a > date_b) {
-                comparison = 1;
-              } else if (date_a < date_b) {
-                comparison = -1;
+                });
               }
-              return comparison * -1;
+            }).then((resx) => {
+              this.transactions.sort(
+                function(a, b) {
+                  const date_a = Date.parse(a[5])
+                  const date_b = Date.parse(b[5])
+
+                  let comparison = 0;
+                  if (date_a > date_b) {
+                    comparison = 1;
+                  } else if (date_a < date_b) {
+                    comparison = -1;
+                  }
+                  return comparison * -1;
+                })
             })
           })
         })
-      })
 
         var promise5 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate').then((res6) => {
-            let page = res6.data.page_total && res6.data.page_total>0  ? res6.data.page_total : 1;
+            let page = res6.data.page_total && res6.data.page_total > 0 ? res6.data.page_total : 1;
             return page
-          }).then((res) => { axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate&page=' + res).then((res6) => {
-            let res = res6.data.txs;
+          }).then((res) => {
+            axios.get(nodeUrl + '/txs?message.sender=' + this.account + '&message.action=delegate&page=' + res).then((res6) => {
+              let res = res6.data.txs;
 
-            if (res) {
-              res.forEach((value) => {
-                let fee = 0
+              if (res) {
+                res.forEach((value) => {
+                  let fee = 0
 
-                if (value.tx.value.fee.amount.length > 0) {
-                  fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-                }
+                  if (value.tx.value.fee.amount.length > 0) {
+                    fee = value.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+                  }
 
-                this.transactions.push([value.txhash, 'delegate',
-                  value.tx.value.msg[0].value.validator_address,
-                  value.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
-                  fee, value.timestamp
-                ])
+                  this.transactions.push([value.txhash, 'delegate',
+                    value.tx.value.msg[0].value.validator_address,
+                    value.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
+                    fee, value.timestamp
+                  ])
 
-              });
-            }
-          }).then((resx) => {
-
-            this.transactions.sort(function(a, b){
-              const date_a = Date.parse(a[5])
-              const date_b = Date.parse(b[5])
-
-              let comparison = 0;
-              if (date_a > date_b) {
-                comparison = 1;
-              } else if (date_a < date_b) {
-                comparison = -1;
+                });
               }
-              return comparison * -1;
+            }).then((resx) => {
+
+              this.transactions.sort(function(a, b) {
+                const date_a = Date.parse(a[5])
+                const date_b = Date.parse(b[5])
+
+                let comparison = 0;
+                if (date_a > date_b) {
+                  comparison = 1;
+                } else if (date_a < date_b) {
+                  comparison = -1;
+                }
+                return comparison * -1;
+              })
             })
           })
         })
-      })
 
         var promise3 = new Promise((resolve, reject) => {
           axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -593,7 +620,6 @@ export default {
       });
     },
 
-
     // ========================Transfer Transaction============================
     sendTransfer() {
       if (!this.transfer.account) {
@@ -651,7 +677,10 @@ export default {
       const publickey = Buffer.from(this.publickey, 'hex');
 
 
-      let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
+      let signedTransactionme = signTx(transaction, signMeta, {
+        'privateKey': key,
+        'publicKey': publickey
+      });
       let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
@@ -677,7 +706,6 @@ export default {
         }
       });
     },
-
     // ========================Delegation Transaction============================
     sendDelegateTx() {
       if (!this.delegate.validator) {
@@ -737,7 +765,10 @@ export default {
       const key = Buffer.from(this.key, 'hex');
       const publickey = Buffer.from(this.publickey, 'hex');
 
-      let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
+      let signedTransactionme = signTx(transaction, signMeta, {
+        'privateKey': key,
+        'publicKey': publickey
+      });
       let bcTransactionme = createBroadcastTx(signedTransactionme);
 
       let url = nodeUrl + `/txs?sync=true`;
@@ -762,7 +793,6 @@ export default {
         }
       });
     },
-
     // =========================Unbonding transaction===========================
     sendUnDelegateTx() {
       if (!this.undelegate.validator) {
@@ -826,7 +856,10 @@ export default {
         const key = Buffer.from(this.key, 'hex');
         const publickey = Buffer.from(this.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
         let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
@@ -921,9 +954,13 @@ export default {
         const key = Buffer.from(this.key, 'hex');
         const publickey = Buffer.from(this.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, {'privateKey':key, 'publicKey':publickey});
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
         let bcTransactionme = createBroadcastTx(signedTransactionme);
 
+        console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
 
         let url = nodeUrl + `/txs?sync=true`;
         const opts = {
@@ -948,16 +985,109 @@ export default {
         });
       }
     },
+    // =========================Withdraw transaction===========================
+    sendWithdrawTx() {
+      if (!this.withdraw.validator_address) {
+        alert(this.$t('delegate_account_null'));
+        return false;
+      }
 
-    getAccounts(){
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      let account = this.account;
+      let limit = 300000;
+
+      const msg_withdraw_reward = {
+        'type': 'cosmos-sdk/MsgWithdrawDelegationReward',
+        'value': {
+          'delegator_address': account,
+          'validator_address': this.withdraw.validator_address,
+        }
+      }
+
+      const msg_withdraw_commision = {
+        'type': 'cosmos-sdk/MsgWithdrawValidatorCommission',
+        'value': {
+          'validator_address': this.withdraw.validator_address,
+        }
+      }
+
+
+      const transaction = {
+      'msg': [],
+      'fee': {
+          'amount': [],
+          'gas': limit.toString()
+        },
+        'memo': "",
+
+      }
+
+      if(this.withdraw.config==0){
+        transaction.msg.push(msg_withdraw_reward)
+      }
+
+      if(this.withdraw.config==1){
+        transaction.msg.push(msg_withdraw_commision)
+      }
+
+      if(this.withdraw.config==2){
+        transaction.msg.push(msg_withdraw_reward)
+        transaction.msg.push(msg_withdraw_commision)
+      }
+
+      const signMeta = {
+          chain_id: "KiChain-t",
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        //TEMP
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+        let url = nodeUrl + `/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        };
+
+        axios(opts).then(res => {
+          let result = res.data;
+
+          if (result.code) {
+            let log = JSON.parse(result.raw_log);
+            alert(log.message);
+          } else if (result.txhash) {
+            alert(this.$t('transfer_success'));
+            window.location.reload();
+          }
+        });
+    },
+
+    getAccounts() {
       if (localStorage.getItem("wallet_list")) {
         let wallet_list = localStorage.getItem("wallet_list").split(',');
-        for (var w in wallet_list){
-          this.wallets.push({'account': wallet_list[w], 'address': JSON.parse(localStorage.getItem(wallet_list[w])).address, 'privatekey':  Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'), 'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')});
+        for (var w in wallet_list) {
+          this.wallets.push({
+            'account': wallet_list[w],
+            'address': JSON.parse(localStorage.getItem(wallet_list[w])).address,
+            'privatekey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).privateKey).toString('hex'),
+            'publickey': Buffer.from(JSON.parse(localStorage.getItem(wallet_list[w])).publicKey).toString('hex')
+          });
         }
       }
     },
-},
+  },
   components: {
     login,
     sideBar

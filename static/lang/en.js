@@ -51,6 +51,8 @@ module.exports = {
   undelegatetx: "Undelegate",
   redelegatetx: "Redelegate",
   withdrawtx: "Withdraw",
+  withdraw_config: "Withdrawal configuration",
+  withdraw_with_commission_alert: "(Only apply for validator operators)",
   transaction_list:"Transactions",
   undelegation_amount: "Amount to unbond",
   transfer: "Transfer",
