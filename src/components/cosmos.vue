@@ -9,6 +9,7 @@
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
       <div class="main-container transfer-container">
+        <div id="sent_alert"></div>
         <ul class="tabs nav nav-tabs">
           <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
@@ -87,8 +88,9 @@
 
                 <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
-                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
-                    {{item[0]}} - {{item[1]}}
+                  <!-- <option v-for="item in validators" :value="item[1]" :key="item"> -->
+                  <option v-for="(item, index) in validators" :value="index" :key="index">
+                    {{item[0]}}
                   </option>
                 </datalist>
               </li>
@@ -151,10 +153,11 @@
 
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list">
-                <datalist id="validator_list">
-                  <option v-for="item in validators" :value="item[1]" :key="item[1]">
-                    {{item[0]}} - {{item[1]}}
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list_re">
+                <datalist id="validator_list_re">
+                  <!-- <option v-for="item in validators" :value="item[1]" :key="item[1]"> -->
+                  <option v-for="(item, index) in validators" :value="index" :key="index">
+                    {{item[0]}}
                   </option>
                 </datalist>
               </li>
@@ -193,9 +196,9 @@
                   <input type="checkbox" id="checkbox" > -->
                   <label>{{$t("withdraw_config")}}</label>
                   <select v-model="withdraw.config">
-                    <option value="0" key="0">Reward only</option>
-                    <option value="1" key="1">Commision only</option>
-                    <option value="2" key="2">Reward and commission</option>
+                    <option value="0" key="0">Rewards only</option>
+                    <option value="1" key="1">Commisions only</option>
+                    <option value="2" key="2">Rewards and commissions</option>
                   </select>
                   <span class="local-alert" v-if="(withdraw.config==1 || withdraw.config==2)">{{$t('withdraw_with_commission_alert')}}</span>
 
@@ -324,6 +327,8 @@ export default {
         'config': 0,
       },
 
+      reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
+
       account_number: 0,
       sequence: 0,
       values: ['TKI'],
@@ -347,7 +352,7 @@ export default {
           undelegate: 0,
         }
       },
-      validators: [],
+      validators: {},
       wallets: [],
       delegations: {},
       transactions: []
@@ -607,7 +612,8 @@ export default {
                     let res = res4.data.result;
                     if (res) {
                       res.forEach((value) => {
-                        this.validators.push([value.description.moniker, value.operator_address]);
+                        // this.validators.push([value.description.moniker, value.operator_address]);
+                        this.validators[value.operator_address] = [value.description.moniker];
                       });
                     }
                     return 0;
@@ -622,6 +628,7 @@ export default {
 
     // ========================Transfer Transaction============================
     sendTransfer() {
+
       if (!this.transfer.account) {
         alert(this.$t('transfer_account_null'));
         return false;
@@ -666,6 +673,17 @@ export default {
         'memo': this.transfer.memo,
       }
 
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
       const signMeta = {
         chain_id: "KiChain-t",
         account_number: this.account_number.toString(),
@@ -701,10 +719,14 @@ export default {
           let log = JSON.parse(result.raw_log);
           alert(log.message);
         } else if (result.txhash) {
-          alert(this.$t('transfer_success'));
-          window.location.reload();
+          $('#sent_alert').html(
+            '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer '+this.transfer.amount+'tki to '+this.transfer.account+' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          // alert(this.$t('transfer_success'));
+          // window.location.reload();
+          this.resetForms();
         }
       });
+      })
     },
     // ========================Delegation Transaction============================
     sendDelegateTx() {
@@ -755,6 +777,16 @@ export default {
         'memo': "",
       }
 
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
       const signMeta = {
         chain_id: "KiChain-t",
         account_number: this.account_number.toString(),
@@ -788,10 +820,13 @@ export default {
           let log = JSON.parse(result.raw_log);
           alert(log.message);
         } else if (result.txhash) {
-          alert(this.$t('transfer_success'));
-          window.location.reload();
+          $('#sent_alert').html(
+            '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' +   this.validators[this.delegate.validator]+ '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+
+          this.resetForms();
         }
       });
+        })
     },
     // =========================Unbonding transaction===========================
     sendUnDelegateTx() {
@@ -842,6 +877,17 @@ export default {
         'memo': "",
       }
 
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
       if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
         alert("Cannot unbond more than what is bonded!");
       } else {
@@ -880,11 +926,15 @@ export default {
             let log = JSON.parse(result.raw_log);
             alert(log.message);
           } else if (result.txhash) {
-            alert(this.$t('transfer_success'));
-            window.location.reload();
+            $('#sent_alert').html(
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' + this.undelegate.amount + 'tki from ' +   this.delegations[this.undelegate.validator][0]+ ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+
+            this.resetForms();
           }
         });
       }
+    })
+
     },
     // =========================Redelegate transaction===========================
     sendReDelegateTx() {
@@ -940,6 +990,17 @@ export default {
         'memo': "",
       }
 
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
       if (this.delegations[this.redelegate.from_validator][1] < this.redelegate.amount) {
         alert("Cannot unbond more than what is bonded!");
       } else {
@@ -979,11 +1040,15 @@ export default {
             let log = JSON.parse(result.raw_log);
             alert(log.message);
           } else if (result.txhash) {
-            alert(this.$t('transfer_success'));
-            window.location.reload();
+            $('#sent_alert').html(
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' +   this.delegations[this.redelegate.from_validator][0]+ ' to ' +  this.delegations[this.redelegate.to_validator][0]+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+
+            this.resetForms();
           }
         });
       }
+    })
+
     },
     // =========================Withdraw transaction===========================
     sendWithdrawTx() {
@@ -1021,6 +1086,17 @@ export default {
         'memo': "",
 
       }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
 
       if(this.withdraw.config==0){
         transaction.msg.push(msg_withdraw_reward)
@@ -1068,10 +1144,36 @@ export default {
             let log = JSON.parse(result.raw_log);
             alert(log.message);
           } else if (result.txhash) {
-            alert(this.$t('transfer_success'));
-            window.location.reload();
+            $('#sent_alert').html(
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from '+  this.delegations[this.withdraw.validator_address][0]  +' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            this.resetForms();
           }
         });
+      })
+
+    },
+
+    resetForms() {
+      this.mnemonic = '';
+      this.transfer.account = '';
+      this.transfer.amount = 0;
+      this.transfer.memo= '';
+      this.transfer.fee = 0.001250;
+      this.transfer.gasPrice = '0.0000005';
+      this.transfer.gasLimit =  300000;
+
+      this.delegate.validator = '';
+      this.delegate.amount = 0;
+
+      this.undelegate.validator = '';
+      this.undelegate.amount = 0;
+
+      this.redelegate.to_validator = '';
+      this.redelegate.from_validator = '';
+      this.redelegate.amount = 0;
+
+      this.withdraw.validator_address = '';
+      this.withdraw.config = 0;
     },
 
     getAccounts() {
