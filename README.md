@@ -13,7 +13,7 @@ The web wallet allows:
 - Issuing transfer transactions: send.
 - Issuing staking transactions: delegate/undelegate/redelegate transactions.
 - Issuing distribution transactions: withdraw rewards and/or commissions.
-- Viewing send and delegation tx (mini-explorer)
+- Viewing send and delegation transactions (mini-explorer)
 
 ## How to run The  Ki Web Wallet
 
@@ -33,3 +33,6 @@ npm run build
 ```bash
 npm run build --report
 ```
+## Disclaimer
+
+The Ki Web Wallet is based on the [math-cosmos-web-wallet](https://github.com/mathwallet/math-cosmos-web-wallet) project by [MathWallet](https://github.com/mathwallet).
