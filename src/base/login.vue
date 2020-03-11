@@ -17,7 +17,7 @@
       <div class="deck">
         <a role="button" @click="resetModal" data-toggle="modal" data-target="#import-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
-            <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+            <img src="/static/img/chain/kichain_banner_import.png" class="card-img-top">
             <div class="card-body">
               <p class="card-text">Import an existing Wallet</p>
             </div>
@@ -26,7 +26,7 @@
 
         <a role="button" data-toggle="modal" data-target="#add-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
-            <img src="/static/img/chain/kichain_banner.png" class="card-img-top">
+            <img src="/static/img/chain/kichain_banner_add.png" class="card-img-top">
             <div class="card-body">
               <p class="card-text">Generate a new Wallet</p>
             </div>
