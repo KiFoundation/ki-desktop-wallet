@@ -4,10 +4,12 @@
   <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
 
   <template v-else>
+
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets"></side-bar>
 
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
+      <networks></networks>
       <div class="main-container transfer-container">
         <div id="sent_alert"></div>
         <ul class="tabs nav nav-tabs">
@@ -253,6 +255,7 @@
 <script>
 import login from 'base/login'
 import sideBar from 'base/sidebar'
+import networks from 'base/networks'
 import common from 'static/js/common.js'
 import {
   KeyPair,
@@ -278,6 +281,7 @@ export default {
       accountName: '',
       key: '',
       publickey: '',
+      chainId: '',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
       selectedSet: 1,
@@ -413,7 +417,7 @@ export default {
         this.accountName = JSON.parse(this.webUtil.getCookie('identity_kichain')).accountName;
         this.key = JSON.parse(this.webUtil.getCookie('identity_kichain')).privatekey;
         this.publickey = JSON.parse(this.webUtil.getCookie('identity_kichain')).publickey;
-
+        this.chainId = JSON.parse(this.webUtil.getCookie('identity_kichain')).chainId;
         this.initExtension()
       }
 
@@ -685,7 +689,7 @@ export default {
         }
 
       const signMeta = {
-        chain_id: "KiChain-t",
+        chain_id: this.chainId,
         account_number: this.account_number.toString(),
         sequence: this.sequence.toString(),
       };
@@ -788,7 +792,7 @@ export default {
           this.sequence = res.sequence;
         }
       const signMeta = {
-        chain_id: "KiChain-t",
+        chain_id: this.chainId,
         account_number: this.account_number.toString(),
         sequence: this.sequence.toString(),
       };
@@ -893,7 +897,7 @@ export default {
       } else {
 
         const signMeta = {
-          chain_id: "KiChain-t",
+          chain_id: this.chainId,
           account_number: this.account_number.toString(),
           sequence: this.sequence.toString(),
         };
@@ -1006,7 +1010,7 @@ export default {
       } else {
 
         const signMeta = {
-          chain_id: "KiChain-t",
+          chain_id: this.chainId,
           account_number: this.account_number.toString(),
           sequence: this.sequence.toString(),
         };
@@ -1112,7 +1116,7 @@ export default {
       }
 
       const signMeta = {
-          chain_id: "KiChain-t",
+          chain_id: this.chainId,
           account_number: this.account_number.toString(),
           sequence: this.sequence.toString(),
         };
@@ -1192,7 +1196,8 @@ export default {
   },
   components: {
     login,
-    sideBar
+    sideBar,
+    networks,
   }
 }
 </script>

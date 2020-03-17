@@ -1,23 +1,29 @@
 <template>
 <div>
-  <div class="alert alert-warning alert-dismissible fade show" style="position:relative;" role="alert">
-    This tool aims at testing the functionnalities of the <strong>Kichain Testnet</strong> only!
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
+  <div class="alerts">
+    <div class="alert alert-warning alert-dismissible fade show" style="position:relative;" role="alert">
+      This tool aims at testing the functionnalities of the <strong>Kichain Testnet</strong> only!
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
   </div>
+
+  <networks></networks>
+
   <div class="login-container main-container">
     <div id="imported_alert">
     </div>
     <img :src="'static/img/icons/ki-chain.png'" style="margin-top:50px;">
     <div class="info">
-      <h1>{{blockchain}} <span>{{$t('webwallet_wallet')}}</span></h1>
+      <h1>{{this.globalData.kichain.network.network}} <span>{{$t('webwallet_wallet')}}</span></h1>
+
       <p><span>{{$t('webwallet_home_create')}}</span></p>
 
       <div class="deck">
         <a role="button" @click="resetModal" data-toggle="modal" data-target="#import-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
-            <img src="/static/img/chain/kichain_banner_import.png" class="card-img-top">
+            <img src="/static/img/chain/kichain_banner_import.png" class="card-img-top" style="width:80%">
             <div class="card-body">
               <p class="card-text">Import an existing Wallet</p>
             </div>
@@ -26,7 +32,7 @@
 
         <a role="button" data-toggle="modal" data-target="#add-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
-            <img src="/static/img/chain/kichain_banner_add.png" class="card-img-top">
+            <img src="/static/img/chain/kichain_banner_add.png" class="card-img-top" style="width:80%">
             <div class="card-body">
               <p class="card-text">Generate a new Wallet</p>
             </div>
@@ -120,6 +126,7 @@
 </div>
 </template>
 <script>
+import networks from 'base/networks'
 import {
   createWalletFromMnemonic
 } from '@tendermint/sig';
@@ -316,13 +323,14 @@ export default {
     login() {
       let nodeUrl = this.nodeUrl;
       let network = this.network;
+      let chainid = this.network.chainId;
 
       if (localStorage.getItem("wallet_list")) {
         // let wallet_list = localStorage.getItem("wallet_list").split(',');
         // let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
         //   wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
 
-        let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
+        let identity = '{"blockchain":"cosmos","chainId":"' + chainid + '","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
           this.selected_wallet)).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
 
         this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {
@@ -338,6 +346,10 @@ export default {
       window.location.reload();
 
     }
+  },
+
+  components: {
+    networks,
   }
 }
 </script>

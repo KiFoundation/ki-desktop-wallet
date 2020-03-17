@@ -132,6 +132,7 @@ export default {
     },
 
     switchAccount() {
+      let chainid = this.network.chainId;
       if (!(this.selected.length > 0)) {
         alert("select an account");
       }
@@ -141,7 +142,7 @@ export default {
       var confirmed = true;
 
       if (confirmed){
-      let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "privatekey": '+JSON.stringify(this.selected[0].privatekey)+ ', "publickey": '+JSON.stringify(this.selected[0].publickey)+ '}';
+      let identity = '{"blockchain":"cosmos","chainId":"' + chainid + '","account":'+JSON.stringify(this.selected[0].address)+', "accountName": '+JSON.stringify(this.selected[0].account)+ ', "privatekey": '+JSON.stringify(this.selected[0].privatekey)+ ', "publickey": '+JSON.stringify(this.selected[0].publickey)+ '}';
 
       this.webUtil.setCookie("identity_"+this.blockchain_lowercase, identity, {
         expires: 30,

@@ -678,7 +678,7 @@ i {
 }
 
 .card-text{
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .card:hover{
@@ -754,4 +754,36 @@ a.custom-card:hover {
 .local-alert{
   color: #666;
   font-size: 11px;
+}
+
+.alerts{
+  position: fixed;
+  top: 0px;
+  left: 0;
+  right: 0;
+  z-index: 7000;
+}
+
+.network-container {
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+  transform: rotate(90deg);
+  margin: 40px -45px 0px 0px ;
+  padding-right: 12px;
+  padding-left: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background: var(--blueColor);
+  border-radius: 3px;
+  box-shadow: 0 10px 10px rgba(154,160,185,.05), 0 15px 40px rgba(166,173,201,.2);
+  text-align: center;
+}
+
+.clear-link{
+  font-size: 14px;
+  /* color: var(--greyColor) !important; */
+  color: #fff;
+  font-family: Gotham-Medium;
+  font-weight: 500;
 }
