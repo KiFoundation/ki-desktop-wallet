@@ -4,7 +4,10 @@
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <h5>{{accountName}}</h5>
+    <h6 v-if="vesting" class="grey-fsz">vesting account</h6>
+
     <p id="copyContent">{{account}}</p>
+
     <div class="operation-list">
       <a class="grey-fsz" @click="removeWallet">{{$t("webwallet_remove_wallet")}}</a>
     </div>
@@ -18,7 +21,6 @@
         <li v-for="(item,index) in balances.list" :key="index">
           <div>{{$t(index)}} {{token}}</div>
           <div>{{item?webUtil.addCommas(item,6):0}}</div>
-
         </li>
         <li>
           <div>Sequence</div>
@@ -98,7 +100,7 @@ Vue.component('b-button', BButton);
 
 
 export default {
-  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName', 'items'],
+  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName', 'items', 'vesting'],
   data() {
     return {
       unit: this.webCoin.unit,

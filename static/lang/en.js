@@ -44,6 +44,7 @@ module.exports = {
   webwallet_tx_time: "Tx Time",
   transaction_information: "Transaction Information",
   available: "Available",
+  locked: "Locked",
   delegate: "Delegated",
   undelegate: "Undelegating",
   delegatetx: "Delegate",

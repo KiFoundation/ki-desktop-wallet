@@ -5,7 +5,7 @@
 
   <template v-else>
 
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting"></side-bar>
 
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
@@ -278,6 +278,7 @@ export default {
       blockchain: 'KiChain',
       prefix: '',
       account: '',
+      vesting: false,
       accountName: '',
       key: '',
       publickey: '',
@@ -359,6 +360,7 @@ export default {
           available: 0,
           delegate: 0,
           undelegate: 0,
+          locked: 0,
         }
       },
       validators: {},
@@ -561,23 +563,56 @@ export default {
           axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
             if (res1.data.result.value) {
               let res = '';
+              let available_real = 0;
               if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+                this.vesting = true
+                res = res1.data.result.value
+
+                // get the original vesting
+                let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount);
+
+                // get vesting period
+                let start = res.start_time;
+                let end = res.BaseVestingAccount.end_time;
+
+                // get vested amount
+                let total_duration = end - start
+                let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0 ) ? Math.floor(Date.now() / 1000) - start : 0
+                let vested_ratio = elapsed_suration/total_duration
+                let locked = original * (1 - vested_ratio) / Math.pow(10, 6)
+                let vested = original - locked
+
+                this.balances.list.locked = locked
+
                 res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+                let coins = res.coins;
+
+                if (coins) {
+                  coins.forEach((coin) => {
+                    if (coin.denom == 'tki') {
+                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6) - original + vested ;
+                      available_real = parseFloat(coin.amount) / Math.pow(10, 6) ;
+                    }
+                  });
+                }
+
               } else {
                 res = res1.data.result.value;
+                let coins = res.coins;
+                if (coins) {
+                  coins.forEach((coin) => {
+                    if (coin.denom == 'tki') {
+                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6);
+                      available_real = this.balances.list.available
+                    }
+                  });
+                }
               }
 
               this.account_number = res.account_number;
               this.sequence = res.sequence;
-              let coins = res.coins;
-              if (coins) {
-                coins.forEach((coin) => {
-                  if (coin.denom == 'tki') {
-                    this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6);
-                  }
-                });
-              }
-              this.balances.sum = this.balances.sum + this.balances.list.available;
+
+              this.balances.sum = this.balances.sum + available_real;
             }
           }).then((result4) => {
             axios.get(nodeUrl + '/staking/delegators/' + this.account + '/validators').then((res5) => {
