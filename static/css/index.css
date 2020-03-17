@@ -787,3 +787,7 @@ a.custom-card:hover {
   font-family: Gotham-Medium;
   font-weight: 500;
 }
+
+.danger{
+  background-color: rgba(237,20,61,.2)!important;
+}

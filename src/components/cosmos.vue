@@ -25,7 +25,7 @@
           <div id="transfer-form" class="tab-pane in active">
             <form class="basic-form">
               <label>{{$t("webwallet_to_address")}}</label>
-              <input type="text" :placeholder="$t('webwallet_to_address_pl')" v-model="transfer.account" list="self_wallets">
+              <input type="text" :placeholder="$t('webwallet_to_address_pl')" :class="[transfer.account ? '' : transfer.alert]" v-model="transfer.account" list="self_wallets">
               <datalist id="self_wallets">
                 <option v-for="item in wallets" :value="item.address" :key="item.address">
                   {{item.account}}
@@ -34,7 +34,7 @@
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <label>{{$t("transfer_amount")}}</label>
-                  <input type="text" placeholder="0" v-model="transfer.amount">
+                  <input type="text" placeholder="0" :class="[transfer.amount ? '' : transfer.alert]" v-model="transfer.amount">
                 </li>
                 <li class="token">
 
@@ -88,7 +88,7 @@
               <li class="token">
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="delegate.validator" list="validator_list">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
                   <!-- <option v-for="item in validators" :value="item[1]" :key="item"> -->
                   <option v-for="(item, index) in validators" :value="index" :key="index">
@@ -99,7 +99,7 @@
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <label>{{$t("delegation_amount")}}</label>
-                  <input type="text" placeholder="0" v-model="delegate.amount">
+                  <input type="text" placeholder="0" :class="[delegate.amount ? '' : delegate.alert]" v-model="delegate.amount">
                 </li>
                 <li class="token">
                   <label>Token</label>
@@ -117,7 +117,7 @@
               <li class="token">
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="undelegate.validator" list="validator_unbond_list">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[undelegate.validator ? '' : undelegate.alert]" v-model="undelegate.validator" list="validator_unbond_list">
                 <datalist id="validator_unbond_list">
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
@@ -127,7 +127,7 @@
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <label>{{$t("undelegation_amount")}}</label>
-                  <input type="text" placeholder="0" v-model="undelegate.amount">
+                  <input type="text" placeholder="0" :class="[undelegate.amount ? '' : undelegate.alert]" v-model="undelegate.amount">
                 </li>
                 <li class="token">
                   <label>Token</label>
@@ -146,7 +146,7 @@
 
                 <label>{{$t("webwallet_from_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.from_validator" list="validator_unbond_list">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[redelegate.from_validator ? '' : redelegate.alert]" v-model="redelegate.from_validator" list="validator_unbond_list">
                 <datalist id="validator_unbond_list">
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}} - {{item[1]}} {{delegate.token}}
@@ -155,7 +155,7 @@
 
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="redelegate.to_validator" list="validator_list_re">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[redelegate.to_validator ? '' : redelegate.alert]" v-model="redelegate.to_validator" list="validator_list_re">
                 <datalist id="validator_list_re">
                   <!-- <option v-for="item in validators" :value="item[1]" :key="item[1]"> -->
                   <option v-for="(item, index) in validators" :value="index" :key="index">
@@ -166,7 +166,7 @@
               <ul class="basic-group clearfix">
                 <li class='amount'>
                   <label>{{$t("undelegation_amount")}}</label>
-                  <input type="text" placeholder="0" v-model="redelegate.amount">
+                  <input type="text" placeholder="0" :class="[redelegate.amount ? '' : redelegate.alert]" v-model="redelegate.amount">
                 </li>
                 <li class="token">
                   <label>Token</label>
@@ -185,7 +185,7 @@
 
                 <label>{{$t("webwallet_from_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" v-model="withdraw.validator_address" list="validator_withdraw_list">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[withdraw.validator_address ? '' : withdraw.alert]" v-model="withdraw.validator_address" list="validator_withdraw_list">
                 <datalist id="validator_withdraw_list">
                   <option v-for="(item, index) in delegations" :value="index" :key="index">
                     {{item[0]}}
@@ -293,6 +293,7 @@ export default {
         max: 100
       },
       transfer: {
+        'alert': '',
         'account': '',
         'amount': 0,
         'token': 'tki',
@@ -302,6 +303,7 @@ export default {
         'gasLimit': 300000
       },
       delegate: {
+        'alert': '',
         'validator': '',
         'amount': 0,
         'token': 'tki',
@@ -310,6 +312,7 @@ export default {
         'gasLimit': 300000
       },
       undelegate: {
+        'alert': '',
         'validator': '',
         'amount': 0,
         'token': 'tki',
@@ -318,6 +321,7 @@ export default {
         'gasLimit': 300000
       },
       redelegate: {
+        'alert': '',
         'to_validator': '',
         'from_validator': '',
         'amount': 0,
@@ -327,6 +331,7 @@ export default {
         'gasLimit': 300000
       },
       withdraw: {
+        'alert': '',
         'validator_address': '',
         'config': 0,
       },
@@ -632,19 +637,24 @@ export default {
 
     // ========================Transfer Transaction============================
     sendTransfer() {
+      this.transfer.alert = "danger"
+      let filled = true
 
       if (!this.transfer.account) {
-        alert(this.$t('transfer_account_null'));
-        return false;
+        filled = false;
       }
       if (!this.transfer.amount) {
-        alert(this.$t('transfer_amount_null'));
-        return false;
+        filled = false;
       }
       if (this.transfer.amount < Math.pow(10, -6)) {
-        alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
+        // alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
         return false;
       }
+
       let nodeUrl = this.globalData.kichain.nodeUrl;
       let account = this.account;
       let fee = this.transfer.fee * Math.pow(10, 6);
@@ -721,7 +731,9 @@ export default {
 
         if (result.code) {
           let log = JSON.parse(result.raw_log);
-          alert(log.message);
+          $('#sent_alert').html(
+            '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          // alert(log.message);
         } else if (result.txhash) {
           $('#sent_alert').html(
             '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer '+this.transfer.amount+'tki to '+this.transfer.account+' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
@@ -734,18 +746,26 @@ export default {
     },
     // ========================Delegation Transaction============================
     sendDelegateTx() {
+      this.delegate.alert = "danger"
+      let filled = true
+
       if (!this.delegate.validator) {
-        alert(this.$t('delegate_account_null'));
-        return false;
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
       }
       if (!this.delegate.amount) {
-        alert(this.$t('delegate_amount_null'));
-        return false;
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
       }
       if (this.delegate.amount < Math.pow(10, -6)) {
-        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
         return false;
       }
+
       let nodeUrl = this.globalData.kichain.nodeUrl;
 
       let account = this.account;
@@ -822,7 +842,10 @@ export default {
 
         if (result.code) {
           let log = JSON.parse(result.raw_log);
-          alert(log.message);
+          $('#sent_alert').html(
+            '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          // alert(log.message);
+
         } else if (result.txhash) {
           $('#sent_alert').html(
             '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' +   this.validators[this.delegate.validator]+ '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
@@ -834,18 +857,26 @@ export default {
     },
     // =========================Unbonding transaction===========================
     sendUnDelegateTx() {
+      this.undelegate.alert = "danger"
+      let filled = true
+
       if (!this.undelegate.validator) {
-        alert(this.$t('delegate_account_null'));
-        return false;
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
       }
       if (!this.undelegate.amount) {
-        alert(this.$t('delegate_amount_null'));
-        return false;
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
       }
       if (this.undelegate.amount < Math.pow(10, -6)) {
-        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
         return false;
       }
+
       let nodeUrl = this.globalData.kichain.nodeUrl;
 
       let account = this.account;
@@ -928,6 +959,8 @@ export default {
 
           if (result.code) {
             let log = JSON.parse(result.raw_log);
+            $('#sent_alert').html(
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
             alert(log.message);
           } else if (result.txhash) {
             $('#sent_alert').html(
@@ -942,22 +975,30 @@ export default {
     },
     // =========================Redelegate transaction===========================
     sendReDelegateTx() {
+      this.redelegate.alert = "danger"
+      let filled = true
+
       if (!this.redelegate.to_validator) {
-        alert(this.$t('delegate_account_null'));
-        return false;
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
       }
       if (!this.redelegate.from_validator) {
-        alert(this.$t('delegate_account_null'));
-        return false;
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
       }
       if (!this.redelegate.amount) {
-        alert(this.$t('delegate_amount_null'));
-        return false;
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
       }
       if (this.redelegate.amount < Math.pow(10, -6)) {
-        alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
         return false;
       }
+
       let nodeUrl = this.globalData.kichain.nodeUrl;
 
       let account = this.account;
@@ -1042,7 +1083,9 @@ export default {
 
           if (result.code) {
             let log = JSON.parse(result.raw_log);
-            alert(log.message);
+            $('#sent_alert').html(
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            // alert(log.message);
           } else if (result.txhash) {
             $('#sent_alert').html(
               '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' +   this.delegations[this.redelegate.from_validator][0]+ ' to ' +  this.delegations[this.redelegate.to_validator][0]+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
@@ -1056,8 +1099,15 @@ export default {
     },
     // =========================Withdraw transaction===========================
     sendWithdrawTx() {
+      this.withdraw.alert = "danger"
+      let filled = true
+
       if (!this.withdraw.validator_address) {
-        alert(this.$t('delegate_account_null'));
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+
+      if (!filled) {
         return false;
       }
 
@@ -1146,7 +1196,9 @@ export default {
 
           if (result.code) {
             let log = JSON.parse(result.raw_log);
-            alert(log.message);
+            $('#sent_alert').html(
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            // alert(log.message);
           } else if (result.txhash) {
             $('#sent_alert').html(
               '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from '+  this.delegations[this.withdraw.validator_address][0]  +' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
@@ -1159,6 +1211,8 @@ export default {
 
     resetForms() {
       this.mnemonic = '';
+
+      this.transfer.alert = '';
       this.transfer.account = '';
       this.transfer.amount = 0;
       this.transfer.memo= '';
@@ -1166,16 +1220,20 @@ export default {
       this.transfer.gasPrice = '0.0000005';
       this.transfer.gasLimit =  300000;
 
+      this.delegate.alert = '';
       this.delegate.validator = '';
       this.delegate.amount = 0;
 
+      this.undelegate.alert = '';
       this.undelegate.validator = '';
       this.undelegate.amount = 0;
 
+      this.redelegate.alert = '';
       this.redelegate.to_validator = '';
       this.redelegate.from_validator = '';
       this.redelegate.amount = 0;
 
+      this.withdraw.alert = '';
       this.withdraw.validator_address = '';
       this.withdraw.config = 0;
     },

@@ -326,10 +326,6 @@ export default {
       let chainid = this.network.chainId;
 
       if (localStorage.getItem("wallet_list")) {
-        // let wallet_list = localStorage.getItem("wallet_list").split(',');
-        // let identity = '{"blockchain":"cosmos","chainId":"KiChain-t","accountName":"' + wallet_list[0] + '", "account":"' + JSON.parse(localStorage.getItem(wallet_list[0])).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
-        //   wallet_list[0])).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(wallet_list[0])).publicKey).toString("hex") + '"}';
-
         let identity = '{"blockchain":"cosmos","chainId":"' + chainid + '","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(localStorage.getItem(
           this.selected_wallet)).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
 
