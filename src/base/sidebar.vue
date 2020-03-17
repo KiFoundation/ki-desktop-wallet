@@ -3,10 +3,9 @@
   <section v-if="account" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
-    <h5>{{accountName}}</h5>
-    <h6 v-if="vesting" class="grey-fsz">vesting account</h6>
-
-    <p id="copyContent">{{account}}</p>
+    <h5>{{accountName}} </h5>
+    <p id="copyContent" style="margin-top:10px;margin-bottom:10px;">{{account}}</p>
+    <h6  class="grey-fsz"><b-badge v-if="vesting" class="badge">Vesting</b-badge></h6>
 
     <div class="operation-list">
       <a class="grey-fsz" @click="removeWallet">{{$t("webwallet_remove_wallet")}}</a>
@@ -92,11 +91,12 @@ import {
   BootstrapVue,
   IconsPlugin,
   BTable,
-  BButton
+  BButton,
+  BBadge
 } from 'bootstrap-vue'
 Vue.component('b-table', BTable);
 Vue.component('b-button', BButton);
-
+Vue.component('b-badge', BBadge);
 
 
 export default {
