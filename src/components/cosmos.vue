@@ -216,7 +216,7 @@
     </section>
 
       <!-- =======================Mini explorer============================= -->
-    <section class="main-info">
+    <section class="main-info" v-if="transactions.length > 0">
       <div class="main-container transfer-container">
         <table class="table">
           <thead class="thead-null">
@@ -569,7 +569,7 @@ export default {
                 res = res1.data.result.value
 
                 // get the original vesting
-                let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount);
+                let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount) / Math.pow(10, 6);
 
                 // get vesting period
                 let start = res.start_time;
@@ -579,8 +579,9 @@ export default {
                 let total_duration = end - start
                 let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0 ) ? Math.floor(Date.now() / 1000) - start : 0
                 let vested_ratio = elapsed_suration/total_duration
-                let locked = original * (1 - vested_ratio) / Math.pow(10, 6)
+                let locked = original * (1 - vested_ratio)
                 let vested = original - locked
+                let delegated = parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) / Math.pow(10, 6);
 
                 this.balances.list.locked = locked
 
@@ -590,7 +591,7 @@ export default {
                 if (coins) {
                   coins.forEach((coin) => {
                     if (coin.denom == 'tki') {
-                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6) - original + vested ;
+                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6) - locked  + delegated;
                       available_real = parseFloat(coin.amount) / Math.pow(10, 6) ;
                     }
                   });
