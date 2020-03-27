@@ -581,7 +581,8 @@ export default {
                 let vested_ratio = elapsed_suration/total_duration
                 let locked = original * (1 - vested_ratio)
                 let vested = original - locked
-                let delegated = parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) / Math.pow(10, 6);
+
+                let delegated = res.BaseVestingAccount.delegated_vesting.length>0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) / Math.pow(10, 6) : 0 ;
 
                 this.balances.list.locked = locked
 
@@ -1124,7 +1125,7 @@ export default {
             // alert(log.message);
           } else if (result.txhash) {
             $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' +   this.delegations[this.redelegate.from_validator][0]+ ' to ' +  this.delegations[this.redelegate.to_validator][0]+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' +   this.delegations[this.redelegate.from_validator][0]+ ' to ' +  this.validators[this.redelegate.to_validator]+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
 
             this.resetForms();
           }
