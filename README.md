@@ -36,3 +36,6 @@ npm run build --report
 ## Disclaimer
 
 The Ki Web Wallet is based on the [math-cosmos-web-wallet](https://github.com/mathwallet/math-cosmos-web-wallet) project by [MathWallet](https://github.com/mathwallet).
+
+## Security
+If you discover a security vulnerability in this project, please report it to security@foundation.ki. We will promptly address all security vulnerabilities.
