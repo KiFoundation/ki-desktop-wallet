@@ -19,7 +19,7 @@
     </section>
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
-      <div style="padding: 30px">     
+      <div>     
       <Burger></Burger>
     </div>
 
