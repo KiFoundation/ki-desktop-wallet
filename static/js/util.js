@@ -1,10 +1,10 @@
 class Util {
   async init() {
-      return false;
-    }
-    // 时间戳转换日期 （秒）
+    return false;
+  }
+
   timestampToDate(timestamp) {
-    var date = new Date(timestamp); //时间戳为10位需*1000
+    var date = new Date(timestamp);
     var Y = date.getFullYear() + '-';
     var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
     var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
@@ -27,10 +27,28 @@ class Util {
   }
 
   /**
-   * cookie操作
+   * cookie
    */
+  isElectron() {
+    // Renderer process
+    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+      return true;
+    }
+
+    // Main process
+    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+      return true;
+    }
+
+    // Detect the user agent when the `nodeIntegration` option is set to true
+    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   setCookie(name, value, options) {
-    options = options || {};
     if (value === null) {
       value = '';
       options.expires = -1;
@@ -52,11 +70,29 @@ class Util {
     var secure = options.secure ? '; secure' : '';
     var c = [name, '=', encodeURIComponent(value)].join('');
     var cookie = [c, expires, path, domain, secure].join('')
-    document.cookie = cookie;
+
+    if (!this.isElectron()) {
+      options = options || {};
+      document.cookie = cookie;
+    } else {
+      const electron = window.require('electron');
+
+      const cookissse = { url: "http://localhost:8484", name: name, value: value }
+
+      electron.remote.session.defaultSession.cookies.set(cookissse)
+        .then(() => {
+          //
+        }, (error) => {
+          console.error(error)
+        })
+    }
   }
 
-  getCookie(name) {
+
+  async getCookie(name) {
     var cookieValue = null;
+
+    if (!this.isElectron()) {
     if (document.cookie && document.cookie != '') {
       var cookies = document.cookie.split(';');
       for (var i = 0; i < cookies.length; i++) {
@@ -64,14 +100,28 @@ class Util {
         // Does this cookie string begin with the name we want?
         if (cookie.substring(0, name.length + 1) == (name + '=')) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          // console.log(cookieValue);
           break;
         }
       }
     }
+  }
+  else  {
+    const electron = window.require('electron');
+    cookieValue = await electron.remote.session.defaultSession.cookies.get({url: "http://localhost:8484", name: name})
+      .then((cookies) => {
+          // console.log(cookies[0].value)
+         return cookies[0].value
+      }, (error) => {
+        console.error(error)
+
+      })
+    }
+    // console.log("???", cookieValue);
     return cookieValue;
+
   }
 
-  // 数字千分位，保留n位小数格式化
   addCommas(nStr, n = 2) {
     if (typeof(nStr) == 'string') {
       nStr = parseFloat(nStr);
@@ -91,12 +141,14 @@ class Util {
   }
 
   getFullNum(num) {
-    //处理非数字
-    if (isNaN(num)) { return num };
+    if (isNaN(num)) {
+      return num
+    };
 
-    //处理不需要转换的数字
     var str = '' + num;
-    if (!/e/i.test(str)) { return num; };
+    if (!/e/i.test(str)) {
+      return num;
+    };
 
     return (num).toFixed(18).replace(/\.?0+$/, "");
   }

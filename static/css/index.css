@@ -50,7 +50,7 @@ body {
   font-family: Gotham-Book;
   color: #000;
   background-color: var(--pale-grey);
-  min-width: 1272px;
+  min-width: 1040px;
   overflow: scroll;
 }
 
@@ -72,6 +72,7 @@ button,
 textarea,
 input,
 select {
+
   outline: none;
   resize: none;
   box-shadow: none;
@@ -110,13 +111,24 @@ i {
   font-weight: 500;
 }
 
-.btn-secondary {
-  color: #fff !important;
-  background: var(--greyColor);
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary.dropdown-toggle {
+  color: #000 !important;
+  background: none;
   padding: 12px 24px;
   font-family: Gotham-Medium;
   font-weight: 500;
+  display: block;
+  padding: 12px;
+  line-height: 1.5;
+  font-size: 16px;
+  border: 1px solid var(--pale-grey);
+  width: 100%;
+  word-wrap: break-word;
 }
+
 
 .grey-fsz {
   font-size: 12px;
@@ -183,16 +195,38 @@ i {
 
 .main-container {
   overflow: hidden;
-  margin: 60px auto 32px;
+  margin: 10px auto 20px;
   width: 1000px;
   background: #fff;
   border-radius: 5px;
   box-shadow: 0 10px 10px rgba(154,160,185,.05), 0 15px 40px rgba(166,173,201,.2);
 }
 
+.status-container {
+  overflow: hidden;
+  margin: 30px auto 0px;
+  width: 1000px;
+  padding: 12px 30px 12px;
+  color: #fff;
+  opacity: 0.8;
+  /* background: var(--pale-grey); */
+  /* background: #111; */
+  /* background-image:linear-gradient(-225deg, #ec68b1 0%, #fbca88 100%); */
+  /* background-image: linear-gradient(135deg,#5EE7DF,#B490CA); */
+  /* background-image: linear-gradient(135deg,#C3CFE2,#C3CFE2); */
+  /* background-image: linear-gradient(90deg,#1848E0,#05268E); */
+  /* background-image: linear-gradient(90deg, rgba(4,59,234,1) 0%, rgba(255,255,255,1) 100%); */
+  /* background-image: linear-gradient(90deg, rgba(4,59,234,1) 0%, rgba(195,207,226,1) 100%); */
+  /* background-image: radial-gradient(circle, rgba(4,59,234,1) 0%, rgba(195,207,226,1) 100%); */
+
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(154,160,185,.05), 0 15px 40px rgba(166,173,201,.2);
+}
+
 .login-container {
   text-align: center;
-  margin-bottom: 96px;
+  margin-bottom: 60px;
+  margin-top: 70px;
   font-size: 16px;
   line-height: 1.5;
   color: var(--greyColor);
@@ -346,9 +380,10 @@ i {
 /*中间内容*/
 
 .main-info {
-  margin-left: 400px;
+  /* margin-left: 400px; */
   padding: 0 24px;
 }
+
 
 .transfer-container {
   padding: 16px 24px 32px;
@@ -388,6 +423,7 @@ i {
 
 .basic-form input,
 .basic-form select,
+.basic-form b-dropdown,
 .basic-form textarea,
 .basic-form .input {
   display: block;
@@ -744,7 +780,6 @@ a.custom-card:hover {
   padding: 5px 10px 5px 10px;
   font-size: 14px;
   line-height: 16px;
-  margin-top: 20px;
 }
 
 .table-footer{

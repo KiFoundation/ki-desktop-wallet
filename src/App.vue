@@ -2,7 +2,6 @@
   <div id="app">
     <web-nav></web-nav>
     <router-view/>
-    <!-- <footer class="copyright">© 2020</footer> -->
   </div>
 </template>
 

@@ -1,6 +1,9 @@
 <template>
-<div>
-  <section v-if="account" class="user-info text-center">
+  <div>
+<div class="sidebar-backdrop" @click="closeSidebarPanel" v-if="isPanelOpen"></div>
+<transition name="slide">
+<div >
+  <section v-if="isPanelOpen && account" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <h5>{{accountName}} </h5>
@@ -32,7 +35,6 @@
     <div class="wallet-list">
 
       <b-table sticky-header  no-border-collapse hover borderless ref="selectableTable"  selectable select-mode="single" :items="items" :fields="fields" @row-selected="onRowSelected" head-variant="null" responsive="sm">
-        <!-- Example scoped slot for select state illustrative purposes -->
         <template v-slot:cell(selected)="{ rowSelected }">
           <template v-if="rowSelected">
             <span aria-hidden="true">&check;</span>
@@ -51,7 +53,7 @@
     </div>
   </section>
 
-  <section v-else class="user-info text-center">
+  <section v-if="!account && isPanelOpen" class="user-info text-center">
     <div class="avator"><img :src="'static/img/chain/'+blockchain_lowercase+'_icon@2x.png'" width="90%"></div>
     <h4>{{blockchain}} Wallet</h4>
     <div class="token-info">
@@ -61,7 +63,7 @@
     <div class="wallet-list">
 
       <b-table sticky-header  no-border-collapse hover borderless ref="selectableTable"  selectable select-mode="single" :items="items" :fields="fields" @row-selected="onRowSelected" head-variant="null" responsive="sm">
-        <!-- Example scoped slot for select state illustrative purposes -->
+
         <template v-slot:cell(selected)="{ rowSelected }">
           <template v-if="rowSelected">
             <span aria-hidden="true">&check;</span>
@@ -74,19 +76,17 @@
         </template>
       </b-table>
     </div>
-
-    <!-- <div>
-      <p>
-        <b-button size="sm" @click="switchAccount">Use account</b-button>
-      </p>
-    </div> -->
   </section>
 </div>
-</template>
+</transition>
+</div>
 
+</template>
 <script>
 import Vue from 'vue'
 import common from 'static/js/common.js'
+import { store, mutations } from '@/store.js'
+
 import {
   BootstrapVue,
   IconsPlugin,
@@ -114,7 +114,7 @@ export default {
             }}],
       selectMode: 'single',
       selected: [],
-      selected_index: 0
+      selected_index: 0,
     }
   },
   created() {
@@ -126,7 +126,15 @@ export default {
     this.copyAddress();
     this.getUnit();
   },
+
+  computed: {
+        isPanelOpen() {
+            return store.isNavOpen
+        }
+    },
+
   methods: {
+    closeSidebarPanel: mutations.toggleNav,
 
     onRowSelected(items) {
       this.selected = items
@@ -218,3 +226,38 @@ export default {
   }
 }
 </script>
+<style>
+    .slide-enter-active,
+    .slide-leave-active
+    {
+        transition: transform 0.2s ease;
+    }
+
+    .slide-enter,
+    .slide-leave-to {
+        transform: translateX(-100%);
+        transition: all 150ms ease-in 0s
+    }
+
+    .sidebar-backdrop {
+        background-color: rgba(0,0,0,.5);
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        cursor: pointer;
+    }
+
+    .sidebar-panel {
+        overflow-y: auto;
+        background-color: #130f40;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 999;
+        padding: 3rem 20px 2rem 20px;
+        width: 300px;
+    }
+</style>

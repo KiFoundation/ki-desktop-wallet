@@ -10,7 +10,7 @@ export default {
       network: 'Testnet',
       blockchain: 'cosmos',
       // chainId: "KiChain-t"
-      chainId: "KiChain-t-0"
+      chainId: "KiChain-t-1"
 
     }
   },

@@ -7,9 +7,23 @@
 
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting"></side-bar>
 
+    <section class="sec-info" >
+      <div class="status-container" :style="gradient_style" >
+        <b-row>
+          <b-col><h4>{{this.accountName}}</h4>
+          {{this.account}}</b-col>
+          <b-col style="text-align: right;"><h4>{{this.balances.list.available}}{{this.token}}</h4></b-col>
+        </b-row>
+
+      </div>
+    </section>
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
-      <networks></networks>
+      <div style="padding: 30px">     
+      <Burger></Burger>
+    </div>
+
+      <!-- <networks></networks> -->
       <div class="main-container transfer-container">
         <div id="sent_alert"></div>
         <ul class="tabs nav nav-tabs">
@@ -18,6 +32,8 @@
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
           <li><a class="tab"  data-toggle="tab"  href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
+          <li><a class="tab"  @click="refresh">Refresh</a></li>
+
         </ul>
 
         <div class="tab-content">
@@ -88,7 +104,7 @@
               <li class="token">
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
+                <input type="text"  :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
                   <!-- <option v-for="item in validators" :value="item[1]" :key="item"> -->
                   <option v-for="(item, index) in validators" :value="index" :key="index">
@@ -113,7 +129,7 @@
 
           <!-- ========================Undonding form============================ -->
           <div id="undelegate-form" class="transfer tab-pane">
-            <form class="basic-form">
+            <form v-if="Object.keys(this.delegations).length>0" class="basic-form">
               <li class="token">
                 <label>{{$t("webwallet_to_validator")}}</label>
 
@@ -253,8 +269,10 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import login from 'base/login'
 import sideBar from 'base/sidebar'
+import Burger from 'base/burger.vue';
 import networks from 'base/networks'
 import common from 'static/js/common.js'
 import {
@@ -265,6 +283,14 @@ import {
   createBroadcastTx
 } from '@tendermint/sig';
 
+import {
+  BRow,
+  BCol,
+  BContainer,
+} from 'bootstrap-vue'
+Vue.component('b-row', BRow);
+Vue.component('b-col', BCol);
+Vue.component('b-container', BContainer);
 
 import axios from 'axios';
 
@@ -366,12 +392,14 @@ export default {
       validators: {},
       wallets: [],
       delegations: {},
-      transactions: []
+      transactions: [],
+      gradient_style:'background-image: linear-gradient(90deg,#1848E0,#05268E);'
     }
   },
   created() {
-    this.getChain();
+    this.getChain()
     this.getAccounts();
+
   },
   mounted() {
     this.getUnit();
@@ -409,7 +437,7 @@ export default {
   },
 
   methods: {
-    getChain() {
+    async getChain() {
       if (this.blockchain) {
         let blockchain = this.blockchain.toLowerCase()
         this.blockchain_lowercase = blockchain
@@ -419,51 +447,22 @@ export default {
         this.prefix = this.globalData[blockchain].prefix
       }
 
-      if (this.webUtil.getCookie('identity_kichain')) {
-        this.account = JSON.parse(this.webUtil.getCookie('identity_kichain')).account;
-        this.accountName = JSON.parse(this.webUtil.getCookie('identity_kichain')).accountName;
-        this.key = JSON.parse(this.webUtil.getCookie('identity_kichain')).privatekey;
-        this.publickey = JSON.parse(this.webUtil.getCookie('identity_kichain')).publickey;
-        this.chainId = JSON.parse(this.webUtil.getCookie('identity_kichain')).chainId;
-        this.initExtension()
-      }
+      await this.webUtil.getCookie('identity_kichain').then((identity)=>{
 
+        if (identity) {
+          let identity_j = JSON.parse(identity)
 
-    },
-    getUnit() {
-      common.$on('val', (data) => {
-        this.unit = data
+          this.account = identity_j.account;
+          this.accountName = identity_j.accountName;
+          this.key = identity_j.privatekey;
+          this.publickey = identity_j.publickey;
+          this.chainId = identity_j.chainId;
+          this.initExtension()
+          this.generate_gradient();
+        }
       })
     },
-    setToggle(val) {
-      this.selectedSet = val;
-    },
-    progressSlide() {
-      this.slider = this.$refs.slider;
-      this.thunk = this.$refs.thunk;
-      let _this = this;
-      this.transfer.fee = 0.015 * (this.progress.per / this.progress.max)
-      this.thunk.onmousedown = function(e) {
-        let width = parseInt(_this.width);
-        let disX = e.clientX;
-        document.onmousemove = function(e) {
-          let newWidth = e.clientX - disX + width;
-          let scale = newWidth / _this.slider.offsetWidth;
-          let max = _this.progress.max;
-          let min = _this.progress.min;
 
-          _this.progress.per = Math.ceil((max - min) * scale + min);
-          _this.progress.per = Math.max(_this.progress.per, min);
-          _this.progress.per = Math.min(_this.progress.per, max);
-          _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6)
-
-        }
-        document.onmouseup = function(e) {
-          document.onmousemove = document.onmouseup = null;
-        }
-        return false;
-      }
-    },
     initExtension() {
       let nodeUrl = this.globalData.kichain.nodeUrl;
       this.webUtil.init().then((res10) => {
@@ -671,7 +670,6 @@ export default {
         });
       });
     },
-
     // ========================Transfer Transaction============================
     sendTransfer() {
       this.transfer.alert = "danger"
@@ -1007,9 +1005,7 @@ export default {
           }
         });
       }
-    })
-
-    },
+    })},
     // =========================Redelegate transaction===========================
     sendReDelegateTx() {
       this.redelegate.alert = "danger"
@@ -1103,7 +1099,7 @@ export default {
         });
         let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-        console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
+        // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
 
         let url = nodeUrl + `/txs?sync=true`;
         const opts = {
@@ -1131,9 +1127,7 @@ export default {
           }
         });
       }
-    })
-
-    },
+    })},
     // =========================Withdraw transaction===========================
     sendWithdrawTx() {
       this.withdraw.alert = "danger"
@@ -1275,6 +1269,24 @@ export default {
       this.withdraw.config = 0;
     },
 
+    resetData() {
+      this.balances.sum = 0;
+      this.balances.USD = 0;
+      this.balances.list.available = 0;
+      this.balances.list.delegate = 0;
+      this.balances.list.undelegate = 0;
+      this.balances.list.locked = 0;
+      this.validators = {};
+      this.delegations = {};
+      this.transactions = [];
+    },
+
+    refresh(){
+      this.resetForms();
+      this.resetData();
+      this.initExtension();
+    },
+
     getAccounts() {
       if (localStorage.getItem("wallet_list")) {
         let wallet_list = localStorage.getItem("wallet_list").split(',');
@@ -1288,10 +1300,67 @@ export default {
         }
       }
     },
+
+    generate_gradient() {
+      let seeds = this.account.match(/.{1,3}/g)
+      var hexValues = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e"];
+
+      function populate(a, index, seed) {
+        for ( var i = 6 * (index-1); i < 6 * index; i++ ) {
+          Math.seedrandom(seeds[i])
+          var x = Math.round(Math.random() * 14 );
+          var y = hexValues[x];
+          a += y;
+        }
+        return a;
+      }
+
+      var newColor1 = populate('#', 1, 3);
+      var newColor2 = populate('#', 2, 3);
+      var angle = Math.round( Math.random(3) * 360 );
+
+      var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
+      this.gradient_style = 'background-image:' + gradient;},
+
+      getUnit() {
+        common.$on('val', (data) => {
+          this.unit = data
+        })
+      },
+      setToggle(val) {
+        this.selectedSet = val;
+      },
+      progressSlide() {
+        this.slider = this.$refs.slider;
+        this.thunk = this.$refs.thunk;
+        let _this = this;
+        this.transfer.fee = 0.015 * (this.progress.per / this.progress.max)
+        this.thunk.onmousedown = function(e) {
+          let width = parseInt(_this.width);
+          let disX = e.clientX;
+          document.onmousemove = function(e) {
+            let newWidth = e.clientX - disX + width;
+            let scale = newWidth / _this.slider.offsetWidth;
+            let max = _this.progress.max;
+            let min = _this.progress.min;
+
+            _this.progress.per = Math.ceil((max - min) * scale + min);
+            _this.progress.per = Math.max(_this.progress.per, min);
+            _this.progress.per = Math.min(_this.progress.per, max);
+            _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6)
+
+          }
+          document.onmouseup = function(e) {
+            document.onmousemove = document.onmouseup = null;
+          }
+          return false;
+        }
+      },
   },
   components: {
     login,
     sideBar,
+    Burger,
     networks,
   }
 }

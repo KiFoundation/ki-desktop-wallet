@@ -6,13 +6,13 @@ import router from './router'
 import vueResource from 'vue-resource'
 import i18n from 'static/js/i18n'
 import webUtil from 'static/js/util'
+import seedRandom from 'static/js/seedrandom'
 import globalData from 'static/js/config.js'
 import webCoin from 'static/js/coinUnit.js'
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'static/css/index.css'
 import clipboard from 'clipboard'
-
 
 Vue.config.productionTip = false
 Vue.use(vueResource)
@@ -21,6 +21,7 @@ Vue.prototype.globalData = globalData;
 Vue.prototype.clipboard = clipboard;
 Vue.prototype.webUtil = webUtil;
 Vue.prototype.webCoin = webCoin;
+Vue.prototype.seedRandom = seedRandom;
 // Vue.prototype.accounts = accounts;
 
 /* eslint-disable no-new */
