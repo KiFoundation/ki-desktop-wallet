@@ -45,6 +45,7 @@ module.exports = {
   webwallet_status: "To",
   webwallet_block_height: "Block Height",
   webwallet_tx_time: "Tx Time",
+  webwallet_no_delegations: "I did not find any active delegation for this account.",
   transaction_information: "Transaction Information",
   available: "Available",
   locked: "Locked",

@@ -193,11 +193,11 @@ class Util {
     //               'DF9881','F2D7B4','7CAA98','8FC1A9','C8D6B9',
     //               'F9665E','FEC9C9','EEF1E6','AFC7D0','95B4CC']
 
-    let colors = ['666666','666666']
+    let colors = ['484f63','484f63']
 
     let seeds = account.match(/.{1,3}/g)
 
-    Math.seedrandom(seeds[2])
+    Math.seedrandom(seeds[1])
     var x = Math.round(Math.random() * colors.length);
 
     return '#'+colors[x];

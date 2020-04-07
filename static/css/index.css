@@ -213,6 +213,14 @@ i {
   box-shadow: 0 10px 10px rgba(154,160,185,.05), 0 15px 40px rgba(166,173,201,.2);
 }
 
+.status-container span{
+  color: #eeeeee;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+
 .status-container a {
   font-size: 10px;
 }
@@ -828,5 +836,11 @@ a.custom-card:hover {
   font-size: 10px;
   border-radius: 50px;
   background-color: #f6f2ff;
-color: #9c6cff;
+  color: #9c6cff;
+}
+
+.form-message{
+  text-align: center;
+  height:240px;
+  margin-top: 120px;
 }

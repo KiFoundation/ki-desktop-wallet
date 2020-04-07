@@ -7,16 +7,16 @@
       <div class="status-container" :style="gradient_style">
         <b-row>
           <b-col>
-            <h4>{{this.accountName}}</h4>
-            {{this.account}}
+            <h5>{{this.accountName}}</h5>
+            <span>{{this.account}}</span>
           </b-col>
           <b-col style="text-align: right;">
-            <h4>
+            <h5>
               {{this.balances.list.available}}{{this.token}}
                <!-- <a alt="Refresh account" class="reload" @click="refresh"> -->
                  <!-- <img src="static/img/icons/refresh_white@2x.png"  width="22px"></img> -->
                <!-- </a> -->
-             </h4>
+             </h5>
              <a @click="refresh">Refresh account</a>
 
           </b-col>
@@ -160,11 +160,20 @@
 
               <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
             </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message" >
+                  <p style="font-size:60px">🤔</p>
+                  {{$t("webwallet_no_delegations")}}
+                </div>
+
+            </div>
+            </form>
           </div>
 
           <!-- ========================Redelegation form============================ -->
           <div id="redelegate-form" class="transfer tab-pane">
-            <form class="basic-form">
+            <form v-if="Object.keys(this.delegations).length>0" class="basic-form">
               <li class="token">
 
                 <label>{{$t("webwallet_from_validator")}}</label>
@@ -200,10 +209,19 @@
 
               <a class="btn" @click="sendReDelegateTx">{{$t("redelegatetx")}}</a>
             </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message" >
+                  <p style="font-size:60px">🤔</p>
+                  {{$t("webwallet_no_delegations")}}
+                </div>
+
+            </div>
+            </form>
           </div>
           <!-- ========================Withdraw form============================ -->
           <div id="withdraw-form" class="transfer tab-pane">
-            <form class="basic-form">
+            <form v-if="Object.keys(this.delegations).length>0" class="basic-form">
               <li class="token">
 
                 <label>{{$t("webwallet_from_validator")}}</label>
@@ -231,6 +249,15 @@
               </ul>
 
               <a class="btn" @click="sendWithdrawTx">{{$t("withdrawtx")}}</a>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message" >
+                  <p style="font-size:60px">🤔</p>
+                  {{$t("webwallet_no_delegations")}}
+                </div>
+
+            </div>
             </form>
           </div>
 
@@ -1328,9 +1355,11 @@ export default {
     generate_gradient() {
       // var newColor1 = this.webUtil.populate('#', this.account, 1);
       // var newColor2 = this.webUtil.populate('#', this.account 2);
+      // var angle = Math.round(Math.random(3) * 360);
+
       var newColor1 = this.webUtil.pickGradient(this.account);
-      var newColor2 = this.webUtil.shadeColor(newColor1, -30);
-      var angle = Math.round(Math.random(3) * 360);
+      var newColor2 = this.webUtil.shadeColor(newColor1, 0);
+      var angle = 90
 
       var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
       this.gradient_style = 'background-image:' + gradient;
