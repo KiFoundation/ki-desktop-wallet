@@ -1,27 +1,34 @@
 <template>
 <div :class="{webwallet:account}">
-
   <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
-
   <template v-else>
-
     <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting"></side-bar>
-
-    <section class="sec-info" >
-      <div class="status-container" :style="gradient_style" >
+    <section class="sec-info">
+      <div class="status-container" :style="gradient_style">
         <b-row>
-          <b-col><h4>{{this.accountName}}</h4>
-          {{this.account}}</b-col>
-          <b-col style="text-align: right;"><h4>{{this.balances.list.available}}{{this.token}}</h4></b-col>
+          <b-col>
+            <h4>{{this.accountName}}</h4>
+            {{this.account}}
+          </b-col>
+          <b-col style="text-align: right;">
+            <h4>
+              {{this.balances.list.available}}{{this.token}}
+               <!-- <a alt="Refresh account" class="reload" @click="refresh"> -->
+                 <!-- <img src="static/img/icons/refresh_white@2x.png"  width="22px"></img> -->
+               <!-- </a> -->
+             </h4>
+             <a @click="refresh">Refresh account</a>
+
+          </b-col>
         </b-row>
 
       </div>
     </section>
     <!-- =======================Transaction forms============================= -->
     <section class="main-info">
-      <div>     
-      <Burger></Burger>
-    </div>
+      <div>
+        <burger></burger>
+      </div>
 
       <!-- <networks></networks> -->
       <div class="main-container transfer-container">
@@ -31,8 +38,8 @@
           <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
-          <li><a class="tab"  data-toggle="tab"  href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
-          <li><a class="tab"  @click="refresh">Refresh</a></li>
+          <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
+          <!-- <li></li> -->
 
         </ul>
 
@@ -104,7 +111,7 @@
               <li class="token">
                 <label>{{$t("webwallet_to_validator")}}</label>
 
-                <input type="text"  :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
+                <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
                   <!-- <option v-for="item in validators" :value="item[1]" :key="item"> -->
                   <option v-for="(item, index) in validators" :value="index" :key="index">
@@ -207,9 +214,9 @@
                     {{item[0]}}
                   </option>
                 </datalist>
-               </li>
-              <ul >
-                <li >
+              </li>
+              <ul>
+                <li>
                   <!-- <label for="checkbox">{{$t("withdraw_with_commission")}}</label>
                   <input type="checkbox" id="checkbox" > -->
                   <label>{{$t("withdraw_config")}}</label>
@@ -231,8 +238,8 @@
       </div>
     </section>
 
-      <!-- =======================Mini explorer============================= -->
-    <section class="main-info" v-if="transactions.length > 0">
+    <!-- =======================Mini explorer============================= -->
+    <section class="main-info" v-if="transactions.length > 0 && mini_explorer">
       <div class="main-container transfer-container">
         <table class="table">
           <thead class="thead-null">
@@ -272,9 +279,10 @@
 import Vue from 'vue'
 import login from 'base/login'
 import sideBar from 'base/sidebar'
-import Burger from 'base/burger.vue';
+import burger from 'base/burger'
 import networks from 'base/networks'
 import common from 'static/js/common.js'
+
 import {
   KeyPair,
   signTx,
@@ -291,6 +299,7 @@ import {
 Vue.component('b-row', BRow);
 Vue.component('b-col', BCol);
 Vue.component('b-container', BContainer);
+
 
 import axios from 'axios';
 
@@ -311,6 +320,7 @@ export default {
       chainId: '',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
+      mini_explorer: false,
       selectedSet: 1,
       slider: null,
       thunk: null,
@@ -393,16 +403,17 @@ export default {
       wallets: [],
       delegations: {},
       transactions: [],
-      gradient_style:'background-image: linear-gradient(90deg,#1848E0,#05268E);'
+      gradient_style: 'background-image: linear-gradient(90deg,#1848E0,#05268E);',
+      isLoading: true
     }
   },
   created() {
     this.getChain()
     this.getAccounts();
-
   },
   mounted() {
     this.getUnit();
+    this.isLoading = false
   },
   computed: {
     // slider stuff
@@ -447,7 +458,7 @@ export default {
         this.prefix = this.globalData[blockchain].prefix
       }
 
-      await this.webUtil.getCookie('identity_kichain').then((identity)=>{
+      await this.webUtil.getCookie('identity_kichain').then((identity) => {
 
         if (identity) {
           let identity_j = JSON.parse(identity)
@@ -576,12 +587,12 @@ export default {
 
                 // get vested amount
                 let total_duration = end - start
-                let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0 ) ? Math.floor(Date.now() / 1000) - start : 0
-                let vested_ratio = elapsed_suration/total_duration
+                let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0) ? Math.floor(Date.now() / 1000) - start : 0
+                let vested_ratio = elapsed_suration / total_duration
                 let locked = original * (1 - vested_ratio)
                 let vested = original - locked
 
-                let delegated = res.BaseVestingAccount.delegated_vesting.length>0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) / Math.pow(10, 6) : 0 ;
+                let delegated = res.BaseVestingAccount.delegated_vesting.length > 0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) / Math.pow(10, 6) : 0;
 
                 this.balances.list.locked = locked
 
@@ -591,8 +602,8 @@ export default {
                 if (coins) {
                   coins.forEach((coin) => {
                     if (coin.denom == 'tki') {
-                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6) - locked  + delegated;
-                      available_real = parseFloat(coin.amount) / Math.pow(10, 6) ;
+                      this.balances.list.available = parseFloat(coin.amount) / Math.pow(10, 6) - locked + delegated;
+                      available_real = parseFloat(coin.amount) / Math.pow(10, 6);
                     }
                   });
                 }
@@ -733,50 +744,52 @@ export default {
           this.sequence = res.sequence;
         }
 
-      const signMeta = {
-        chain_id: this.chainId,
-        account_number: this.account_number.toString(),
-        sequence: this.sequence.toString(),
-      };
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
 
 
-      const key = Buffer.from(this.key, 'hex');
-      const publickey = Buffer.from(this.publickey, 'hex');
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
 
 
-      let signedTransactionme = signTx(transaction, signMeta, {
-        'privateKey': key,
-        'publicKey': publickey
-      });
-      let bcTransactionme = createBroadcastTx(signedTransactionme);
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
-      let url = nodeUrl + `/txs?sync=true`;
-      const opts = {
-        method: 'post',
-        url: url,
-        data: bcTransactionme,
-        headers: {
-          "Content-Type": "text/plain",
-        }
-      };
+        let url = nodeUrl + `/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        };
 
-      axios(opts).then(res => {
-        let result = res.data;
+        axios(opts).then(res => {
+          let result = res.data;
 
-        if (result.code) {
-          let log = JSON.parse(result.raw_log);
-          $('#sent_alert').html(
-            '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-          // alert(log.message);
-        } else if (result.txhash) {
-          $('#sent_alert').html(
-            '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer '+this.transfer.amount+'tki to '+this.transfer.account+' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-          // alert(this.$t('transfer_success'));
-          // window.location.reload();
-          this.resetForms();
-        }
-      });
+          if (result.code) {
+            let log = JSON.parse(result.raw_log);
+            $('#sent_alert').html(
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            // alert(log.message);
+          } else if (result.txhash) {
+            $('#sent_alert').html(
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer ' + this.transfer.amount + 'tki to ' + this.transfer.account + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
+              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            // alert(this.$t('transfer_success'));
+            // window.location.reload();
+            this.resetForms();
+          }
+        });
       })
     },
     // ========================Delegation Transaction============================
@@ -846,49 +859,51 @@ export default {
           }
           this.sequence = res.sequence;
         }
-      const signMeta = {
-        chain_id: this.chainId,
-        account_number: this.account_number.toString(),
-        sequence: this.sequence.toString(),
-      };
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
 
-      //TEMP
-      const key = Buffer.from(this.key, 'hex');
-      const publickey = Buffer.from(this.publickey, 'hex');
+        //TEMP
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
 
-      let signedTransactionme = signTx(transaction, signMeta, {
-        'privateKey': key,
-        'publicKey': publickey
-      });
-      let bcTransactionme = createBroadcastTx(signedTransactionme);
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
+        let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-      let url = nodeUrl + `/txs?sync=true`;
-      const opts = {
-        method: 'post',
-        url: url,
-        data: bcTransactionme,
-        headers: {
-          "Content-Type": "text/plain",
-        }
-      };
+        let url = nodeUrl + `/txs?sync=true`;
+        const opts = {
+          method: 'post',
+          url: url,
+          data: bcTransactionme,
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        };
 
-      axios(opts).then(res => {
-        let result = res.data;
+        axios(opts).then(res => {
+          let result = res.data;
 
-        if (result.code) {
-          let log = JSON.parse(result.raw_log);
-          $('#sent_alert').html(
-            '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-          // alert(log.message);
+          if (result.code) {
+            let log = JSON.parse(result.raw_log);
+            $('#sent_alert').html(
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            // alert(log.message);
 
-        } else if (result.txhash) {
-          $('#sent_alert').html(
-            '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' +   this.validators[this.delegate.validator]+ '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          } else if (result.txhash) {
+            $('#sent_alert').html(
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' + this.validators[this.delegate.validator] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
+              '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
 
-          this.resetForms();
-        }
-      });
-        })
+            this.resetForms();
+          }
+        });
+      })
     },
     // =========================Unbonding transaction===========================
     sendUnDelegateTx() {
@@ -958,54 +973,57 @@ export default {
           this.sequence = res.sequence;
         }
 
-      if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
-        alert("Cannot unbond more than what is bonded!");
-      } else {
+        if (this.delegations[this.undelegate.validator][1] < this.undelegate.amount) {
+          alert("Cannot unbond more than what is bonded!");
+        } else {
 
-        const signMeta = {
-          chain_id: this.chainId,
-          account_number: this.account_number.toString(),
-          sequence: this.sequence.toString(),
-        };
+          const signMeta = {
+            chain_id: this.chainId,
+            account_number: this.account_number.toString(),
+            sequence: this.sequence.toString(),
+          };
 
-        //TEMP
-        const key = Buffer.from(this.key, 'hex');
-        const publickey = Buffer.from(this.publickey, 'hex');
+          //TEMP
+          const key = Buffer.from(this.key, 'hex');
+          const publickey = Buffer.from(this.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, {
-          'privateKey': key,
-          'publicKey': publickey
-        });
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
+          let signedTransactionme = signTx(transaction, signMeta, {
+            'privateKey': key,
+            'publicKey': publickey
+          });
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
-        let url = nodeUrl + `/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
-          }
-        };
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
 
-        axios(opts).then(res => {
-          let result = res.data;
+          axios(opts).then(res => {
+            let result = res.data;
 
-          if (result.code) {
-            let log = JSON.parse(result.raw_log);
-            $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            alert(log.message);
-          } else if (result.txhash) {
-            $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' + this.undelegate.amount + 'tki from ' +   this.delegations[this.undelegate.validator][0]+ ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' + this.undelegate.amount + 'tki from ' + this.delegations[this.undelegate.validator][0] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
 
-            this.resetForms();
-          }
-        });
-      }
-    })},
+              this.resetForms();
+            }
+          });
+        }
+      })
+    },
     // =========================Redelegate transaction===========================
     sendReDelegateTx() {
       this.redelegate.alert = "danger"
@@ -1079,55 +1097,58 @@ export default {
           this.sequence = res.sequence;
         }
 
-      if (this.delegations[this.redelegate.from_validator][1] < this.redelegate.amount) {
-        alert("Cannot unbond more than what is bonded!");
-      } else {
+        if (this.delegations[this.redelegate.from_validator][1] < this.redelegate.amount) {
+          alert("Cannot unbond more than what is bonded!");
+        } else {
 
-        const signMeta = {
-          chain_id: this.chainId,
-          account_number: this.account_number.toString(),
-          sequence: this.sequence.toString(),
-        };
+          const signMeta = {
+            chain_id: this.chainId,
+            account_number: this.account_number.toString(),
+            sequence: this.sequence.toString(),
+          };
 
-        //TEMP
-        const key = Buffer.from(this.key, 'hex');
-        const publickey = Buffer.from(this.publickey, 'hex');
+          //TEMP
+          const key = Buffer.from(this.key, 'hex');
+          const publickey = Buffer.from(this.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, {
-          'privateKey': key,
-          'publicKey': publickey
-        });
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
+          let signedTransactionme = signTx(transaction, signMeta, {
+            'privateKey': key,
+            'publicKey': publickey
+          });
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-        // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
+          // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
 
-        let url = nodeUrl + `/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
-          }
-        };
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
 
-        axios(opts).then(res => {
-          let result = res.data;
+          axios(opts).then(res => {
+            let result = res.data;
 
-          if (result.code) {
-            let log = JSON.parse(result.raw_log);
-            $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            // alert(log.message);
-          } else if (result.txhash) {
-            $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' +   this.delegations[this.redelegate.from_validator][0]+ ' to ' +  this.validators[this.redelegate.to_validator]+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' + this.delegations[this.redelegate.from_validator][0] + ' to ' + this
+                .validators[this.redelegate.to_validator] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
 
-            this.resetForms();
-          }
-        });
-      }
-    })},
+              this.resetForms();
+            }
+          });
+        }
+      })
+    },
     // =========================Withdraw transaction===========================
     sendWithdrawTx() {
       this.withdraw.alert = "danger"
@@ -1163,8 +1184,8 @@ export default {
 
 
       const transaction = {
-      'msg': [],
-      'fee': {
+        'msg': [],
+        'fee': {
           'amount': [],
           'gas': limit.toString()
         },
@@ -1183,20 +1204,20 @@ export default {
           this.sequence = res.sequence;
         }
 
-      if(this.withdraw.config==0){
-        transaction.msg.push(msg_withdraw_reward)
-      }
+        if (this.withdraw.config == 0) {
+          transaction.msg.push(msg_withdraw_reward)
+        }
 
-      if(this.withdraw.config==1){
-        transaction.msg.push(msg_withdraw_commision)
-      }
+        if (this.withdraw.config == 1) {
+          transaction.msg.push(msg_withdraw_commision)
+        }
 
-      if(this.withdraw.config==2){
-        transaction.msg.push(msg_withdraw_reward)
-        transaction.msg.push(msg_withdraw_commision)
-      }
+        if (this.withdraw.config == 2) {
+          transaction.msg.push(msg_withdraw_reward)
+          transaction.msg.push(msg_withdraw_commision)
+        }
 
-      const signMeta = {
+        const signMeta = {
           chain_id: this.chainId,
           account_number: this.account_number.toString(),
           sequence: this.sequence.toString(),
@@ -1228,11 +1249,13 @@ export default {
           if (result.code) {
             let log = JSON.parse(result.raw_log);
             $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: '+ log.message + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
             // alert(log.message);
           } else if (result.txhash) {
             $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from '+  this.delegations[this.withdraw.validator_address][0]  +' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from ' + this.delegations[this.withdraw.validator_address][0] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
+              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
             this.resetForms();
           }
         });
@@ -1246,10 +1269,10 @@ export default {
       this.transfer.alert = '';
       this.transfer.account = '';
       this.transfer.amount = 0;
-      this.transfer.memo= '';
+      this.transfer.memo = '';
       this.transfer.fee = 0.001250;
       this.transfer.gasPrice = '0.0000005';
-      this.transfer.gasLimit =  300000;
+      this.transfer.gasLimit = 300000;
 
       this.delegate.alert = '';
       this.delegate.validator = '';
@@ -1281,7 +1304,7 @@ export default {
       this.transactions = [];
     },
 
-    refresh(){
+    refresh() {
       this.resetForms();
       this.resetData();
       this.initExtension();
@@ -1301,66 +1324,57 @@ export default {
       }
     },
 
+
     generate_gradient() {
-      let seeds = this.account.match(/.{1,3}/g)
-      var hexValues = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e"];
-
-      function populate(a, index, seed) {
-        for ( var i = 6 * (index-1); i < 6 * index; i++ ) {
-          Math.seedrandom(seeds[i])
-          var x = Math.round(Math.random() * 14 );
-          var y = hexValues[x];
-          a += y;
-        }
-        return a;
-      }
-
-      var newColor1 = populate('#', 1, 3);
-      var newColor2 = populate('#', 2, 3);
-      var angle = Math.round( Math.random(3) * 360 );
+      // var newColor1 = this.webUtil.populate('#', this.account, 1);
+      // var newColor2 = this.webUtil.populate('#', this.account 2);
+      var newColor1 = this.webUtil.pickGradient(this.account);
+      var newColor2 = this.webUtil.shadeColor(newColor1, -30);
+      var angle = Math.round(Math.random(3) * 360);
 
       var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
-      this.gradient_style = 'background-image:' + gradient;},
+      this.gradient_style = 'background-image:' + gradient;
+    },
 
-      getUnit() {
-        common.$on('val', (data) => {
-          this.unit = data
-        })
-      },
-      setToggle(val) {
-        this.selectedSet = val;
-      },
-      progressSlide() {
-        this.slider = this.$refs.slider;
-        this.thunk = this.$refs.thunk;
-        let _this = this;
-        this.transfer.fee = 0.015 * (this.progress.per / this.progress.max)
-        this.thunk.onmousedown = function(e) {
-          let width = parseInt(_this.width);
-          let disX = e.clientX;
-          document.onmousemove = function(e) {
-            let newWidth = e.clientX - disX + width;
-            let scale = newWidth / _this.slider.offsetWidth;
-            let max = _this.progress.max;
-            let min = _this.progress.min;
+    getUnit() {
+      common.$on('val', (data) => {
+        this.unit = data
+      })
+    },
+    setToggle(val) {
+      this.selectedSet = val;
+    },
+    progressSlide() {
+      this.slider = this.$refs.slider;
+      this.thunk = this.$refs.thunk;
+      let _this = this;
+      this.transfer.fee = 0.015 * (this.progress.per / this.progress.max)
+      this.thunk.onmousedown = function(e) {
+        let width = parseInt(_this.width);
+        let disX = e.clientX;
+        document.onmousemove = function(e) {
+          let newWidth = e.clientX - disX + width;
+          let scale = newWidth / _this.slider.offsetWidth;
+          let max = _this.progress.max;
+          let min = _this.progress.min;
 
-            _this.progress.per = Math.ceil((max - min) * scale + min);
-            _this.progress.per = Math.max(_this.progress.per, min);
-            _this.progress.per = Math.min(_this.progress.per, max);
-            _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6)
+          _this.progress.per = Math.ceil((max - min) * scale + min);
+          _this.progress.per = Math.max(_this.progress.per, min);
+          _this.progress.per = Math.min(_this.progress.per, max);
+          _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6)
 
-          }
-          document.onmouseup = function(e) {
-            document.onmousemove = document.onmouseup = null;
-          }
-          return false;
         }
-      },
+        document.onmouseup = function(e) {
+          document.onmousemove = document.onmouseup = null;
+        }
+        return false;
+      }
+    },
   },
   components: {
     login,
     sideBar,
-    Burger,
+    burger,
     networks,
   }
 }

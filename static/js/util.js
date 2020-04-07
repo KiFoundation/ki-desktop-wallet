@@ -152,6 +152,57 @@ class Util {
 
     return (num).toFixed(18).replace(/\.?0+$/, "");
   }
+
+  populate(a, account, index) {
+    let seeds = account.match(/.{1,3}/g)
+    var hexValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"];
+
+    for (var i = 6 * (index - 1); i < 6 * index; i++) {
+      Math.seedrandom(seeds[i])
+      var x = Math.round(Math.random() * 14);
+      var y = hexValues[x];
+      a += y;
+    }
+    return a;
+  }
+
+  shadeColor(color, percent) {
+
+      var R = parseInt(color.substring(1,3),16);
+      var G = parseInt(color.substring(3,5),16);
+      var B = parseInt(color.substring(5,7),16);
+
+      R = parseInt(R * (100 + percent) / 100);
+      G = parseInt(G * (100 + percent) / 100);
+      B = parseInt(B * (100 + percent) / 100);
+
+      R = (R<255)?R:255;
+      G = (G<255)?G:255;
+      B = (B<255)?B:255;
+
+      var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+      var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+      var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+      return "#"+RR+GG+BB;
+  }
+
+  pickGradient(account){
+    // let colors = ['E0BBE4', '957DAD', 'D291BC', 'FEC8D8', 'FFDFD3',
+    //               'FCE2C2','B3C8C8','6CB2D1','4F9EC4','58949C',
+    //               'DF9881','F2D7B4','7CAA98','8FC1A9','C8D6B9',
+    //               'F9665E','FEC9C9','EEF1E6','AFC7D0','95B4CC']
+
+    let colors = ['666666','666666']
+
+    let seeds = account.match(/.{1,3}/g)
+
+    Math.seedrandom(seeds[2])
+    var x = Math.round(Math.random() * colors.length);
+
+    return '#'+colors[x];
+  }
+
 }
 
 let util = new Util;
