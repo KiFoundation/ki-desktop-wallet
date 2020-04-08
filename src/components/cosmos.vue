@@ -272,7 +272,7 @@
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_summary")}}</label>
-                <input class="warning" type="text" disabled>
+                <textarea class="warning" v-model="this.sign.summary"   rows="3" disabled></textarea>
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
@@ -284,23 +284,22 @@
               <div class="basic-form">
                 <div class="upload-form">
                   <b-row align-v="center">
-                    <b-col cols="1" ></b-col>
+                    <b-col cols="4" ></b-col>
                     <b-col>
-                      <!-- <input type="file" ref="myFile" @change="upload"><br/> -->
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
                           <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
                           <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
                         </div>
                     </b-col>
-                    <b-col cols="1" >
+                    <!-- <b-col cols="1" >
                         <span>Or</span>
                     </b-col>
                     <b-col>
                       <div>
                           <textarea v-model="sign.file_content"  :placeholder="$t('webwallet_copy_paste')" rows="8"></textarea>
                         </div>
-                      </b-col>
-                      <b-col cols="1" >
+                      </b-col> -->
+                      <b-col cols="4" >
                       </b-col>
                   </b-row>
                 </div>
@@ -343,7 +342,6 @@
       </div>
       <div v-if="transactions.length == 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
         <div class="form-message" >
-          <!-- <p style="font-size:60px">🤔</p> -->
           <p>{{$t("webwallet_no_transactions")}} <span><a :href="explorer+ 'account/' + this.account" target="_blank">Browse you address in the explorer</a></span></p>
         </div>
       </div>
@@ -457,6 +455,7 @@ export default {
         'file':'',
         'file_valid': false,
         'file_content': '',
+        'summary':'',
       },
 
       reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
@@ -1453,7 +1452,6 @@ export default {
         return false;
       }
     },
-
     removeFile(){
       this.sign.file='';
       this.sign.file_content = '';
@@ -1470,12 +1468,21 @@ export default {
       reader.onload =  evt => {
         this.sign.file_content = evt.target.result;
         this.sign.file_valid=true;
+        this.parseMessage()
       }
       reader.onerror = evt => {
         console.error(evt);
       }
-    },
 
+    },
+    parseMessage(){
+      let msg=JSON.parse(this.sign.file_content).value.msg[0]
+      switch(msg.type){
+        case "cosmos-sdk/MsgSend":
+          this.sign.summary="Send:\t " +  msg.value.amount[0].amount + " tki \nfrom:\t " +msg.value.from_address+ " \nto:\t\t " + msg.value.to_address ;
+        break;
+      }
+    }
   },
   components: {
     login,
