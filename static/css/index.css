@@ -23,12 +23,9 @@
 }
 
 
-/* 禁用iPhone中Safari的字号自动调整 */
-
 html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-  /* 解决IOS默认滑动很卡的情况 */
   -webkit-overflow-scrolling: touch;
   font-size: 14px;
 }
@@ -76,7 +73,6 @@ select {
   outline: none;
   resize: none;
   box-shadow: none;
-  /*去掉ios阴影*/
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
@@ -191,8 +187,6 @@ i {
 }
 
 
-/*首页登录*/
-
 .main-container {
   overflow: hidden;
   margin: 10px auto 20px;
@@ -267,8 +261,6 @@ i {
   padding-left: 400px;
 }
 
-
-/*左边列表*/
 
 .user-info {
   position: fixed;
@@ -379,7 +371,6 @@ i {
 }
 
 
-/*中间内容*/
 
 .main-info {
   /* margin-left: 400px; */
@@ -786,6 +777,7 @@ a.custom-card:hover {
 
 .table-footer{
   text-align: center;
+  
 }
 
 .local-alert{
@@ -829,6 +821,10 @@ a.custom-card:hover {
   background-color: rgba(237,20,61,.2)!important;
 }
 
+.warning{
+  background-color: rgba(255, 204, 0,.2)!important;
+}
+
 .badge{
   font-weight: 100;
   padding: 7px 10px;
@@ -843,4 +839,41 @@ a.custom-card:hover {
   text-align: center;
   height:240px;
   margin-top: 120px;
+}
+
+.upload-form{
+  text-align: center;
+  height:240px;
+  margin-top: 70px;
+}
+
+::placeholder {
+  font-size: 14px;
+  line-height: 15px;
+  opacity: 0.5;
+}
+
+.upload-area{
+  border: 1px solid var(--pale-grey);
+  width: 100%;
+  padding: 30px;
+}
+
+.buttonInside{
+  position:relative;
+  margin-bottom:10px;
+}
+
+.inside{
+  position:absolute;
+  right: 20px;
+  top: 12px;
+  border:none;
+  height:20px;
+  width:20px;
+  border-radius:100%;
+  outline:none;
+  text-align:center;
+  font-weight:bold;
+  padding:2px;
 }

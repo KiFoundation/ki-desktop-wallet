@@ -39,8 +39,7 @@
           <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
           <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
-          <!-- <li></li> -->
-
+          <li><a class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
         </ul>
 
         <div class="tab-content">
@@ -261,13 +260,61 @@
             </form>
           </div>
 
+          <!-- ========================Sign form============================ -->
+          <div id="sign-form" class="transfer tab-pane">
+            <form v-if="sign.file_valid" class="basic-form">
+              <li class="token">
+                <label>{{$t("webwallet_signing_file_label")}}</label>
+              <div class="buttonInside">
+                <input type="text"  style="margin:0" :value="this.sign.file.name" disabled>
+                <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
+              </li>
+              <li class="token">
+                <label>{{$t("webwallet_sign_summary")}}</label>
+                <input class="warning" type="text" disabled>
+              </li>
+              <li class="token">
+                <label>{{$t("webwallet_sign_onbehalf")}}</label>
+                <input type="text" :placeholder="$t('webwallet_for_multisig')" >
+              </li>
+              <a class="btn" @click="signTx">{{$t("signtx")}}</a>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="upload-form">
+                  <b-row align-v="center">
+                    <b-col cols="1" ></b-col>
+                    <b-col>
+                      <!-- <input type="file" ref="myFile" @change="upload"><br/> -->
+                      <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
+                          <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
+                          <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
+                        </div>
+                    </b-col>
+                    <b-col cols="1" >
+                        <span>Or</span>
+                    </b-col>
+                    <b-col>
+                      <div>
+                          <textarea v-model="sign.file_content"  :placeholder="$t('webwallet_copy_paste')" rows="8"></textarea>
+                        </div>
+                      </b-col>
+                      <b-col cols="1" >
+                      </b-col>
+                  </b-row>
+                </div>
+            </div>
+            </form>
+          </div>
+
         </div>
       </div>
     </section>
 
     <!-- =======================Mini explorer============================= -->
-    <section class="main-info" v-if="transactions.length > 0 && mini_explorer">
-      <div class="main-container transfer-container">
+    <section class="main-info">
+      <div  v-if="transactions.length > 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
         <table class="table">
           <thead class="thead-null">
             <tr>
@@ -279,7 +326,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in transactions">
+            <tr v-for="item in transactions.slice(0, 4)">
               <td class="text"><span><a :href="explorer+ 'transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
               <td class="text"><span>{{item[1]}}</span></td>
               <td class="text"><span><a :href="explorer+ 'account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
@@ -293,11 +340,14 @@
         <div class="table-footer">
           <span><a :href="explorer+ 'account/' + this.account" target="_blank">See all transactions</a></span>
         </div>
-
-
+      </div>
+      <div v-if="transactions.length == 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
+        <div class="form-message" >
+          <!-- <p style="font-size:60px">🤔</p> -->
+          <p>{{$t("webwallet_no_transactions")}} <span><a :href="explorer+ 'account/' + this.account" target="_blank">Browse you address in the explorer</a></span></p>
+        </div>
       </div>
     </section>
-
   </template>
 </div>
 </template>
@@ -326,7 +376,9 @@ import {
 Vue.component('b-row', BRow);
 Vue.component('b-col', BCol);
 Vue.component('b-container', BContainer);
-
+Vue.filter('kb', val => {
+  return Math.floor(val/1024);
+});
 
 import axios from 'axios';
 
@@ -347,7 +399,7 @@ export default {
       chainId: '',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
-      mini_explorer: false,
+      mini_explorer: true,
       selectedSet: 1,
       slider: null,
       thunk: null,
@@ -398,6 +450,13 @@ export default {
         'alert': '',
         'validator_address': '',
         'config': 0,
+      },
+
+      sign: {
+        'alert': '',
+        'file':'',
+        'file_valid': false,
+        'file_content': '',
       },
 
       reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
@@ -1289,7 +1348,8 @@ export default {
       })
 
     },
-
+    // =========================Sign transaction===========================
+    signTx(){},
     resetForms() {
       this.mnemonic = '';
 
@@ -1318,7 +1378,6 @@ export default {
       this.withdraw.validator_address = '';
       this.withdraw.config = 0;
     },
-
     resetData() {
       this.balances.sum = 0;
       this.balances.USD = 0;
@@ -1330,13 +1389,11 @@ export default {
       this.delegations = {};
       this.transactions = [];
     },
-
     refresh() {
       this.resetForms();
       this.resetData();
       this.initExtension();
     },
-
     getAccounts() {
       if (localStorage.getItem("wallet_list")) {
         let wallet_list = localStorage.getItem("wallet_list").split(',');
@@ -1350,8 +1407,6 @@ export default {
         }
       }
     },
-
-
     generate_gradient() {
       // var newColor1 = this.webUtil.populate('#', this.account, 1);
       // var newColor2 = this.webUtil.populate('#', this.account 2);
@@ -1364,7 +1419,6 @@ export default {
       var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
       this.gradient_style = 'background-image:' + gradient;
     },
-
     getUnit() {
       common.$on('val', (data) => {
         this.unit = data
@@ -1399,6 +1453,29 @@ export default {
         return false;
       }
     },
+
+    removeFile(){
+      this.sign.file='';
+      this.sign.file_content = '';
+      this.sign.file_valid=false;
+    },
+    upload(e) {
+      let file = e.dataTransfer.files[0];
+      this.sign.file = file;
+      if(!file) return;
+
+      // Credit: https://stackoverflow.com/a/754398/52160
+      let reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload =  evt => {
+        this.sign.file_content = evt.target.result;
+        this.sign.file_valid=true;
+      }
+      reader.onerror = evt => {
+        console.error(evt);
+      }
+    },
+
   },
   components: {
     login,
