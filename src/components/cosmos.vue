@@ -13,11 +13,11 @@
           <b-col style="text-align: right;">
             <h5>
               {{this.balances.list.available}}{{this.token}}
-               <!-- <a alt="Refresh account" class="reload" @click="refresh"> -->
-                 <!-- <img src="static/img/icons/refresh_white@2x.png"  width="22px"></img> -->
-               <!-- </a> -->
-             </h5>
-             <a @click="refresh">Refresh account</a>
+              <!-- <a alt="Refresh account" class="reload" @click="refresh"> -->
+              <!-- <img src="static/img/icons/refresh_white@2x.png"  width="22px"></img> -->
+              <!-- </a> -->
+            </h5>
+            <a @click="refresh">Refresh account</a>
 
           </b-col>
         </b-row>
@@ -94,13 +94,32 @@
                   <li class="token">
                     <div class="input">{{feeCompute.toFixed(6)}} TKI</div>
                   </li>
+
                 </ul>
 
 
               </div>
               <label>{{$t("memo")}}</label>
               <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
-              <a class="btn" @click="sendTransfer">{{$t("transfer")}}</a>
+              <li v-if="transfer.output!=''" class="token">
+                <label>{{$t("webwallet_output")}}</label>
+                <textarea class="" v-model="transfer.output" rows="3" disabled></textarea>
+              </li>
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendTransfer">
+                    <span v-if="context=='Broadcast'">{{$t("transfer")}}</span>
+                    <span v-else>{{context}}</span></a>
+                </b-col>
+                <b-col cols="2">
+                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                  <select v-model="context" style="margin-top:32px">
+                    <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
+                    <option value="Sign" key="Sign">Sign</option>
+                    <option value="Generate" key="Generate">Generate</option>
+                  </select>
+                </b-col>
+              </b-row>
             </form>
           </div>
 
@@ -129,7 +148,26 @@
                 </li>
               </ul>
 
-              <a class="btn" @click="sendDelegateTx">{{$t("delegatetx")}}</a>
+              <li v-if="delegate.output!=''" class="token">
+                <label>{{$t("webwallet_output")}}</label>
+                <textarea class="" v-model="delegate.output" rows="3" disabled></textarea>
+              </li>
+
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendDelegateTx">
+                    <span v-if="context=='Broadcast'">{{$t("delegatetx")}}</span>
+                    <span v-else>{{context}}</span></a>
+                </b-col>
+                <b-col cols="2">
+                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                  <select v-model="context" style="margin-top:32px">
+                    <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
+                    <option value="Sign" key="Sign">Sign</option>
+                    <option value="Generate" key="Generate">Generate</option>
+                  </select>
+                </b-col>
+              </b-row>
             </form>
           </div>
 
@@ -157,16 +195,31 @@
                 </li>
               </ul>
 
-              <a class="btn" @click="sendUnDelegateTx">{{$t("undelegatetx")}}</a>
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendUnDelegateTx">
+                    <span v-if="context=='Broadcast'">{{$t("undelegatetx")}}</span>
+                    <span v-else>{{context}}</span></a>
+                </b-col>
+                <b-col cols="2">
+                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                  <select v-model="context" style="margin-top:32px">
+                    <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
+                    <option value="Sign" key="Sign">Sign</option>
+                    <option value="Generate" key="Generate">Generate</option>
+                  </select>
+                </b-col>
+              </b-row>
+
             </form>
             <form v-else>
               <div class="basic-form">
-                <div class="form-message" >
+                <div class="form-message">
                   <p style="font-size:60px">🤔</p>
                   {{$t("webwallet_no_delegations")}}
                 </div>
 
-            </div>
+              </div>
             </form>
           </div>
 
@@ -206,16 +259,31 @@
                 </li>
               </ul>
 
-              <a class="btn" @click="sendReDelegateTx">{{$t("redelegatetx")}}</a>
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendReDelegateTx">
+                    <span v-if="context=='Broadcast'">{{$t("redelegatetx")}}</span>
+                    <span v-else>{{context}}</span></a>
+                </b-col>
+                <b-col cols="2">
+                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                  <select v-model="context" style="margin-top:32px">
+                    <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
+                    <option value="Sign" key="Sign">Sign</option>
+                    <option value="Generate" key="Generate">Generate</option>
+                  </select>
+                </b-col>
+              </b-row>
+
             </form>
             <form v-else>
               <div class="basic-form">
-                <div class="form-message" >
+                <div class="form-message">
                   <p style="font-size:60px">🤔</p>
                   {{$t("webwallet_no_delegations")}}
                 </div>
 
-            </div>
+              </div>
             </form>
           </div>
           <!-- ========================Withdraw form============================ -->
@@ -247,16 +315,31 @@
                 </li>
               </ul>
 
-              <a class="btn" @click="sendWithdrawTx">{{$t("withdrawtx")}}</a>
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendWithdrawTx">
+                    <span v-if="context=='Broadcast'">{{$t("withdrawtx")}}</span>
+                    <span v-else>{{context}}</span></a>
+                </b-col>
+                <b-col cols="2">
+                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                  <select v-model="context" style="margin-top:32px">
+                    <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
+                    <option value="Sign" key="Sign">Sign</option>
+                    <option value="Generate" key="Generate">Generate</option>
+                  </select>
+                </b-col>
+              </b-row>
+
             </form>
             <form v-else>
               <div class="basic-form">
-                <div class="form-message" >
+                <div class="form-message">
                   <p style="font-size:60px">🤔</p>
                   {{$t("webwallet_no_delegations")}}
                 </div>
 
-            </div>
+              </div>
             </form>
           </div>
 
@@ -265,31 +348,36 @@
             <form v-if="sign.file_valid" class="basic-form">
               <li class="token">
                 <label>{{$t("webwallet_signing_file_label")}}</label>
-              <div class="buttonInside">
-                <input type="text"  style="margin:0" :value="this.sign.file.name" disabled>
-                <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
-              </div>
+                <div class="buttonInside">
+                  <input type="text" style="margin:0" :value="this.sign.file.name" disabled>
+                  <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                </div>
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_summary")}}</label>
-                <textarea class="warning" v-model="this.sign.summary"   rows="3" disabled></textarea>
+                <textarea class="warning" v-model="this.sign.summary" rows="3" disabled></textarea>
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
-                <input type="text" :placeholder="$t('webwallet_for_multisig')" >
+                <input type="text" :placeholder="$t('webwallet_for_multisig')">
               </li>
-              <a class="btn" @click="signTx">{{$t("signtx")}}</a>
+              <li v-if="this.sign.signature!=''" class="token">
+                <label>{{$t("webwallet_sign_signature")}}</label>
+                <textarea class="" v-model="this.sign.signature" rows="3" disabled></textarea>
+              </li>
+              <a v-if="this.sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
+              <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
             </form>
             <form v-else>
               <div class="basic-form">
                 <div class="upload-form">
                   <b-row align-v="center">
-                    <b-col cols="4" ></b-col>
+                    <b-col cols="4"></b-col>
                     <b-col>
-                      <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
-                          <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
-                          <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
-                        </div>
+                      <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
+                        <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
+                        <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
+                      </div>
                     </b-col>
                     <!-- <b-col cols="1" >
                         <span>Or</span>
@@ -299,11 +387,11 @@
                           <textarea v-model="sign.file_content"  :placeholder="$t('webwallet_copy_paste')" rows="8"></textarea>
                         </div>
                       </b-col> -->
-                      <b-col cols="4" >
-                      </b-col>
+                    <b-col cols="4">
+                    </b-col>
                   </b-row>
                 </div>
-            </div>
+              </div>
             </form>
           </div>
 
@@ -313,7 +401,7 @@
 
     <!-- =======================Mini explorer============================= -->
     <section class="main-info">
-      <div  v-if="transactions.length > 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
+      <div v-if="transactions.length > 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
         <table class="table">
           <thead class="thead-null">
             <tr>
@@ -341,7 +429,7 @@
         </div>
       </div>
       <div v-if="transactions.length == 0 && mini_explorer" class="main-container transfer-container" style="height:300px; padding-bottom: 20px;">
-        <div class="form-message" >
+        <div class="form-message">
           <p>{{$t("webwallet_no_transactions")}} <span><a :href="explorer+ 'account/' + this.account" target="_blank">Browse you address in the explorer</a></span></p>
         </div>
       </div>
@@ -375,7 +463,7 @@ Vue.component('b-row', BRow);
 Vue.component('b-col', BCol);
 Vue.component('b-container', BContainer);
 Vue.filter('kb', val => {
-  return Math.floor(val/1024);
+  return Math.floor(val / 1024);
 });
 
 import axios from 'axios';
@@ -395,6 +483,7 @@ export default {
       key: '',
       publickey: '',
       chainId: '',
+      context: 'Broadcast',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
       mini_explorer: true,
@@ -414,7 +503,8 @@ export default {
         'memo': '',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 300000
+        'gasLimit': 300000,
+        'output': ''
       },
       delegate: {
         'alert': '',
@@ -423,7 +513,8 @@ export default {
         'token': 'tki',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 300000
+        'gasLimit': 300000,
+        'output': ''
       },
       undelegate: {
         'alert': '',
@@ -432,7 +523,8 @@ export default {
         'token': 'tki',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 300000
+        'gasLimit': 300000,
+        'output': ''
       },
       redelegate: {
         'alert': '',
@@ -442,20 +534,23 @@ export default {
         'token': 'tki',
         'fee': 0.001250,
         'gasPrice': '0.0000005',
-        'gasLimit': 300000
+        'gasLimit': 300000,
+        'output': ''
       },
       withdraw: {
         'alert': '',
         'validator_address': '',
         'config': 0,
+        'output': ''
       },
 
       sign: {
         'alert': '',
-        'file':'',
+        'file': '',
         'file_valid': false,
         'file_content': '',
-        'summary':'',
+        'summary': '',
+        'signature': '',
       },
 
       reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
@@ -818,6 +913,10 @@ export default {
         'memo': this.transfer.memo,
       }
 
+      if (this.context == "Generate") {
+        this.transfer.output = JSON.stringify(transaction);
+      }
+
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -844,37 +943,43 @@ export default {
           'privateKey': key,
           'publicKey': publickey
         });
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
 
+        if (this.context == "Sign") {
+          this.transfer.output = JSON.stringify(signedTransactionme);
+        }
 
-        let url = nodeUrl + `/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
-          }
-        };
+        if (this.context == "Broadcast") {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
 
-        axios(opts).then(res => {
-          let result = res.data;
+          axios(opts).then(res => {
+            let result = res.data;
 
-          if (result.code) {
-            let log = JSON.parse(result.raw_log);
-            $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
-              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            // alert(log.message);
-          } else if (result.txhash) {
-            $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer ' + this.transfer.amount + 'tki to ' + this.transfer.account + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
-              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            // alert(this.$t('transfer_success'));
-            // window.location.reload();
-            this.resetForms();
-          }
-        });
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer ' + this.transfer.amount + 'tki to ' + this.transfer.account +
+                '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' + result.txhash + '>here.</a>' +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              // alert(this.$t('transfer_success'));
+              // window.location.reload();
+              this.resetForms();
+            }
+          });
+        }
       })
     },
     // ========================Delegation Transaction============================
@@ -934,6 +1039,10 @@ export default {
         'memo': "",
       }
 
+      if (this.context == "Generate") {
+        this.delegate.output = JSON.stringify(transaction);
+      }
+
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -958,36 +1067,44 @@ export default {
           'privateKey': key,
           'publicKey': publickey
         });
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-        let url = nodeUrl + `/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
-          }
-        };
+        if (this.context == "Sign") {
+          this.delegate.output = JSON.stringify(signedTransactionme);
+        }
 
-        axios(opts).then(res => {
-          let result = res.data;
+        if (this.context == "Broadcast") {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-          if (result.code) {
-            let log = JSON.parse(result.raw_log);
-            $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
-              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            // alert(log.message);
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
 
-          } else if (result.txhash) {
-            $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' + this.validators[this.delegate.validator] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
-              '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          axios(opts).then(res => {
+            let result = res.data;
 
-            this.resetForms();
-          }
-        });
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              // alert(log.message);
+
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' + this.delegate.amount + 'tki to ' + this.validators[this.delegate.validator] +
+                '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' + result.txhash + '>here.</a>' +
+                '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+
+              this.resetForms();
+            }
+          });
+        }
       })
     },
     // =========================Unbonding transaction===========================
@@ -1047,6 +1164,10 @@ export default {
         'memo': "",
       }
 
+      if (this.context == "Generate") {
+        this.undelegate.output = JSON.stringify(transaction);
+      }
+
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -1076,36 +1197,44 @@ export default {
             'privateKey': key,
             'publicKey': publickey
           });
-          let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+          if (this.context == "Sign") {
+            this.undelegate.output = JSON.stringify(signedTransactionme);
+          }
+
+          if (this.context == "Broadcast") {
+            let bcTransactionme = createBroadcastTx(signedTransactionme);
 
 
-          let url = nodeUrl + `/txs?sync=true`;
-          const opts = {
-            method: 'post',
-            url: url,
-            data: bcTransactionme,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
+            let url = nodeUrl + `/txs?sync=true`;
+            const opts = {
+              method: 'post',
+              url: url,
+              data: bcTransactionme,
+              headers: {
+                "Content-Type": "text/plain",
+              }
+            };
 
-          axios(opts).then(res => {
-            let result = res.data;
+            axios(opts).then(res => {
+              let result = res.data;
 
-            if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              $('#sent_alert').html(
-                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
-                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-              alert(log.message);
-            } else if (result.txhash) {
-              $('#sent_alert').html(
-                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' + this.undelegate.amount + 'tki from ' + this.delegations[this.undelegate.validator][0] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
-                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              if (result.code) {
+                let log = JSON.parse(result.raw_log);
+                $('#sent_alert').html(
+                  '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+                alert(log.message);
+              } else if (result.txhash) {
+                $('#sent_alert').html(
+                  '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' + this.undelegate.amount + 'tki from ' + this.delegations[this.undelegate.validator][0] +
+                  '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' + result.txhash + '>here.</a>' +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
 
-              this.resetForms();
-            }
-          });
+                this.resetForms();
+              }
+            });
+          }
         }
       })
     },
@@ -1171,6 +1300,10 @@ export default {
         'memo': "",
       }
 
+      if (this.context == "Generate") {
+        this.redelegate.output = JSON.stringify(transaction);
+      }
+
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -1200,37 +1333,45 @@ export default {
             'privateKey': key,
             'publicKey': publickey
           });
-          let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-          // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
+          if (this.context == "Sign") {
+            this.redelegate.output = JSON.stringify(signedTransactionme);
+          }
 
-          let url = nodeUrl + `/txs?sync=true`;
-          const opts = {
-            method: 'post',
-            url: url,
-            data: bcTransactionme,
-            headers: {
-              "Content-Type": "text/plain",
-            }
-          };
+          if (this.context == "Broadcast") {
+            let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-          axios(opts).then(res => {
-            let result = res.data;
+            // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
 
-            if (result.code) {
-              let log = JSON.parse(result.raw_log);
-              $('#sent_alert').html(
-                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
-                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-              // alert(log.message);
-            } else if (result.txhash) {
-              $('#sent_alert').html(
-                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' + this.delegations[this.redelegate.from_validator][0] + ' to ' + this
-                .validators[this.redelegate.to_validator] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+ '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            let url = nodeUrl + `/txs?sync=true`;
+            const opts = {
+              method: 'post',
+              url: url,
+              data: bcTransactionme,
+              headers: {
+                "Content-Type": "text/plain",
+              }
+            };
 
-              this.resetForms();
-            }
-          });
+            axios(opts).then(res => {
+              let result = res.data;
+
+              if (result.code) {
+                let log = JSON.parse(result.raw_log);
+                $('#sent_alert').html(
+                  '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+                // alert(log.message);
+              } else if (result.txhash) {
+                $('#sent_alert').html(
+                  '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' + this.redelegate.amount + 'tki from ' + this.delegations[this.redelegate.from_validator][0] + ' to ' + this
+                  .validators[this.redelegate.to_validator] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' + result.txhash + '>here.</a>' +
+                  '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+
+                this.resetForms();
+              }
+            });
+          }
         }
       })
     },
@@ -1278,6 +1419,10 @@ export default {
 
       }
 
+      if (this.context == "Generate") {
+        this.withdraw.output = JSON.stringify(transaction);
+      }
+
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -1316,39 +1461,82 @@ export default {
           'privateKey': key,
           'publicKey': publickey
         });
-        let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-        let url = nodeUrl + `/txs?sync=true`;
-        const opts = {
-          method: 'post',
-          url: url,
-          data: bcTransactionme,
-          headers: {
-            "Content-Type": "text/plain",
-          }
-        };
+        if (this.context == "Sign") {
+          this.withdraw.output = JSON.stringify(signedTransactionme);
+        }
+        if (this.context == "Broadcast") {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
 
-        axios(opts).then(res => {
-          let result = res.data;
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              "Content-Type": "text/plain",
+            }
+          };
 
-          if (result.code) {
-            let log = JSON.parse(result.raw_log);
-            $('#sent_alert').html(
-              '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
-              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            // alert(log.message);
-          } else if (result.txhash) {
-            $('#sent_alert').html(
-              '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from ' + this.delegations[this.withdraw.validator_address][0] + '. Check it <a target="_blank" href=https://blockchain.ki/transactions/'+result.txhash+'>here.</a>'+
-              ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
-            this.resetForms();
-          }
-        });
+          axios(opts).then(res => {
+            let result = res.data;
+
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' + log.message +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' + this.reward_config[this.withdraw.config] + ' from ' + this.delegations[this.withdraw.validator_address][0] +
+                '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' + result.txhash + '>here.</a>' +
+                ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+              this.resetForms();
+            }
+          });
+        }
       })
 
     },
     // =========================Sign transaction===========================
-    signTx(){},
+    signTxFile() {
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      let account = this.account
+      let transaction = JSON.parse(this.sign.file_content).value
+
+      if (transaction.hasOwnProperty('signatures')) {
+        delete transaction['signatures']
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        const key = Buffer.from(this.key, 'hex');
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          'privateKey': key,
+          'publicKey': publickey
+        });
+
+        this.sign.signature = JSON.stringify(signedTransactionme)
+      })
+    },
     resetForms() {
       this.mnemonic = '';
 
@@ -1359,23 +1547,29 @@ export default {
       this.transfer.fee = 0.001250;
       this.transfer.gasPrice = '0.0000005';
       this.transfer.gasLimit = 300000;
+      this.transfer.output = '';
+
 
       this.delegate.alert = '';
       this.delegate.validator = '';
       this.delegate.amount = 0;
+      this.delegate.output = '';
 
       this.undelegate.alert = '';
       this.undelegate.validator = '';
       this.undelegate.amount = 0;
+      this.undelegate.output = '';
 
       this.redelegate.alert = '';
       this.redelegate.to_validator = '';
       this.redelegate.from_validator = '';
       this.redelegate.amount = 0;
+      this.redelegate.output = '';
 
       this.withdraw.alert = '';
       this.withdraw.validator_address = '';
       this.withdraw.config = 0;
+      this.withdraw.output = '';
     },
     resetData() {
       this.balances.sum = 0;
@@ -1452,22 +1646,24 @@ export default {
         return false;
       }
     },
-    removeFile(){
-      this.sign.file='';
+    removeFile() {
+      this.sign.file = '';
+      this.sign.summary = '';
+      this.sign.signature = '';
+      this.sign.file_valid = false;
       this.sign.file_content = '';
-      this.sign.file_valid=false;
     },
     upload(e) {
       let file = e.dataTransfer.files[0];
       this.sign.file = file;
-      if(!file) return;
+      if (!file) return;
 
       // Credit: https://stackoverflow.com/a/754398/52160
       let reader = new FileReader();
       reader.readAsText(file, "UTF-8");
-      reader.onload =  evt => {
+      reader.onload = evt => {
         this.sign.file_content = evt.target.result;
-        this.sign.file_valid=true;
+        this.sign.file_valid = true;
         this.parseMessage()
       }
       reader.onerror = evt => {
@@ -1475,15 +1671,40 @@ export default {
       }
 
     },
-    parseMessage(){
-      let msg=JSON.parse(this.sign.file_content).value.msg[0]
-      switch(msg.type){
-        case "cosmos-sdk/MsgSend":
-          this.sign.summary="Send:\t " +  msg.value.amount[0].amount + " tki \nfrom:\t " +msg.value.from_address+ " \nto:\t\t " + msg.value.to_address ;
-        break;
+    parseMessage() {
+      try {
+        let msg = JSON.parse(this.sign.file_content).value.msg[0]
+        switch (msg.type) {
+          case "cosmos-sdk/MsgSend":
+            this.sign.summary = "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
+            break;
+
+          default:
+            this.sign.summary = "The file does not seem to contain a valid transaction structure."
+        }
+      } catch (error) {
+        this.sign.summary = "The file does not seem to contain a valid transaction structure."
       }
+    },
+
+    downloadSig() {
+      let filename = "signed_tx.json"
+      let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.sign.signature)
+
+      var element = document.createElement('a');
+      element.setAttribute('href', href);
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+
     }
   },
+
   components: {
     login,
     sideBar,
