@@ -47,6 +47,7 @@ body {
   font-family: Gotham-Book;
   color: #000;
   background-color: var(--pale-grey);
+  background-color: var(--darkbg);
   min-width: 1040px;
   overflow: scroll;
 }
@@ -105,6 +106,10 @@ i {
   padding: 12px 24px;
   font-family: Gotham-Medium;
   font-weight: 500;
+}
+
+.btn-download{
+  background: #888888;
 }
 
 .btn-secondary,
@@ -777,7 +782,7 @@ a.custom-card:hover {
 
 .table-footer{
   text-align: center;
-  
+
 }
 
 .local-alert{

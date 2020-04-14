@@ -193,7 +193,8 @@ class Util {
     //               'DF9881','F2D7B4','7CAA98','8FC1A9','C8D6B9',
     //               'F9665E','FEC9C9','EEF1E6','AFC7D0','95B4CC']
 
-    let colors = ['484f63','484f63']
+    let colors = ['043bea','043bea']
+    // let colors = ['2c363f','2c363f']
 
     let seeds = account.match(/.{1,3}/g)
 

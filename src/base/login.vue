@@ -147,7 +147,7 @@
                   </div>
 
                   <label>{{$t("enter_password")}}</label>
-                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
+                  <input disabled type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
                   <!-- <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span> -->
                   <!-- <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span> -->
 

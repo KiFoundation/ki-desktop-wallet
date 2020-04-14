@@ -63,7 +63,8 @@
     }
 
     .burger-bar {
-        background-color: #130f40;
+        /* background-color: #130f40; */
+        background-color: #fff;
         position: absolute;
         top: 50%;
         right: 6px;
@@ -100,9 +101,9 @@
         transform: rotate(-180deg);
     }
 
-    /* #burger.active .burger-bar {
-        background-color: #fff;
-    } */
+    #burger.active .burger-bar {
+        background-color: #000;
+    }
 
     #burger.active .burger-bar--1 {
         transform: rotate(45deg)
