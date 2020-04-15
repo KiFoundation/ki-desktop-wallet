@@ -18,7 +18,6 @@
       <a class="grey-fsz" @click="removeWallet">{{$t("webwallet_remove_wallet")}}</a>
     </div>
 
-
     <div class="token-info">
       <p>{{$t("webwallet_total")}} {{token}}</p>
       <h4>{{webUtil.addCommas(balances.sum,6)}} </h4>

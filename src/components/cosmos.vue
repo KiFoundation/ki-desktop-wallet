@@ -2,7 +2,7 @@
 <div :class="{webwallet:account}">
   <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
   <template v-else>
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting" :multisig="multisign"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting" :multisig="multisig"></side-bar>
     <section class="sec-info">
       <div class="status-container" :style="gradient_style">
         <b-row>
@@ -47,12 +47,12 @@
               <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
-              <li><a v-if="advanced && !multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
-              <li><a v-if="multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("msigntx")}}</a></li>
+              <li><a v-if="advanced && !multisig" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
+              <li><a v-if="multisig" class="tab" data-toggle="tab" href="#sign-form">{{$t("msigntx")}}</a></li>
             </ul>
 
           </b-col>
-          <b-col cols="2" v-if="!multisign">
+          <b-col cols="2" v-if="!multisig">
             <li>
               <a @click="advanced=true"><span v-if="!advanced" class="clear-link inactive">Advanced mode is off</span> </a>
               <a @click="advanced=false"><span v-if="advanced" class="clear-link active">Advanced mode is on</span> </a>
@@ -126,7 +126,7 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendTransfer">
-                    <span v-if="(context=='Broadcast' || !advanced && !multisign)">{{$t("transfer")}}</span>
+                    <span v-if="(context=='Broadcast' || !advanced && !multisig)">{{$t("transfer")}}</span>
                     <span v-else>{{context}}</span>
                   </a>
                 </b-col>
@@ -174,7 +174,7 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("delegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisig)">{{$t("delegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
@@ -215,7 +215,7 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendUnDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("undelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisig)">{{$t("undelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
@@ -279,7 +279,7 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendReDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("redelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisig)">{{$t("redelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
@@ -335,7 +335,7 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendWithdrawTx">
-                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("withdrawtx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisig)">{{$t("withdrawtx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
@@ -497,7 +497,7 @@ export default {
       blockchain: 'KiChain',
       prefix: '',
       account: '',
-      multisign: false,
+      multisig: false,
       vesting: false,
       accountName: '',
       key: '',
@@ -568,6 +568,14 @@ export default {
       sign: {
         'alert': '',
         'file': '',
+        'file_valid': false,
+        'file_content': '',
+        'summary': '',
+        'signature': '',
+      },
+      multisign: {
+        'threshold': 0,
+        'pubkeys': [],
         'file_valid': false,
         'file_content': '',
         'summary': '',
@@ -670,7 +678,7 @@ export default {
           this.publickey = identity_j.publickey;
           this.chainId = identity_j.chainId;
           if (this.key == '') {
-            this.multisign = true;
+            this.multisig = true;
             this.context = 'Generate';
             this.advanced = false;
           }
@@ -814,6 +822,13 @@ export default {
                   });
                 }
 
+                if(this.multisig){
+                  let multisig_data = res.public_key.value
+                  this.multisign.threshold = multisig_data.threshold
+                  for (var key in multisig_data.pubkeys){
+                      this.multisign.pubkeys.push(multisig_data.pubkeys[key].value)
+                  }
+                }
               } else {
                 res = res1.data.result.value;
                 let coins = res.coins;
