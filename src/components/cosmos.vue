@@ -31,16 +31,34 @@
       </div>
 
       <!-- <networks></networks> -->
+      <!-- <div class="network-container">
+        <span>
+          <span v-if="true"  class="clear-link">Advanced mode</span>  <toggle-button synch="true" v-model="advanced" width="30" height="18"   color="#043bea"/>
+         <a @click="advanced=true"><span v-if="!advanced" class="clear-link">Advanced mode</span> </a>
+      </span>
+      </div> -->
       <div class="main-container transfer-container">
         <div id="sent_alert"></div>
-        <ul class="tabs nav nav-tabs">
-          <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
-          <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
-          <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
-          <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
-          <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
-          <li><a class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
-        </ul>
+        <b-row>
+          <b-col>
+            <ul id="txtabs" class="tabs nav nav-tabs">
+              <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
+              <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
+              <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
+              <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
+              <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
+              <li><a v-if="advanced && !multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
+              <li><a v-if="multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
+            </ul>
+
+          </b-col>
+          <b-col cols="2">
+            <li>
+              <a @click="advanced=true"><span v-if="!advanced" class="clear-link inactive">Advanced mode is off</span> </a>
+              <a @click="advanced=false"><span v-if="advanced" class="clear-link active">Advanced mode is on</span> </a>
+            </li>
+          </b-col>
+        </b-row>
 
         <div class="tab-content">
           <!-- ========================Transfer form============================ -->
@@ -108,10 +126,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendTransfer">
-                    <span v-if="context=='Broadcast'">{{$t("transfer")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("transfer")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col cols="2">
+                <b-col v-if="advanced" cols="2">
                   <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
@@ -156,10 +174,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendDelegateTx">
-                    <span v-if="context=='Broadcast'">{{$t("delegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("delegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col cols="2">
+                <b-col v-if="advanced"  cols="2">
                   <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
@@ -198,10 +216,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendUnDelegateTx">
-                    <span v-if="context=='Broadcast'">{{$t("undelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("undelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col cols="2">
+                <b-col v-if="advanced" cols="2">
                   <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
@@ -262,10 +280,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendReDelegateTx">
-                    <span v-if="context=='Broadcast'">{{$t("redelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("redelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col cols="2">
+                <b-col v-if="advanced" cols="2">
                   <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
@@ -318,10 +336,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendWithdrawTx">
-                    <span v-if="context=='Broadcast'">{{$t("withdrawtx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("withdrawtx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col cols="2">
+                <b-col v-if="advanced" cols="2">
                   <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
@@ -466,6 +484,10 @@ Vue.filter('kb', val => {
   return Math.floor(val / 1024);
 });
 
+import ToggleButton from 'vue-js-toggle-button'
+
+Vue.use(ToggleButton)
+
 import axios from 'axios';
 
 export default {
@@ -478,11 +500,13 @@ export default {
       blockchain: 'KiChain',
       prefix: '',
       account: '',
+      multisign: false,
       vesting: false,
       accountName: '',
       key: '',
       publickey: '',
       chainId: '',
+      advanced: false,
       context: 'Broadcast',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
