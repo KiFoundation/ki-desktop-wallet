@@ -48,7 +48,7 @@
               <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
               <li><a v-if="advanced && !multisig" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
-              <li><a v-if="multisig" class="tab" data-toggle="tab" href="#sign-form">{{$t("msigntx")}}</a></li>
+              <li><a v-if="multisig" class="tab" data-toggle="tab" href="#msign-form">{{$t("msigntx")}}</a></li>
             </ul>
 
           </b-col>
@@ -411,6 +411,32 @@
               </div>
             </form>
           </div>
+          <!-- ========================Multisign form============================ -->
+          <div id="msign-form" class="transfer tab-pane">
+            <form>
+              <div class="basic-form">
+                <div class="upload-form">
+                  <b-row align-v="center">
+                    <b-col cols="1"></b-col>
+                    <b-col cols="4">
+                      <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
+                        <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
+                        <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
+                      </div>
+                    </b-col>
+                    <b-col cols="6">
+                      <div>
+                        <b-table style="font-size:11px; text-align: left;" sticky-header  no-border-collapse hover borderless ref="selectableTable"  select-mode="single" :items="multisign.pubkeys" :fields="multisign.fields" head-variant="null" responsive="sm" small>
+                          <template v-slot:table-caption>{{multisign.description}}</template>
+                        </b-table>
+                        </div>
+                      </b-col>
+                    <b-col cols="1"></b-col>
+                  </b-row>
+                </div>
+              </div>
+            </form>
+          </div>
 
         </div>
       </div>
@@ -574,12 +600,14 @@ export default {
         'signature': '',
       },
       multisign: {
+        'fields': ['address', 'status'],
         'threshold': 0,
         'pubkeys': [],
         'file_valid': false,
         'file_content': '',
         'summary': '',
         'signature': '',
+        'description':''
       },
 
       reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
@@ -826,8 +854,9 @@ export default {
                   let multisig_data = res.public_key.value
                   this.multisign.threshold = multisig_data.threshold
                   for (var key in multisig_data.pubkeys){
-                      this.multisign.pubkeys.push(multisig_data.pubkeys[key].value)
+                      this.multisign.pubkeys.push({'address': multisig_data.pubkeys[key].value, 'status': 'pending'})
                   }
+                  this.multisign.description = 'At least ' + this.multisign.threshold + ' out of ' + this.multisign.pubkeys.length + ' signatures are required'
                 }
               } else {
                 res = res1.data.result.value;
