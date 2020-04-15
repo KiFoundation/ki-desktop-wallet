@@ -8,7 +8,11 @@
     <h4>{{blockchain}} Wallet</h4>
     <h5>{{accountName}} </h5>
     <p id="copyContent" style="margin-top:10px;margin-bottom:10px;">{{account}}</p>
-    <h6  class="grey-fsz"><b-badge v-if="vesting" class="badge">Vesting</b-badge></h6>
+    <h6  class="grey-fsz">
+      <b-badge v-if="vesting" class="badge">Vesting</b-badge>
+      <b-badge v-if="multisig" class="badge">Multisig</b-badge>
+    </h6>
+
 
     <div class="operation-list">
       <a class="grey-fsz" @click="removeWallet">{{$t("webwallet_remove_wallet")}}</a>
@@ -100,7 +104,7 @@ Vue.component('b-badge', BBadge);
 
 
 export default {
-  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName', 'items', 'vesting'],
+  props: ['account', 'balances', 'blockchain', 'sequence', 'accountName', 'items', 'vesting', 'multisig'],
   data() {
     return {
       unit: this.webCoin.unit,

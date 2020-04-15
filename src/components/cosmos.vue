@@ -2,7 +2,7 @@
 <div :class="{webwallet:account}">
   <login v-if="!account" @sendAccount="getChain" :blockchain="blockchain"></login>
   <template v-else>
-    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting"></side-bar>
+    <side-bar :balances="balances" :account="account" :blockchain="blockchain" :sequence="sequence" :accountName="accountName" :items="wallets" :vesting="vesting" :multisig="multisign"></side-bar>
     <section class="sec-info">
       <div class="status-container" :style="gradient_style">
         <b-row>
@@ -48,11 +48,11 @@
               <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#withdraw-form">{{$t("withdrawtx")}}</a></li>
               <li><a v-if="advanced && !multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
-              <li><a v-if="multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("signtx")}}</a></li>
+              <li><a v-if="multisign" class="tab" data-toggle="tab" href="#sign-form">{{$t("msigntx")}}</a></li>
             </ul>
 
           </b-col>
-          <b-col cols="2">
+          <b-col cols="2" v-if="!multisign">
             <li>
               <a @click="advanced=true"><span v-if="!advanced" class="clear-link inactive">Advanced mode is off</span> </a>
               <a @click="advanced=false"><span v-if="advanced" class="clear-link active">Advanced mode is on</span> </a>
@@ -126,11 +126,11 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendTransfer">
-                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("transfer")}}</span>
-                    <span v-else>{{context}}</span></a>
+                    <span v-if="(context=='Broadcast' || !advanced && !multisign)">{{$t("transfer")}}</span>
+                    <span v-else>{{context}}</span>
+                  </a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
-                  <!-- <label>{{$t("withdraw_config")}}</label> -->
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
                     <option value="Sign" key="Sign">Sign</option>
@@ -174,11 +174,10 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("delegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("delegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
-                <b-col v-if="advanced"  cols="2">
-                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+                <b-col v-if="advanced" cols="2">
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
                     <option value="Sign" key="Sign">Sign</option>
@@ -216,11 +215,11 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendUnDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("undelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("undelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
-                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
                     <option value="Sign" key="Sign">Sign</option>
@@ -280,11 +279,11 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendReDelegateTx">
-                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("redelegatetx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("redelegatetx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
-                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
                     <option value="Sign" key="Sign">Sign</option>
@@ -336,11 +335,11 @@
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendWithdrawTx">
-                    <span v-if="(context=='Broadcast'|| !advanced)">{{$t("withdrawtx")}}</span>
+                    <span v-if="(context=='Broadcast'|| !advanced && !multisign)">{{$t("withdrawtx")}}</span>
                     <span v-else>{{context}}</span></a>
                 </b-col>
                 <b-col v-if="advanced" cols="2">
-                  <!-- <label>{{$t("withdraw_config")}}</label> -->
+
                   <select v-model="context" style="margin-top:32px">
                     <option value="Broadcast" key="Broadcast" selected>Broadcast</option>
                     <option value="Sign" key="Sign">Sign</option>
@@ -484,9 +483,7 @@ Vue.filter('kb', val => {
   return Math.floor(val / 1024);
 });
 
-import ToggleButton from 'vue-js-toggle-button'
 
-Vue.use(ToggleButton)
 
 import axios from 'axios';
 
@@ -672,6 +669,11 @@ export default {
           this.key = identity_j.privatekey;
           this.publickey = identity_j.publickey;
           this.chainId = identity_j.chainId;
+          if (this.key == '') {
+            this.multisign = true;
+            this.context = 'Generate';
+            this.advanced = false;
+          }
           this.initExtension()
           this.generate_gradient();
         }

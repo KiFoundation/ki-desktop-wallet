@@ -63,18 +63,39 @@
               <!-- <img src="static/img/chain/kichain_banner.png"  style="width:70%" class="card-img-top"> -->
               <div class="mnemonic-group">
                 <li>
-                  <!-- Token -->
+
                   <label>{{$t("enter_wallet_name")}}</label>
-                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
+                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name">
                   <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span>
                   <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span>
 
+                <b-row>
+                  <b-col cols="3"></b-col>
+                  <b-col cols="5" style="padding-left:0px; padding-right:0px;" >
+                  <label>{{$t("multisig_wallet_true")}}</label>
+                  </b-col>
+                  <b-col style="padding-left:0px; padding-right:0px;" cols="1">
+                  <div><toggle-button v-model="multisig"  color="#043bea" :height="18" :width="35"  :sync="true"/></div>
+                  </b-col>
+                  <b-col cols="3"></b-col>
+                </b-row>
+
+                <div v-if="!multisig">
                   <label>{{$t("enter_mnemonic")}}</label>
                   <textarea @input="validate(0)" v-model="mnemonic" rows="4"></textarea>
                   <span class="mnemonic-error" v-if="!phrase_correct">{{$t('error_mnemonic')}}</span>
-                </li>
               </div>
-              <button type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
+              <div v-if="multisig">
+                <label>{{$t("enter_public_address")}}</label>
+                <textarea v-model="ms_address" rows="2"></textarea>
+                <!-- <span class="mnemonic-error" v-if="!ms_address_correct">{{$t('error_mnemonic')}}</span> -->
+              </div>
+            </li>
+
+              </div>
+              <button v-if="!multisig" type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
+              <button v-if="multisig" type="button" @click="importMultiSigWallet" class="btn btn-primary" :disabled="!(name_correct && !name_exists)" data-dismiss="modal">Import</button>
+
               <!-- <button type="button" @click="resetModal" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
             </div>
           </div>
@@ -95,9 +116,9 @@
               <!-- <img src="static/img/chain/kichain_banner.png" style="width:70%" class="card-img-top"> -->
               <div class="mnemonic-group">
                 <li>
-                  <!-- Token -->
+
                   <label>{{$t("enter_wallet_name")}}</label>
-                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
+                  <input type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name">
                   <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span>
                   <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span>
 
@@ -129,15 +150,9 @@
               <!-- <img src="static/img/chain/kichain_banner.png"  style="width:70%" class="card-img-top"> -->
               <div class="mnemonic-group">
                 <li>
-                  <!-- Token -->
+
                   <div>
                     <label>{{$t("select_wallet")}}</label>
-                    <!-- <input type="text" v-model="selected_wallet" list="self_wallets" autocomplete=off>
-                    <datalist id="self_wallets">
-                        <option v-for="item in wallets" :value="item[0]" :key="item[0]">
-                          {{item[0]}}
-                        </option>
-                  </datalist> -->
                     <select class="transactions wallet-select" v-model="selected_wallet">
                       <option value="" disabled selected>Select a wallet to use</option>
                       <option v-for="item in wallets" :value="item[0]" :key="item[0]">
@@ -147,10 +162,7 @@
                   </div>
 
                   <label>{{$t("enter_password")}}</label>
-                  <input disabled type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name"></textarea>
-                  <!-- <span class="mnemonic-error" v-if="!name_correct">{{$t('error_wallet_name')}}</span> -->
-                  <!-- <span class="mnemonic-error" v-if="name_correct && name_exists">{{$t('error_wallet_name_exists')}}</span> -->
-
+                  <input disabled type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name">
                 </li>
               </div>
               <button type="button" @click="login" class="btn btn-primary" data-dismiss="modal">Login</button>
@@ -160,17 +172,6 @@
       </div>
 
       <div v-if="wallets_found" style="width: 31.75rem; display: inline-block">
-        <!-- <div v-if="wallets_found" class="login-box card" style="width: 31.75rem; display: inline-block"> -->
-        <!-- <p><span>{{$t('webwallet_home_login')}}</span></p> -->
-        <!-- <div >
-          <select class="transactions wallet-select" v-model="selected_wallet">
-          <option value="" disabled selected>Select a wallet to use</option>
-          <option v-for="item in wallets" :value="item[0]" :key="item[0]">
-            {{item[0]}}
-          </option>
-        </select>
-      </div> -->
-        <!-- <button type="button" @click="login" class="btn btn-primary">Continue</button> -->
         <p><span class="stealth-link"> or <a @click="clear">Clear Local storage</a> here</span></p>
       </div>
 
@@ -196,6 +197,9 @@ import {
 Vue.component('b-dropdown-item', BDropdownItem);
 Vue.component('b-dropdown', BDropdown);
 
+import ToggleButton from 'vue-js-toggle-button'
+Vue.use(ToggleButton)
+
 export default {
   props: ['blockchain'],
   data() {
@@ -205,8 +209,11 @@ export default {
       network: '',
       token: '',
       mnemonic: '',
+      multisig:false,
+      ms_address:'',
       mnemonic_create: '',
       wallet_name: '',
+      ms_address_correct:false,
       wallets_found: false,
       name_exists: false,
       phrase_correct: false,
@@ -320,6 +327,29 @@ export default {
       }
     },
 
+    importMultiSigWallet () {
+      // const wallet = createWalletFromMnemonic(this.mnemonic, "", this.prefix);
+      let wallet_list = this.wallet_name;
+
+      if (localStorage.getItem("wallet_list")) {
+        let wallet_list_old = localStorage.getItem("wallet_list").split(',');
+        if (wallet_list_old.includes(wallet_list)) {
+          this.name_exists = true;
+        } else {
+          wallet_list = wallet_list + ',' + localStorage.getItem("wallet_list");
+        }
+      }
+      localStorage.setItem("wallet_list", wallet_list);
+      localStorage.setItem(this.wallet_name, '{"privateKey":{"type":"Buffer","data":[]},"publicKey":{"type":"Buffer","data":[]},"address":"' + this.ms_address + '"}');
+
+      this.webUtil.setCookie("import_success", 'true', {
+        expires: 30,
+        path: '/'
+      });
+
+      window.location.reload();
+    },
+
     importWallet() {
       const wallet = createWalletFromMnemonic(this.mnemonic, "", this.prefix);
       let wallet_list = this.wallet_name;
@@ -343,6 +373,7 @@ export default {
       window.location.reload();
     },
 
+
     generateWallet() {
       const bip39 = require('bip39')
       this.mnemonic_create = bip39.generateMnemonic(256);
@@ -363,6 +394,7 @@ export default {
       this.disabled = false;
       this.name_exists = false
       this.generated = false;
+      this.ms_address='';
     },
 
 
