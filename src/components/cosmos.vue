@@ -13,9 +13,6 @@
           <b-col style="text-align: right;">
             <h5>
               {{this.balances.list.available}}{{this.token}}
-              <!-- <a alt="Refresh account" class="reload" @click="refresh"> -->
-              <!-- <img src="static/img/icons/refresh_white@2x.png"  width="22px"></img> -->
-              <!-- </a> -->
             </h5>
             <a @click="refresh">Refresh account</a>
 
@@ -30,19 +27,12 @@
         <burger></burger>
       </div>
 
-      <!-- <networks></networks> -->
-      <!-- <div class="network-container">
-        <span>
-          <span v-if="true"  class="clear-link">Advanced mode</span>  <toggle-button synch="true" v-model="advanced" width="30" height="18"   color="#043bea"/>
-         <a @click="advanced=true"><span v-if="!advanced" class="clear-link">Advanced mode</span> </a>
-      </span>
-      </div> -->
       <div class="main-container transfer-container">
         <div id="sent_alert"></div>
         <b-row>
           <b-col>
             <ul id="txtabs" class="tabs nav nav-tabs">
-              <li><a class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
+              <li><a id="transfer-form-tab" class="tab active" data-toggle="tab" href="#transfer-form">{{$t("transfer")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#delegate-form">{{$t("delegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#undelegate-form">{{$t("undelegatetx")}}</a></li>
               <li><a class="tab" data-toggle="tab" href="#redelegate-form">{{$t("redelegatetx")}}</a></li>
@@ -55,7 +45,7 @@
           <b-col cols="2" v-if="!multisig">
             <li>
               <a @click="advanced=true"><span v-if="!advanced" class="clear-link inactive">Advanced mode is off</span> </a>
-              <a @click="advanced=false"><span v-if="advanced" class="clear-link active">Advanced mode is on</span> </a>
+              <a @click="advanced=false;switchToDefaultTab();"><span v-if="advanced" class="clear-link active">Advanced mode is on</span></a>
             </li>
           </b-col>
         </b-row>
@@ -114,8 +104,6 @@
                   </li>
 
                 </ul>
-
-
               </div>
               <label>{{$t("memo")}}</label>
               <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
@@ -149,7 +137,6 @@
 
                 <input type="text" :placeholder="$t('webwallet_to_validator_pl')" :class="[delegate.validator ? '' : delegate.alert]" v-model="delegate.validator" list="validator_list">
                 <datalist id="validator_list">
-                  <!-- <option v-for="item in validators" :value="item[1]" :key="item"> -->
                   <option v-for="(item, index) in validators" :value="index" :key="index">
                     {{item[0]}}
                   </option>
@@ -366,23 +353,23 @@
               <li class="token">
                 <label>{{$t("webwallet_signing_file_label")}}</label>
                 <div class="buttonInside">
-                  <input type="text" style="margin:0" :value="this.sign.file.name" disabled>
+                  <input type="text" style="margin:0" :value="sign.file.name" disabled>
                   <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
                 </div>
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_summary")}}</label>
-                <textarea class="warning" v-model="this.sign.summary" rows="3" disabled></textarea>
+                <textarea class="warning" v-model="sign.summary" rows="3" disabled></textarea>
               </li>
               <li class="token">
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
-                <input type="text" :placeholder="$t('webwallet_for_multisig')">
+                <input type="text" v-model="sign.onbehalf" :placeholder="$t('webwallet_for_multisig')">
               </li>
-              <li v-if="this.sign.signature!=''" class="token">
+              <li v-if="sign.signature!=''" class="token">
                 <label>{{$t("webwallet_sign_signature")}}</label>
-                <textarea class="" v-model="this.sign.signature" rows="3" disabled></textarea>
+                <textarea class="" v-model="sign.signature" rows="3" disabled></textarea>
               </li>
-              <a v-if="this.sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
+              <a v-if="sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
               <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
             </form>
             <form v-else>
@@ -396,14 +383,6 @@
                         <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
                       </div>
                     </b-col>
-                    <!-- <b-col cols="1" >
-                        <span>Or</span>
-                    </b-col>
-                    <b-col>
-                      <div>
-                          <textarea v-model="sign.file_content"  :placeholder="$t('webwallet_copy_paste')" rows="8"></textarea>
-                        </div>
-                      </b-col> -->
                     <b-col cols="4">
                     </b-col>
                   </b-row>
@@ -413,14 +392,33 @@
           </div>
           <!-- ========================Multisign form============================ -->
           <div id="msign-form" class="transfer tab-pane">
-            <form>
+            <form v-if="multisign.txfile_valid">
               <div class="basic-form">
+                <li class="token">
+                <label>{{$t("webwallet_signing_file_label")}}</label>
+                <div class="buttonInside">
+                  <input type="text" style="margin:0" :value="this.multisign.txfile.name" disabled>
+                  <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                </div>
+              </li>
+              <li class="token">
+                <label>{{$t("webwallet_sign_summary")}}</label>
+                <textarea class="warning" v-model="this.sign.summary" rows="3" disabled></textarea>
+              </li>
+              <!-- <li class="token">
+                <label>{{$t("webwallet_sign_onbehalf")}}</label>
+                <input type="text" :placeholder="$t('webwallet_for_multisig')">
+              </li> -->
+              <li v-if="this.sign.signature!=''" class="token">
+                <label>{{$t("webwallet_sign_signature")}}</label>
+                <textarea class="" v-model="this.sign.signature" rows="3" disabled></textarea>
+              </li>
                 <div class="upload-form">
                   <b-row align-v="center">
                     <b-col cols="1"></b-col>
-                    <b-col cols="4">
+                    <b-col cols="3">
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
-                        <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
+                        <p> <img src="static/img/icons/add.png" style="width:70px; opacity:0.2;margin-bottom:20px"></img></p>
                         <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
                       </div>
                     </b-col>
@@ -434,10 +432,28 @@
                     <b-col cols="1"></b-col>
                   </b-row>
                 </div>
+                <a v-if="this.sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
+                <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
+              </div>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="upload-form">
+                  <b-row align-v="center">
+                    <b-col cols="4"></b-col>
+                    <b-col>
+                      <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
+                        <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px"></img></p>
+                        <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
+                      </div>
+                    </b-col>
+                    <b-col cols="4">
+                    </b-col>
+                  </b-row>
+                </div>
               </div>
             </form>
           </div>
-
         </div>
       </div>
     </section>
@@ -516,6 +532,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      isActive:true,
       blockchain_lowercase: '',
       nodeUrl: '',
       network: '',
@@ -590,7 +607,6 @@ export default {
         'config': 0,
         'output': ''
       },
-
       sign: {
         'alert': '',
         'file': '',
@@ -598,6 +614,7 @@ export default {
         'file_content': '',
         'summary': '',
         'signature': '',
+        'onbehalf': '',
       },
       multisign: {
         'fields': ['address', 'status'],
@@ -854,7 +871,7 @@ export default {
                   let multisig_data = res.public_key.value
                   this.multisign.threshold = multisig_data.threshold
                   for (var key in multisig_data.pubkeys){
-                      this.multisign.pubkeys.push({'address': multisig_data.pubkeys[key].value, 'status': 'pending'})
+                      this.multisign.pubkeys.push({'address': multisig_data.pubkeys[key].value, 'status': 'pending...'})
                   }
                   this.multisign.description = 'At least ' + this.multisign.threshold + ' out of ' + this.multisign.pubkeys.length + ' signatures are required'
                 }
@@ -1572,14 +1589,19 @@ export default {
     // =========================Sign transaction===========================
     signTxFile() {
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      let account = this.account
       let transaction = JSON.parse(this.sign.file_content).value
+      let account = (this.sign.onbehalf=='')? this.account : this.sign.onbehalf
+
+      console.log(account)
 
       if (transaction.hasOwnProperty('signatures')) {
         delete transaction['signatures']
       }
 
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
+        let sequence_ = ''
+        let account_number_ = ''
+
         if (res1.data.result.value) {
           let res = '';
           if (res1.data.result.type == "cosmos-sdk/ContinuousVestingAccount") {
@@ -1587,14 +1609,17 @@ export default {
           } else {
             res = res1.data.result.value;
           }
-          this.sequence = res.sequence;
+          sequence_ = res.sequence;
+          account_number_ = res.account_number
         }
 
         const signMeta = {
           chain_id: this.chainId,
-          account_number: this.account_number.toString(),
-          sequence: this.sequence.toString(),
+          account_number: account_number_.toString(),
+          sequence: sequence_.toString(),
         };
+
+
 
         const key = Buffer.from(this.key, 'hex');
         const publickey = Buffer.from(this.publickey, 'hex');
@@ -1604,9 +1629,69 @@ export default {
           'publicKey': publickey
         });
 
-        this.sign.signature = JSON.stringify(signedTransactionme)
+        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0])
       })
     },
+    // =========================File handlers===========================
+    removeFile() {
+      this.sign.file = '';
+      this.sign.summary = '';
+      this.sign.onbehalf = '';
+      this.sign.signature = '';
+      this.sign.file_valid = false;
+      this.sign.file_content = '';
+    },
+    upload(e) {
+      // console.log(num)
+      let file = e.dataTransfer.files[0];
+      this.sign.file = file;
+      if (!file) return;
+
+      // Credit: https://stackoverflow.com/a/754398/52160
+      let reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = evt => {
+        this.sign.file_content = evt.target.result;
+        this.sign.file_valid = true;
+        this.parseMessage()
+      }
+      reader.onerror = evt => {
+        console.error(evt);
+      }
+
+    },
+    parseMessage() {
+      try {
+        let msg = JSON.parse(this.sign.file_content).value.msg[0]
+        switch (msg.type) {
+          case "cosmos-sdk/MsgSend":
+            this.sign.summary = "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
+            break;
+
+          default:
+            this.sign.summary = "The file does not seem to contain a valid transaction structure."
+        }
+      } catch (error) {
+        this.sign.summary = "The file does not seem to contain a valid transaction structure."
+      }
+    },
+    downloadSig() {
+      let filename = "signed_tx.json"
+      let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.sign.signature)
+
+      var element = document.createElement('a');
+      element.setAttribute('href', href);
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+
+    },
+    // =========================Resetting===========================
     resetForms() {
       this.mnemonic = '';
 
@@ -1657,6 +1742,14 @@ export default {
       this.resetData();
       this.initExtension();
     },
+    switchToDefaultTab(){
+      if ( document.getElementById("sign-form").classList.contains('active')){
+        document.getElementById('transfer-form-tab').classList.add('active');
+        document.getElementById('transfer-form').classList.add('active');
+        document.getElementById('sign-form').classList.remove('active');    }
+      },
+
+    // =========================Utils===========================
     getAccounts() {
       if (localStorage.getItem("wallet_list")) {
         let wallet_list = localStorage.getItem("wallet_list").split(',');
@@ -1669,18 +1762,6 @@ export default {
           });
         }
       }
-    },
-    generate_gradient() {
-      // var newColor1 = this.webUtil.populate('#', this.account, 1);
-      // var newColor2 = this.webUtil.populate('#', this.account 2);
-      // var angle = Math.round(Math.random(3) * 360);
-
-      var newColor1 = this.webUtil.pickGradient(this.account);
-      var newColor2 = this.webUtil.shadeColor(newColor1, 0);
-      var angle = 90
-
-      var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
-      this.gradient_style = 'background-image:' + gradient;
     },
     getUnit() {
       common.$on('val', (data) => {
@@ -1716,64 +1797,19 @@ export default {
         return false;
       }
     },
-    removeFile() {
-      this.sign.file = '';
-      this.sign.summary = '';
-      this.sign.signature = '';
-      this.sign.file_valid = false;
-      this.sign.file_content = '';
+    generate_gradient() {
+      // var newColor1 = this.webUtil.populate('#', this.account, 1);
+      // var newColor2 = this.webUtil.populate('#', this.account 2);
+      // var angle = Math.round(Math.random(3) * 360);
+
+      var newColor1 = this.webUtil.pickGradient(this.account);
+      var newColor2 = this.webUtil.shadeColor(newColor1, 0);
+      var angle = 90
+
+      var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
+      this.gradient_style = 'background-image:' + gradient;
     },
-    upload(e) {
-      let file = e.dataTransfer.files[0];
-      this.sign.file = file;
-      if (!file) return;
-
-      // Credit: https://stackoverflow.com/a/754398/52160
-      let reader = new FileReader();
-      reader.readAsText(file, "UTF-8");
-      reader.onload = evt => {
-        this.sign.file_content = evt.target.result;
-        this.sign.file_valid = true;
-        this.parseMessage()
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
-
-    },
-    parseMessage() {
-      try {
-        let msg = JSON.parse(this.sign.file_content).value.msg[0]
-        switch (msg.type) {
-          case "cosmos-sdk/MsgSend":
-            this.sign.summary = "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
-            break;
-
-          default:
-            this.sign.summary = "The file does not seem to contain a valid transaction structure."
-        }
-      } catch (error) {
-        this.sign.summary = "The file does not seem to contain a valid transaction structure."
-      }
-    },
-
-    downloadSig() {
-      let filename = "signed_tx.json"
-      let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.sign.signature)
-
-      var element = document.createElement('a');
-      element.setAttribute('href', href);
-      element.setAttribute('download', filename);
-
-      element.style.display = 'none';
-      document.body.appendChild(element);
-
-      element.click();
-
-      document.body.removeChild(element);
-
-    }
-  },
+},
 
   components: {
     login,
