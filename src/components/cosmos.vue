@@ -392,44 +392,45 @@
           </div>
           <!-- ========================Multisign form============================ -->
           <div id="msign-form" class="transfer tab-pane">
-            <form v-if="multisign.txfile_valid">
+            <form v-if="multisign.file_valid">
               <div class="basic-form">
                 <li class="token">
-                <label>{{$t("webwallet_signing_file_label")}}</label>
-                <div class="buttonInside">
-                  <input type="text" style="margin:0" :value="this.multisign.txfile.name" disabled>
-                  <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
-                </div>
-              </li>
-              <li class="token">
-                <label>{{$t("webwallet_sign_summary")}}</label>
-                <textarea class="warning" v-model="this.sign.summary" rows="3" disabled></textarea>
-              </li>
-              <!-- <li class="token">
+                  <label>{{$t("webwallet_signing_file_label")}}</label>
+                  <div class="buttonInside">
+                    <input type="text" style="margin:0" :value="this.multisign.file.name" disabled>
+                    <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                  </div>
+                </li>
+                <li class="token">
+                  <label>{{$t("webwallet_sign_summary")}}</label>
+                  <textarea class="warning" v-model="this.multisign.summary" rows="3" disabled></textarea>
+                </li>
+                <!-- <li class="token">
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
                 <input type="text" :placeholder="$t('webwallet_for_multisig')">
               </li> -->
-              <li v-if="this.sign.signature!=''" class="token">
-                <label>{{$t("webwallet_sign_signature")}}</label>
-                <textarea class="" v-model="this.sign.signature" rows="3" disabled></textarea>
-              </li>
-                <div class="upload-form">
-                  <b-row align-v="center">
-                    <b-col cols="1"></b-col>
+                <li v-if="this.multisign.signature!=''" class="token">
+                  <label>{{$t("webwallet_sign_signature")}}</label>
+                  <textarea class="" v-model="this.multisign.signature" rows="3" disabled></textarea>
+                </li>
+                <div class="upload-form" style="margin-top:35px">
+                  <b-row>
                     <b-col cols="3">
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
                         <p> <img src="static/img/icons/add.png" style="width:70px; opacity:0.2;margin-bottom:20px"></img></p>
                         <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
                       </div>
                     </b-col>
-                    <b-col cols="6">
-                      <div>
-                        <b-table style="font-size:11px; text-align: left;" sticky-header  no-border-collapse hover borderless ref="selectableTable"  select-mode="single" :items="multisign.pubkeys" :fields="multisign.fields" head-variant="null" responsive="sm" small>
+                    <b-col cols="3"></b-col>
+
+                    <b-col cols="6" style="max-height:240px">
+                      <div class="wallet-list" style="max-height:100%">
+                        <b-table style="font-size:11px; text-align: left;" sticky-header no-border-collapse hover borderless ref="selectableTable" select-mode="single" :items="multisign.pubkeys" :fields="multisign.fields" head-variant="null"
+                          responsive="sm">
                           <template v-slot:table-caption>{{multisign.description}}</template>
                         </b-table>
-                        </div>
-                      </b-col>
-                    <b-col cols="1"></b-col>
+                      </div>
+                    </b-col>
                   </b-row>
                 </div>
                 <a v-if="this.sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
@@ -532,7 +533,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      isActive:true,
+      isActive: true,
       blockchain_lowercase: '',
       nodeUrl: '',
       network: '',
@@ -617,14 +618,29 @@ export default {
         'onbehalf': '',
       },
       multisign: {
-        'fields': ['address', 'status'],
-        'threshold': 0,
-        'pubkeys': [],
+        'alert': '',
+        'file': '',
         'file_valid': false,
         'file_content': '',
         'summary': '',
         'signature': '',
-        'description':''
+        'description': '',
+        'sigfiles': [],
+        'txfile_valid': false,
+        'fields': ['address', 'status'],
+        'threshold': 0,
+        'pubkeys': [
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+
+        ],
       },
 
       reward_config: ['rewards only', 'commissions only', 'rewards and commission'],
@@ -867,11 +883,14 @@ export default {
                   });
                 }
 
-                if(this.multisig){
+                if (this.multisig) {
                   let multisig_data = res.public_key.value
                   this.multisign.threshold = multisig_data.threshold
-                  for (var key in multisig_data.pubkeys){
-                      this.multisign.pubkeys.push({'address': multisig_data.pubkeys[key].value, 'status': 'pending...'})
+                  for (var key in multisig_data.pubkeys) {
+                    this.multisign.pubkeys.push({
+                      'address': multisig_data.pubkeys[key].value,
+                      'status': 'pending...'
+                    })
                   }
                   this.multisign.description = 'At least ' + this.multisign.threshold + ' out of ' + this.multisign.pubkeys.length + ' signatures are required'
                 }
@@ -1590,7 +1609,7 @@ export default {
     signTxFile() {
       let nodeUrl = this.globalData.kichain.nodeUrl;
       let transaction = JSON.parse(this.sign.file_content).value
-      let account = (this.sign.onbehalf=='')? this.account : this.sign.onbehalf
+      let account = (this.sign.onbehalf == '') ? this.account : this.sign.onbehalf
 
       console.log(account)
 
@@ -1640,41 +1659,86 @@ export default {
       this.sign.signature = '';
       this.sign.file_valid = false;
       this.sign.file_content = '';
+
+      this.multisign.file = '';
+      this.multisign.summary = '';
+      this.multisign.sigfiles = [];
+      this.multisign.signature = '';
+      this.multisign.file_valid = false;
+      this.multisign.file_content = '';
     },
     upload(e) {
-      // console.log(num)
       let file = e.dataTransfer.files[0];
-      this.sign.file = file;
-      if (!file) return;
 
-      // Credit: https://stackoverflow.com/a/754398/52160
-      let reader = new FileReader();
-      reader.readAsText(file, "UTF-8");
-      reader.onload = evt => {
-        this.sign.file_content = evt.target.result;
-        this.sign.file_valid = true;
-        this.parseMessage()
-      }
-      reader.onerror = evt => {
-        console.error(evt);
-      }
+      if (!this.multisig) {
+        this.sign.file = file;
+        if (!file) return;
 
+        let reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = evt => {
+          this.sign.file_content = evt.target.result;
+          this.sign.file_valid = true;
+          this.sign.summary = this.parseMessage(this.sign.file_content)
+        }
+        reader.onerror = evt => {
+          console.error(evt);
+        }
+      } else {
+        if (this.multisign.file_content == '') {
+          this.multisign.file = file;
+          if (!file) return;
+
+          let reader = new FileReader();
+          reader.readAsText(file, "UTF-8");
+          reader.onload = evt => {
+            this.multisign.file_content = evt.target.result;
+            this.multisign.file_valid = true;
+            this.multisign.summary = this.parseMessage(this.multisign.file_content)
+          }
+          reader.onerror = evt => {
+            console.error(evt);
+          }
+        } else {
+          this.multisign.sigfiles.push(file);
+          if (!file) return;
+          let reader = new FileReader();
+          reader.readAsText(file, "UTF-8");
+          reader.onload = evt => {
+            this.parseSignature(evt.target.result)
+          }
+          reader.onerror = evt => {
+            console.error(evt);
+          }
+        }
+      }
     },
-    parseMessage() {
+
+    parseMessage(file) {
       try {
-        let msg = JSON.parse(this.sign.file_content).value.msg[0]
+        let msg = JSON.parse(file).value.msg[0]
         switch (msg.type) {
           case "cosmos-sdk/MsgSend":
-            this.sign.summary = "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
+            return "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
             break;
 
           default:
-            this.sign.summary = "The file does not seem to contain a valid transaction structure."
+            return "The file does not seem to contain a valid transaction structure."
         }
       } catch (error) {
-        this.sign.summary = "The file does not seem to contain a valid transaction structure."
+        return "The file does not seem to contain a valid transaction structure."
       }
     },
+
+    parseSignature(file) {
+      let sig_data = JSON.parse(file);
+      let pubkey = sig_data.pub_key.value;
+      let sig = sig_data.pub_key.signature;
+
+      this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : 'pending...' );
+
+    },
+
     downloadSig() {
       let filename = "signed_tx.json"
       let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.sign.signature)
@@ -1742,12 +1806,13 @@ export default {
       this.resetData();
       this.initExtension();
     },
-    switchToDefaultTab(){
-      if ( document.getElementById("sign-form").classList.contains('active')){
+    switchToDefaultTab() {
+      if (document.getElementById("sign-form").classList.contains('active')) {
         document.getElementById('transfer-form-tab').classList.add('active');
         document.getElementById('transfer-form').classList.add('active');
-        document.getElementById('sign-form').classList.remove('active');    }
-      },
+        document.getElementById('sign-form').classList.remove('active');
+      }
+    },
 
     // =========================Utils===========================
     getAccounts() {
@@ -1809,7 +1874,7 @@ export default {
       var gradient = "linear-gradient(" + angle + "deg, " + newColor1 + ", " + newColor2 + ")";
       this.gradient_style = 'background-image:' + gradient;
     },
-},
+  },
 
   components: {
     login,
