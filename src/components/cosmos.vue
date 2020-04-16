@@ -421,7 +421,18 @@
                         <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
                       </div>
                     </b-col>
-                    <b-col cols="3"></b-col>
+                    <b-col cols="3" style="max-height:240px">
+                      <div class="wallet-list" style="max-height:100%">
+
+                      <li class="token" v-for="item in multisign.sigfiles">
+                        <!-- <label>{{$t("webwallet_signing_file_label")}}</label> -->
+                        <div class="buttonInside">
+                          <input type="text" style="margin:0" :value="item.name" disabled>
+                          <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                        </div>
+                      </li>
+                    </div>
+                    </b-col>
 
                     <b-col cols="6" style="max-height:240px">
                       <div class="wallet-list" style="max-height:100%">
@@ -1666,6 +1677,8 @@ export default {
       this.multisign.signature = '';
       this.multisign.file_valid = false;
       this.multisign.file_content = '';
+      this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : key.status );
+      
     },
     upload(e) {
       let file = e.dataTransfer.files[0];
@@ -1735,7 +1748,7 @@ export default {
       let pubkey = sig_data.pub_key.value;
       let sig = sig_data.pub_key.signature;
 
-      this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : 'pending...' );
+      this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : key.status );
 
     },
 
