@@ -199,6 +199,11 @@
                 </li>
               </ul>
 
+              <li v-if="undelegate.output!=''" class="token">
+                <label>{{$t("webwallet_output")}}</label>
+                <textarea class="" v-model="undelegate.output" rows="3" disabled></textarea>
+              </li>
+
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendUnDelegateTx">
@@ -263,6 +268,11 @@
                 </li>
               </ul>
 
+              <li v-if="redelegate.output!=''" class="token">
+                <label>{{$t("webwallet_output")}}</label>
+                <textarea class="" v-model="redelegate.output" rows="3" disabled></textarea>
+              </li>
+
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendReDelegateTx">
@@ -319,6 +329,11 @@
                 </li>
               </ul>
 
+              <li v-if="withdraw.output!=''" class="token">
+                <label>{{$t("webwallet_output")}}</label>
+                <textarea class="" v-model="withdraw.output" rows="3" disabled></textarea>
+              </li>
+
               <b-row align-v="center">
                 <b-col>
                   <a class="btn" @click="sendWithdrawTx">
@@ -354,7 +369,7 @@
                 <label>{{$t("webwallet_signing_file_label")}}</label>
                 <div class="buttonInside">
                   <input type="text" style="margin:0" :value="sign.file.name" disabled>
-                  <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                  <a class="inside" @click="removeFile('sf', '')"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
                 </div>
               </li>
               <li class="token">
@@ -398,7 +413,7 @@
                   <label>{{$t("webwallet_signing_file_label")}}</label>
                   <div class="buttonInside">
                     <input type="text" style="margin:0" :value="this.multisign.file.name" disabled>
-                    <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                    <a class="inside" @click="removeFile('msf', '')"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
                   </div>
                 </li>
                 <li class="token">
@@ -428,7 +443,7 @@
                         <!-- <label>{{$t("webwallet_signing_file_label")}}</label> -->
                         <div class="buttonInside">
                           <input type="text" style="margin:0" :value="item.name" disabled>
-                          <a class="inside" @click="removeFile()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
+                          <a class="inside" @click="removeFile('mssf', item)"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2"></img></a>
                         </div>
                       </li>
                     </div>
@@ -640,6 +655,7 @@ export default {
         'txfile_valid': false,
         'fields': ['address', 'status'],
         'threshold': 0,
+        'signed': {},
         'pubkeys': [
           // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
           // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
@@ -1031,7 +1047,7 @@ export default {
       }
 
       if (this.context == "Generate") {
-        this.transfer.output = JSON.stringify(transaction);
+        this.transfer.output = '{ "type": "cosmos-sdk/StdTx", "value":' + JSON.stringify(transaction)+'}';
       }
 
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -1157,7 +1173,7 @@ export default {
       }
 
       if (this.context == "Generate") {
-        this.delegate.output = JSON.stringify(transaction);
+        this.delegate.output = '{ "type": "cosmos-sdk/StdTx", "value":' +JSON.stringify(transaction)+'}';
       }
 
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -1282,7 +1298,7 @@ export default {
       }
 
       if (this.context == "Generate") {
-        this.undelegate.output = JSON.stringify(transaction);
+        this.undelegate.output = '{ "type": "cosmos-sdk/StdTx", "value":' + JSON.stringify(transaction)+'}';
       }
 
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -1418,7 +1434,7 @@ export default {
       }
 
       if (this.context == "Generate") {
-        this.redelegate.output = JSON.stringify(transaction);
+        this.redelegate.output = '{ "type": "cosmos-sdk/StdTx", "value":' +JSON.stringify(transaction)+'}';
       }
 
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
@@ -1536,10 +1552,6 @@ export default {
 
       }
 
-      if (this.context == "Generate") {
-        this.withdraw.output = JSON.stringify(transaction);
-      }
-
       axios.get(nodeUrl + '/auth/accounts/' + account).then((res1) => {
         if (res1.data.result.value) {
           let res = '';
@@ -1562,6 +1574,10 @@ export default {
         if (this.withdraw.config == 2) {
           transaction.msg.push(msg_withdraw_reward)
           transaction.msg.push(msg_withdraw_commision)
+        }
+
+        if (this.context == "Generate") {
+          this.withdraw.output = '{ "type": "cosmos-sdk/StdTx", "value":' +JSON.stringify(transaction)+'}';
         }
 
         const signMeta = {
@@ -1663,23 +1679,40 @@ export default {
       })
     },
     // =========================File handlers===========================
-    removeFile() {
-      this.sign.file = '';
-      this.sign.summary = '';
-      this.sign.onbehalf = '';
-      this.sign.signature = '';
-      this.sign.file_valid = false;
-      this.sign.file_content = '';
+    removeFile(list, file) {
 
-      this.multisign.file = '';
-      this.multisign.summary = '';
-      this.multisign.sigfiles = [];
-      this.multisign.signature = '';
-      this.multisign.file_valid = false;
-      this.multisign.file_content = '';
-      this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : key.status );
-      
+      if(list=="sf"){
+        this.sign.file = '';
+        this.sign.summary = '';
+        this.sign.onbehalf = '';
+        this.sign.signature = '';
+        this.sign.file_valid = false;
+        this.sign.file_content = '';
+      }
+
+      if(list=="msf"){
+        this.multisign.file = '';
+        this.multisign.signed='';
+        this.multisign.summary = '';
+        this.multisign.sigfiles = [];
+        this.multisign.signature = '';
+        this.multisign.file_valid = false;
+        this.multisign.file_content = '';
+        this.multisign.pubkeys.forEach(key => key.status= 'signed');
+    }
+
+      if(list=="mssf"){
+        this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
+          // console.log(this.multisign.signed[file.name])
+          // console.log(this.multisign.signed)
+
+          this.multisign.pubkeys.forEach(key => key.status= key.address==this.multisign.signed[file.name] ? 'pending...' : key.status );
+          return f != file;
+
+        });
+      }
     },
+
     upload(e) {
       let file = e.dataTransfer.files[0];
 
@@ -1718,7 +1751,7 @@ export default {
           let reader = new FileReader();
           reader.readAsText(file, "UTF-8");
           reader.onload = evt => {
-            this.parseSignature(evt.target.result)
+            this.parseSignature(file.name, evt.target.result)
           }
           reader.onerror = evt => {
             console.error(evt);
@@ -1726,14 +1759,55 @@ export default {
         }
       }
     },
-
     parseMessage(file) {
       try {
-        let msg = JSON.parse(file).value.msg[0]
-        switch (msg.type) {
+        let msg_ = JSON.parse(file).value.msg
+
+        switch (msg_[0].type) {
           case "cosmos-sdk/MsgSend":
+            var msg = msg_[0]
             return "Send:\t " + msg.value.amount[0].amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.from_address + " \nto:\t\t " + msg.value.to_address;
             break;
+
+          case "cosmos-sdk/MsgDelegate":
+            var msg = msg_[0]
+            return "Delegate:\t " + msg.value.amount.amount / Math.pow(10, 6) + " tki \nto:\t\t\t " + msg.value.validator_address;
+            break;
+
+          case "cosmos-sdk/MsgUndelegate":
+            var msg = msg_[0]
+            return "Unbond:\t " + msg.value.amount.amount / Math.pow(10, 6) + " tki \nfrom:\t " + msg.value.validator_address;
+            break;
+
+          case "cosmos-sdk/MsgBeginRedelegate":
+            var msg = msg_[0]
+            return "Redelagate:\t " + msg.value.amount.amount / Math.pow(10, 6) + " tki \nfrom:\t\t " + msg.value.validator_src_address + " \nto:\t\t\t " + msg.value.validator_dst_address;
+            break;
+
+        case "cosmos-sdk/MsgWithdrawDelegationReward":
+          var msg = msg_[0]
+          var output = "Withdraw rewards ";
+          if(!(msg_[1] === undefined)){
+              if (msg_[1].type == "cosmos-sdk/MsgWithdrawValidatorCommission"){
+                output = "Withdraw rewards and commissions "
+              }
+          }
+          output = output + "from " + msg.value.validator_address;
+          return output
+          break;
+
+        case "cosmos-sdk/MsgWithdrawValidatorCommission":
+          var msg = msg_[0]
+          var output = "Withdraw commissions";
+          if(!(msg_[1] === undefined)){
+              if (msg_[1].type == "cosmos-sdk/MsgWithdrawValidatorCommission"){
+                output = "Withdraw rewards and commissions "
+              }
+          }
+          output = output + "from " + msg.value.validator_address;
+          return output
+          break;
+
 
           default:
             return "The file does not seem to contain a valid transaction structure."
@@ -1742,16 +1816,17 @@ export default {
         return "The file does not seem to contain a valid transaction structure."
       }
     },
-
-    parseSignature(file) {
+    parseSignature(name, file) {
       let sig_data = JSON.parse(file);
       let pubkey = sig_data.pub_key.value;
       let sig = sig_data.pub_key.signature;
+      console.log(name)
+
+      this.multisign.signed[name] = pubkey;
+      console.log(this.multisign.signed)
 
       this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : key.status );
-
     },
-
     downloadSig() {
       let filename = "signed_tx.json"
       let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.sign.signature)
