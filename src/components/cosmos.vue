@@ -159,7 +159,12 @@
                   <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
               </ul>
-
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
               <li v-if="delegate.output!=''" class="token">
                 <label>{{$t("webwallet_output")}}</label>
                 <textarea class="" v-model="delegate.output" rows="3" disabled></textarea>
@@ -205,7 +210,12 @@
                   <input type="text" placeholder="0" v-model="transfer.token" disabled>
                 </li>
               </ul>
-
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
               <li v-if="undelegate.output!=''" class="token">
                 <label>{{$t("webwallet_output")}}</label>
                 <textarea class="" v-model="undelegate.output" rows="3" disabled></textarea>
@@ -274,7 +284,12 @@
 
                 </li>
               </ul>
-
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
               <li v-if="redelegate.output!=''" class="token">
                 <label>{{$t("webwallet_output")}}</label>
                 <textarea class="" v-model="redelegate.output" rows="3" disabled></textarea>
@@ -335,7 +350,12 @@
 
                 </li>
               </ul>
-
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
               <li v-if="withdraw.output!=''" class="token">
                 <label>{{$t("webwallet_output")}}</label>
                 <textarea class="" v-model="withdraw.output" rows="3" disabled></textarea>
@@ -387,10 +407,17 @@
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
                 <input type="text" v-model="sign.onbehalf" :placeholder="$t('webwallet_for_multisig')">
               </li>
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
               <li v-if="sign.signature!=''" class="token">
                 <label>{{$t("webwallet_sign_signature")}}</label>
                 <textarea class="" v-model="sign.signature" rows="3" disabled></textarea>
               </li>
+
               <a v-if="sign.signature==''" class="btn" @click="signTxFile">{{$t("signtx")}}</a>
               <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
             </form>
