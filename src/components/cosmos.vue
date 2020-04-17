@@ -107,6 +107,13 @@
               </div>
               <label>{{$t("memo")}}</label>
               <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
+              <label>{{$t("enter_password")}}</label>
+              <div class="buttonInside">
+                <input :type="password" v-model="wallet_pass_tmp">
+                <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+              </div>
+
               <li v-if="transfer.output!=''" class="token">
                 <label>{{$t("webwallet_output")}}</label>
                 <textarea class="" v-model="transfer.output" rows="3" disabled></textarea>
@@ -531,6 +538,7 @@ import sideBar from 'base/sidebar'
 import burger from 'base/burger'
 import networks from 'base/networks'
 import common from 'static/js/common.js'
+import AES from 'crypto-js/aes';
 
 import {
   KeyPair,
@@ -581,6 +589,8 @@ export default {
       selectedSet: 1,
       slider: null,
       thunk: null,
+      password: 'password',
+      wallet_pass_tmp:'',
       progress: {
         per: 50,
         min: 10,
@@ -763,6 +773,8 @@ export default {
           this.account = identity_j.account;
           this.accountName = identity_j.accountName;
           this.key = identity_j.privatekey;
+          console.log(new Buffer(this.key, 'hex').toString('utf8'))
+
           this.publickey = identity_j.publickey;
           this.chainId = identity_j.chainId;
           if (this.key == '') {
@@ -1046,6 +1058,7 @@ export default {
         'memo': this.transfer.memo,
       }
 
+
       if (this.context == "Generate") {
         this.transfer.output = '{ "type": "cosmos-sdk/StdTx", "value":' + JSON.stringify(transaction)+'}';
       }
@@ -1067,8 +1080,10 @@ export default {
           sequence: this.sequence.toString(),
         };
 
+        var CryptoJS = require("crypto-js");
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
 
-        const key = Buffer.from(this.key, 'hex');
         const publickey = Buffer.from(this.publickey, 'hex');
 
 
@@ -1192,8 +1207,10 @@ export default {
           sequence: this.sequence.toString(),
         };
 
-        //TEMP
-        const key = Buffer.from(this.key, 'hex');
+        var CryptoJS = require("crypto-js");
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
+
         const publickey = Buffer.from(this.publickey, 'hex');
 
         let signedTransactionme = signTx(transaction, signMeta, {
@@ -1322,8 +1339,10 @@ export default {
             sequence: this.sequence.toString(),
           };
 
-          //TEMP
-          const key = Buffer.from(this.key, 'hex');
+          var CryptoJS = require("crypto-js");
+          var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+          let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
+
           const publickey = Buffer.from(this.publickey, 'hex');
 
           let signedTransactionme = signTx(transaction, signMeta, {
@@ -1458,8 +1477,10 @@ export default {
             sequence: this.sequence.toString(),
           };
 
-          //TEMP
-          const key = Buffer.from(this.key, 'hex');
+          var CryptoJS = require("crypto-js");
+          var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+          let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
+
           const publickey = Buffer.from(this.publickey, 'hex');
 
           let signedTransactionme = signTx(transaction, signMeta, {
@@ -1586,8 +1607,10 @@ export default {
           sequence: this.sequence.toString(),
         };
 
-        //TEMP
-        const key = Buffer.from(this.key, 'hex');
+        var CryptoJS = require("crypto-js");
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
+
         const publickey = Buffer.from(this.publickey, 'hex');
 
         let signedTransactionme = signTx(transaction, signMeta, {
@@ -1638,8 +1661,6 @@ export default {
       let transaction = JSON.parse(this.sign.file_content).value
       let account = (this.sign.onbehalf == '') ? this.account : this.sign.onbehalf
 
-      console.log(account)
-
       if (transaction.hasOwnProperty('signatures')) {
         delete transaction['signatures']
       }
@@ -1666,8 +1687,10 @@ export default {
         };
 
 
+        var CryptoJS = require("crypto-js");
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8),'hex');
 
-        const key = Buffer.from(this.key, 'hex');
         const publickey = Buffer.from(this.publickey, 'hex');
 
         let signedTransactionme = signTx(transaction, signMeta, {
@@ -1699,7 +1722,7 @@ export default {
         this.multisign.file_valid = false;
         this.multisign.file_content = '';
         this.multisign.pubkeys.forEach(key => key.status= 'signed');
-    }
+      }
 
       if(list=="mssf"){
         this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
@@ -1712,7 +1735,6 @@ export default {
         });
       }
     },
-
     upload(e) {
       let file = e.dataTransfer.files[0];
 
@@ -1820,10 +1842,8 @@ export default {
       let sig_data = JSON.parse(file);
       let pubkey = sig_data.pub_key.value;
       let sig = sig_data.pub_key.signature;
-      console.log(name)
 
       this.multisign.signed[name] = pubkey;
-      console.log(this.multisign.signed)
 
       this.multisign.pubkeys.forEach(key => key.status= key.address==pubkey? 'signed' : key.status );
     },
@@ -1846,6 +1866,7 @@ export default {
     // =========================Resetting===========================
     resetForms() {
       this.mnemonic = '';
+      this.wallet_pass_tmp= '';
 
       this.transfer.alert = '';
       this.transfer.account = '';

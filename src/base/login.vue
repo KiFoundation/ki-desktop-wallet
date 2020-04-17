@@ -84,13 +84,21 @@
                   <label>{{$t("enter_mnemonic")}}</label>
                   <textarea @input="validate(0)" v-model="mnemonic" rows="4"></textarea>
                   <span class="mnemonic-error" v-if="!phrase_correct">{{$t('error_mnemonic')}}</span>
-              </div>
-              <div v-if="multisig">
-                <label>{{$t("enter_public_address")}}</label>
-                <textarea v-model="ms_address" rows="2"></textarea>
-                <!-- <span class="mnemonic-error" v-if="!ms_address_correct">{{$t('error_mnemonic')}}</span> -->
-              </div>
-            </li>
+
+                  <label>{{$t("create_password")}}</label>
+                  <div class="buttonInside">
+                    <input :type="password" v-model="wallet_pass_tmp">
+                    <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                    <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+                  </div>
+                </div>
+                <div v-if="multisig">
+                  <label>{{$t("enter_public_address")}}</label>
+                  <textarea v-model="ms_address" rows="2"></textarea>
+                  <!-- <span class="mnemonic-error" v-if="!ms_address_correct">{{$t('error_mnemonic')}}</span> -->
+                </div>
+
+              </li>
 
               </div>
               <button v-if="!multisig" type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
@@ -125,12 +133,18 @@
                   <div v-if="generated">
                     <label>{{$t("save_mnemonic")}}</label>
                     <textarea @change="validate(1);" v-model="mnemonic_create" rows="4" readonly></textarea>
+
+                    <label>{{$t("create_password")}}</label>
+                    <div class="buttonInside">
+                      <input :type="password" v-model="wallet_pass_tmp">
+                      <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
+                      <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
+                    </div>
                   </div>
                 </li>
               </div>
               <button v-if="!generated" type="button" @click="generateWallet();validate(1);" class="btn btn-primary" :disabled="!this.wallet_name">Generate</button>
               <button v-else type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled">Import</button>
-              <!-- <button type="button" @click="resetModal" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
             </div>
           </div>
         </div>
@@ -147,10 +161,8 @@
             </div>
 
             <div class="basic-form modal-body">
-              <!-- <img src="static/img/chain/kichain_banner.png"  style="width:70%" class="card-img-top"> -->
               <div class="mnemonic-group">
                 <li>
-
                   <div>
                     <label>{{$t("select_wallet")}}</label>
                     <select class="transactions wallet-select" v-model="selected_wallet">
@@ -160,9 +172,6 @@
                       </option>
                     </select>
                   </div>
-
-                  <label>{{$t("enter_password")}}</label>
-                  <input disabled type="text" @input="validateWalltName();validateWalltNameExist();" v-model="wallet_name">
                 </li>
               </div>
               <button type="button" @click="login" class="btn btn-primary" data-dismiss="modal">Login</button>
@@ -200,6 +209,8 @@ Vue.component('b-dropdown', BDropdown);
 import ToggleButton from 'vue-js-toggle-button'
 Vue.use(ToggleButton)
 
+import AES from 'crypto-js/aes';
+
 export default {
   props: ['blockchain'],
   data() {
@@ -222,6 +233,8 @@ export default {
       generated: false,
       wallets: [],
       selected_wallet: '',
+      password: 'password',
+      wallet_pass_tmp:'',
     }
   },
   created() {
@@ -351,9 +364,13 @@ export default {
     },
 
     importWallet() {
+      var CryptoJS = require("crypto-js");
+
+      // Create the wallet
       const wallet = createWalletFromMnemonic(this.mnemonic, "", this.prefix);
       let wallet_list = this.wallet_name;
 
+      // Store the wallet name in the wallet name list if it doesnot already exist
       if (localStorage.getItem("wallet_list")) {
         let wallet_list_old = localStorage.getItem("wallet_list").split(',');
         if (wallet_list_old.includes(wallet_list)) {
@@ -362,17 +379,23 @@ export default {
           wallet_list = wallet_list + ',' + localStorage.getItem("wallet_list");
         }
       }
+
+      // encrypt the private key
+      var encrypted_key = CryptoJS.AES.encrypt(wallet.privateKey.toString("hex"), this.wallet_pass_tmp).toString();
+      wallet.privateKey = encrypted_key
+
+      // save the encrepted wallet in the local storage
       localStorage.setItem("wallet_list", wallet_list);
-      localStorage.setItem(this.wallet_name, JSON.stringify(wallet));
+      localStorage.setItem(this.wallet_name,  JSON.stringify(wallet));
 
       this.webUtil.setCookie("import_success", 'true', {
         expires: 30,
         path: '/'
       });
 
+      this.wallet_pass_tmp='';
       window.location.reload();
     },
-
 
     generateWallet() {
       const bip39 = require('bip39')
@@ -410,22 +433,18 @@ export default {
 
     login() {
       let nodeUrl = this.nodeUrl;
-      let network = this.network;
-      let chainid = this.network.chainId;
-
-      // console.log(this.selected_wallet)
-
-      if (localStorage.getItem("wallet_list")) {
-        let identity = '{"blockchain":"cosmos","chainId":"' + chainid + '","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + Buffer.from(JSON.parse(
-          localStorage.getItem(
-            this.selected_wallet)).privateKey).toString("hex") + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
-
-        this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {
-          expires: 30,
-          path: '/'
-        });
-        this.$emit('sendAccount', identity)
-      }
+        let network = this.network;
+        let chainid = this.network.chainId;
+        // console.log(this.selected_wallet)
+        if (localStorage.getItem("wallet_list")) {
+          let identity = '{"blockchain":"cosmos","chainId":"' + chainid + '","accountName":"' + this.selected_wallet + '", "account":"' + JSON.parse(localStorage.getItem(this.selected_wallet)).address + '", "privatekey":"' + JSON.parse(
+            localStorage.getItem(this.selected_wallet)).privateKey + '", "publickey":"' + Buffer.from(JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey).toString("hex") + '"}';
+          this.webUtil.setCookie("identity_" + this.blockchain_lowercase, identity, {
+            expires: 30,
+            path: '/'
+          });
+          this.$emit('sendAccount', identity)
+        }
     },
 
     clear() {
