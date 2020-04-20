@@ -20,18 +20,14 @@ The wallet allows:
 -   Perform the multi signature workflow (Generate, sign, collect, multisign)
 
 ## How to run The  Ki desktop Wallet
-
+To run the Ki desktop wallet you need first to build the it and then to run it or package it in electron. 
 ### Build the wallet
 
-#### Install dependencies
-
 ```bash
+# Install the wallet dependencies
 cd ki-desktop-wallet/app && npm install
-```
 
-#### Build for production with minification
-
-```bash
+# Build thewallet with minification
 ./build.sh
 ```
 
@@ -41,7 +37,7 @@ You can also serve the app in your browser with hot reload at localhost
 npm run dev
 ```
 
-### Build electron
+### Run and package in electron
 
 ```bash
 # Go into the parent repository and install dependencies
