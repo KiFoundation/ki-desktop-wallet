@@ -20,6 +20,7 @@
 
       <p><span>{{$t('webwallet_home_create')}}</span></p>
 
+      <!-- =======================Modal tabs============================= -->
       <div class="deck">
         <a role="button" @click="resetModal" data-toggle="modal" data-target="#import-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
@@ -29,7 +30,6 @@
             </div>
           </div>
         </a>
-
         <a role="button" data-toggle="modal" data-target="#add-form" class="custom-card">
           <div class="card" style="width: 15rem; display: inline-block">
             <img src="static/img/chain/kichain_banner_add.png" class="card-img-top" style="width:60%">
@@ -38,7 +38,6 @@
             </div>
           </div>
         </a>
-
         <a v-if="wallets_found" role="button" data-toggle="modal" data-target="#login-form" class="custom-card" @click="selected_wallet=wallets[0][0]">
           <div class="card" style="width: 15rem; display: inline-block">
             <img src="static/img/chain/kichain_banner_use.png" class="card-img-top" style="width:60%">
@@ -49,6 +48,7 @@
         </a>
       </div>
 
+      <!-- =======================Improt modal============================= -->
       <div class="modal fade" id="import-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
           <div class="modal-content">
@@ -82,12 +82,13 @@
 
                 <div v-if="!multisig">
                   <label>{{$t("enter_mnemonic")}}</label>
-                  <textarea @input="validate(0)" v-model="mnemonic" rows="4"></textarea>
-                  <span class="mnemonic-error" v-if="!phrase_correct">{{$t('error_mnemonic')}}</span>
+                  <textarea @input="validateMnemonic(0)" v-model="mnemonic" rows="4"></textarea>
+                  <span class="mnemonic-error" v-if="!mnemonic_correct">{{$t('error_mnemonic')}}</span>
 
                   <label>{{$t("create_password")}}</label>
                   <div class="buttonInside">
-                    <input :type="password" v-model="wallet_pass_tmp">
+                    <input :type="password" @input="validatePassword" v-model="wallet_pass_tmp">
+                    <span class="mnemonic-error" v-if="!password_correct">{{$t('error_password')}}</span>
                     <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                     <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
                   </div>
@@ -102,14 +103,13 @@
 
               </div>
               <button v-if="!multisig" type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled" data-dismiss="modal">Import</button>
-              <button v-if="multisig" type="button" @click="importMultiSigWallet" class="btn btn-primary" :disabled="!(name_correct && !name_exists)" data-dismiss="modal">Import</button>
-
-              <!-- <button type="button" @click="resetModal" class="btn btn-secondary" data-dismiss="modal">Cancel</button> -->
+              <button v-if="multisig" type="button" @click="importMultiSigWallet" class="btn btn-primary" :disabled="!name_correct || name_exists ||  wallet_name=='' " data-dismiss="modal">Import</button>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- =======================Create modal============================= -->
       <div class="modal fade" id="add-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
           <div class="modal-content">
@@ -132,24 +132,26 @@
 
                   <div v-if="generated">
                     <label>{{$t("save_mnemonic")}}</label>
-                    <textarea @change="validate(1);" v-model="mnemonic_create" rows="4" readonly></textarea>
+                    <textarea @change="validateMnemonic(1);" v-model="mnemonic_create" rows="4" readonly></textarea>
 
                     <label>{{$t("create_password")}}</label>
                     <div class="buttonInside">
-                      <input :type="password" v-model="wallet_pass_tmp">
+                      <input :type="password" @input="validatePassword" v-model="wallet_pass_tmp">
+                      <span class="mnemonic-error" v-if="!password_correct">{{$t('error_password')}}</span>
                       <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                       <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
                     </div>
                   </div>
                 </li>
               </div>
-              <button v-if="!generated" type="button" @click="generateWallet();validate(1);" class="btn btn-primary" :disabled="!this.wallet_name">Generate</button>
+              <button v-if="!generated" type="button" @click="generateWallet();validateMnemonic(1);" class="btn btn-primary" :disabled="!this.wallet_name">Generate</button>
               <button v-else type="button" @click="importWallet" class="btn btn-primary" :disabled="!disabled">Import</button>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- =======================Login modal============================= -->
       <div class="modal fade" id="login-form" tabindex="-1" role="dialog" aria-labelledby="importLongTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
           <div class="modal-content">
@@ -180,6 +182,7 @@
         </div>
       </div>
 
+      <!-- =======================Clear storage============================= -->
       <div v-if="wallets_found" style="width: 31.75rem; display: inline-block">
         <p><span class="stealth-link"> or <a @click="clear">Clear Local storage</a> here</span></p>
       </div>
@@ -227,8 +230,9 @@ export default {
       ms_address_correct:false,
       wallets_found: false,
       name_exists: false,
-      phrase_correct: false,
+      mnemonic_correct: false,
       name_correct: true,
+      password_correct:true,
       disabled: false,
       generated: false,
       wallets: [],
@@ -274,7 +278,7 @@ export default {
       }
     },
 
-    validate(type) {
+    validateMnemonic(type) {
       let input = '';
       if (type == 0) {
         input = this.mnemonic;
@@ -291,15 +295,15 @@ export default {
       let input_size = input.split(' ').length;
 
       if (input_size == 24) {
-        this.phrase_correct = true;
+        this.mnemonic_correct = true;
 
       } else {
-        this.phrase_correct = false;
+        this.mnemonic_correct = false;
       }
 
-      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
+      this.disabled = this.mnemonic_correct && this.name_correct && this.password_correct && !this.name_exists
 
-      if (!this.wallet_name || !this.mnemonic) {
+      if (!this.wallet_name || !this.mnemonic || !this.wallet_pass_tmp) {
         this.disabled = false
       }
     },
@@ -314,9 +318,27 @@ export default {
           this.name_correct = true;
         }
       }
-      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
+      this.disabled = this.mnemonic_correct && this.name_correct && this.password_correct && !this.name_exists
 
-      if (!this.wallet_name || !this.mnemonic) {
+      if (!this.wallet_name || !this.mnemonic || !this.wallet_pass_tmp) {
+        this.disabled = false
+      }
+    },
+
+    validatePassword() {
+      if (!this.wallet_pass_tmp) {
+        this.password_correct = false;
+      } else {
+        var ok_password = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
+        if (!ok_password.test(this.wallet_pass_tmp)) {
+          this.password_correct = false;
+        } else {
+          this.password_correct = true;
+        }
+      }
+      this.disabled = this.mnemonic_correct && this.name_correct && this.password_correct && !this.name_exists
+
+      if (!this.wallet_name || !this.mnemonic || !this.wallet_pass_tmp) {
         this.disabled = false
       }
     },
@@ -333,9 +355,9 @@ export default {
         }
       }
 
-      this.disabled = this.phrase_correct && this.name_correct && !this.name_exists
+      this.disabled = this.mnemonic_correct && this.name_correct && this.password_correct && !this.name_exists
 
-      if (!this.wallet_name || !this.mnemonic) {
+      if (!this.wallet_name || !this.mnemonic || !this.wallet_pass_tmp) {
         this.disabled = false
       }
     },
@@ -353,7 +375,7 @@ export default {
         }
       }
       localStorage.setItem("wallet_list", wallet_list);
-      localStorage.setItem(this.wallet_name, '{"privateKey":{"type":"Buffer","data":[]},"publicKey":{"type":"Buffer","data":[]},"address":"' + this.ms_address + '"}');
+      localStorage.setItem(this.wallet_name, '{"privateKey":"","publicKey":{"type":"Buffer","data":[]},"address":"' + this.ms_address + '"}');
 
       this.webUtil.setCookie("import_success", 'true', {
         expires: 30,
@@ -403,23 +425,23 @@ export default {
       const wallet = createWalletFromMnemonic(this.mnemonic, "", this.prefix);
       this.generated = true;
       this.mnemonic = this.mnemonic_create
-      // this.validate(1);
       this.name = this.name_create
 
     },
 
     resetModal() {
       this.mnemonic = '';
-      this.mnemonic_create = '';
-      this.wallet_name = '';
-      this.phrase_correct = true;
-      this.name_correct = true;
-      this.disabled = false;
-      this.name_exists = false
-      this.generated = false;
       this.ms_address='';
+      this.wallet_name = '';
+      this.wallet_pass_tmp = '';
+      this.mnemonic_create = '';
+      this.disabled = false;
+      this.generated = false;
+      this.name_exists = false
+      this.name_correct = true;
+      this.mnemonic_correct = true;
+      this.password_correct = true;
     },
-
 
     getwallets() {
       if (localStorage.getItem("wallet_list")) {
@@ -429,7 +451,6 @@ export default {
         }
       }
     },
-
 
     login() {
       let nodeUrl = this.nodeUrl;

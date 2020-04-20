@@ -21,7 +21,7 @@
 
       </div>
     </section>
-    <!-- =======================Transaction forms============================= -->
+    <!-- =======================Transaction Tabs============================= -->
     <section class="main-info">
       <div>
         <burger></burger>
@@ -109,7 +109,7 @@
               <input type="text" :placeholder="$t('webwallet_memo_pl')" v-model="transfer.memo">
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : transfer.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -161,7 +161,7 @@
               </ul>
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : delegate.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -212,7 +212,7 @@
               </ul>
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : undelegate.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -286,7 +286,7 @@
               </ul>
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : redelegate.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -352,7 +352,7 @@
               </ul>
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : withdraw.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -409,7 +409,7 @@
               </li>
               <label>{{$t("enter_password")}}</label>
               <div class="buttonInside">
-                <input :type="password" v-model="wallet_pass_tmp">
+                <input :type="password" :class="[wallet_pass_tmp ? '' : sign.alert]" v-model="wallet_pass_tmp">
                 <a v-if="password=='password'" class="inside" @click="password='text'"><img src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2"></img></a>
                 <a v-if="password=='text'" class="inside" @click="password='password'"><img src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2"></img></a>
               </div>
@@ -800,7 +800,7 @@ export default {
           this.account = identity_j.account;
           this.accountName = identity_j.accountName;
           this.key = identity_j.privatekey;
-          console.log(new Buffer(this.key, 'hex').toString('utf8'))
+          // console.log(new Buffer(this.key, 'hex').toString('utf8'))
 
           this.publickey = identity_j.publickey;
           this.chainId = identity_j.chainId;
@@ -1042,6 +1042,9 @@ export default {
         filled = false;
       }
       if (!this.transfer.amount) {
+        filled = false;
+      }
+      if (!this.wallet_pass_tmp) {
         filled = false;
       }
       if (this.transfer.amount < Math.pow(10, -6)) {

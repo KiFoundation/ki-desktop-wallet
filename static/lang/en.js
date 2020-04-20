@@ -21,6 +21,7 @@ module.exports = {
   enter_wallet_name: "Give a name to your wallet" ,
   multisig_wallet_true: "Multi signature account",
   error_mnemonic : "Mnemonic phrase should be 24 words",
+  error_password:"At least 8 characters, 1 uppercase, 1 lowercase and 1 number",
   error_wallet_name: "Wallet name cannot contain specific characters and spaces",
   error_wallet_name_exists: "Wallet name already exists",
   webwallet_copy_address: "Copy Address",
