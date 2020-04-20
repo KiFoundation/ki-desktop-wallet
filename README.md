@@ -26,7 +26,7 @@ The wallet allows:
 #### Install dependencies
 
 ```bash
-cd /ki-desktop-wallet/app && npm install
+cd ki-desktop-wallet/app && npm install
 ```
 
 #### Build for production with minification
