@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Steady Readers</title>
+  <base href="./">
+  <style>
+    .centered-section {
+      display: inline-block;
+      position: absolute;
+      top: 50%;
+      left: 54%;
+      transform: translate(-37%, -50%);
+
+    }
+
+    .centered-section span {
+      /* font-size: 40px;
+      font-weight: normal;
+      font-family: sans-serif; */
+      color: white;
+    }
+
+    #splash-progress-bar-status {
+      background-color: #043bea;
+    }
+
+    #splash-progress-bar {
+      width: 50px;
+      height: 2px;
+      text-align: center;
+      line-height: 32px;
+      background-color: white;
+    }
+  </style>
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+  <div class="header">
+    <div class="centered-section ">
+      <span class="center"><img src="assets/imgs/kichain1.png" width="50%"></span>
+
+      <!-- <div class="center" id="splash-progress-bar-status">
+        <div id="splash-progress-bar"></div>
+      </div> -->
+    </div>
+
+    <script>
+      function update() {
+        var element = document.getElementById("splash-progress-bar");
+        var width = 1;
+        var identity = setInterval(scene, 10);
+
+        function scene() {
+          if (width >= 100) {
+            var ipcRenderer = require('electron').ipcRenderer;
+            ipcRenderer.send('showMainWindow');
+            clearInterval(identity);
+          } else {
+            width++;
+            element.style.width = width + '%';
+          }
+        }
+      }
+      update();
+    </script>
+</body>
+
+</html>
