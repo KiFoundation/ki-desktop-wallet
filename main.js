@@ -1,11 +1,8 @@
 // Modules to control application life and create native browser window
-const {
-  app,
-  BrowserWindow
-} = require('electron')
-const path = require('path')
-const electron = require('electron');
-const ipc       = require('electron').ipcMain
+const { app, BrowserWindow } = require("electron");
+const path = require("path");
+const electron = require("electron");
+const ipc = require("electron").ipcMain;
 
 function createWindow() {
   // Create the browser window.
@@ -14,47 +11,48 @@ function createWindow() {
     width: 1200,
     height: 800,
     minWidth: 1200,
-    show:false,
+    show: false,
     // frame:false,
     // titleBarStyle: 'hiddenInset',
-    icon: path.join(__dirname, 'assets/icons/mac/icon.icns'),
+    icon: path.join(__dirname, "assets/icons/mac/icon.icns"),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
-    }
-  })
+    },
+  });
 
   // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile("index.html");
+  mainWindow.openDevTools();
   // Open all target="_blank" link in external browser
   let webContents = mainWindow.webContents;
-  webContents.on('new-window', function(event, url) {
+  webContents.on("new-window", function (event, url) {
     event.preventDefault();
     electron.shell.openExternal(url);
   });
-
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 }
 
-function createSplash(){
+function createSplash() {
   splashScreen = new BrowserWindow({
     minWidth: 280,
     minHeight: 500,
     width: 280,
     height: 500,
-    center:true,
+    center: true,
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false},
+      webSecurity: false,
+    },
 
     frame: false,
     skipTaskbar: true,
     resizable: false,
     alwaysOnTop: true,
-});
-  splashScreen.loadFile('splashscreen.html');
+  });
+  splashScreen.loadFile("splashscreen.html");
 }
 
 // This method will be called when Electron has finished
@@ -62,11 +60,10 @@ function createSplash(){
 // Some APIs can only be used after this event occurs.
 // app.whenReady().then(createWindow)
 
-app.on('ready', function() {
+app.on("ready", function () {
   createWindow();
   createSplash();
 });
-
 
 // // Quit when all windows are closed.
 // app.on('window-all-closed', function() {
@@ -75,15 +72,15 @@ app.on('ready', function() {
 //   if (process.platform !== 'darwin') app.quit()
 // })
 
-app.on('activate', function() {
+app.on("activate", function () {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) createWindow()
-})
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
 
-ipc.on('showMainWindow',()=>{
-    splashScreen.destroy();
-    BrowserWindow.getAllWindows()[0].show()
+ipc.on("showMainWindow", () => {
+  splashScreen.destroy();
+  BrowserWindow.getAllWindows()[0].show();
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

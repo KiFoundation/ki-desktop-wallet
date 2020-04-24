@@ -1,0 +1,12 @@
+{
+  "presets": [
+    ["babel-preset-env", { "modules": false }],
+    "babel-preset-stage-2"
+  ],
+  "plugins": [
+    "babel-plugin-syntax-jsx",
+    "babel-plugin-transform-runtime",
+    "babel-plugin-transform-vue-jsx"
+  ],
+  "comments": true
+}

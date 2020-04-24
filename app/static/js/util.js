@@ -6,11 +6,18 @@ class Util {
   timestampToDate(timestamp) {
     var date = new Date(timestamp);
     var Y = date.getFullYear() + '-';
-    var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+    var M =
+      (date.getMonth() + 1 < 10
+        ? '0' + (date.getMonth() + 1)
+        : date.getMonth() + 1) + '-';
     var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
-    var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
-    var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
-    var s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+    var h =
+      (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+    var m =
+      (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) +
+      ':';
+    var s =
+      date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
     return Y + M + D + h + m + s;
   }
 
@@ -18,12 +25,12 @@ class Util {
     var arr = str.toLowerCase().split('_');
     arr = arr.map(function(val) {
       if (val == 'new') {
-        val = 'place'
+        val = 'place';
       }
       val = val.slice(0, 1).toUpperCase() + val.slice(1);
-      return val
-    })
-    return arr.join(' ')
+      return val;
+    });
+    return arr.join(' ');
   }
 
   /**
@@ -31,17 +38,29 @@ class Util {
    */
   isElectron() {
     // Renderer process
-    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.process === 'object' &&
+      window.process.type === 'renderer'
+    ) {
       return true;
     }
 
     // Main process
-    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+    if (
+      typeof process !== 'undefined' &&
+      typeof process.versions === 'object' &&
+      !!process.versions.electron
+    ) {
       return true;
     }
 
     // Detect the user agent when the `nodeIntegration` option is set to true
-    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+    if (
+      typeof navigator === 'object' &&
+      typeof navigator.userAgent === 'string' &&
+      navigator.userAgent.indexOf('Electron') >= 0
+    ) {
       return true;
     }
 
@@ -54,11 +73,14 @@ class Util {
       options.expires = -1;
     }
     var expires = '';
-    if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
+    if (
+      options.expires &&
+      (typeof options.expires == 'number' || options.expires.toUTCString)
+    ) {
       var date;
       if (typeof options.expires == 'number') {
         date = new Date();
-        date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+        date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1000);
       } else {
         date = options.expires;
       }
@@ -66,10 +88,10 @@ class Util {
     }
     var path = options.path ? '; path=' + options.path : '';
     var domain = options.domain ? '; domain=' + options.domain : '';
-    var s = [cookie, expires, path, domain, secure].join('');
+    // var s = [cookie, expires, path, domain, secure].join("");
     var secure = options.secure ? '; secure' : '';
     var c = [name, '=', encodeURIComponent(value)].join('');
-    var cookie = [c, expires, path, domain, secure].join('')
+    var cookie = [c, expires, path, domain, secure].join('');
 
     if (!this.isElectron()) {
       options = options || {};
@@ -77,56 +99,64 @@ class Util {
     } else {
       const electron = window.require('electron');
 
-      const cookissse = { url: "http://localhost:8484", name: name, value: value }
+      const cookissse = {
+        url: 'http://localhost:8484',
+        name: name,
+        value: value,
+      };
 
-      electron.remote.session.defaultSession.cookies.set(cookissse)
-        .then(() => {
+      electron.remote.session.defaultSession.cookies.set(cookissse).then(
+        () => {
           //
-        }, (error) => {
-          console.error(error)
-        })
+        },
+        error => {
+          console.error(error);
+        },
+      );
     }
   }
-
 
   async getCookie(name) {
     var cookieValue = null;
 
     if (!this.isElectron()) {
-    if (document.cookie && document.cookie != '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i].trim();
-        // Does this cookie string begin with the name we want?
-        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          // console.log(cookieValue);
-          break;
+      if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) == name + '=') {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            // console.log(cookieValue);
+            break;
+          }
         }
       }
-    }
-  }
-  else  {
-    const electron = window.require('electron');
-    cookieValue = await electron.remote.session.defaultSession.cookies.get({url: "http://localhost:8484", name: name})
-      .then((cookies) => {
-          // console.log(cookies[0].value)
-         return cookies[0].value
-      }, (error) => {
-        console.error(error)
-
-      })
+    } else {
+      const electron = window.require('electron');
+      cookieValue = await electron.remote.session.defaultSession.cookies
+        .get({ url: 'http://localhost:8484', name: name })
+        .then(
+          cookies => {
+            if (cookies && cookies.length) {
+              return cookies[0].value;
+            }
+            return null;
+          },
+          error => {
+            console.error(error);
+          },
+        );
     }
     // console.log("???", cookieValue);
     return cookieValue;
-
   }
 
   addCommas(nStr, n = 2) {
-    if (typeof(nStr) == 'string') {
+    if (typeof nStr == 'string') {
       nStr = parseFloat(nStr);
     }
-    if (typeof(nStr) == 'number') {
+    if (typeof nStr == 'number') {
       nStr = nStr.toFixed(n);
     }
     nStr += '';
@@ -142,23 +172,39 @@ class Util {
 
   getFullNum(num) {
     if (isNaN(num)) {
-      return num
-    };
+      return num;
+    }
 
     var str = '' + num;
     if (!/e/i.test(str)) {
       return num;
-    };
+    }
 
-    return (num).toFixed(18).replace(/\.?0+$/, "");
+    return num.toFixed(18).replace(/\.?0+$/, '');
   }
 
   populate(a, account, index) {
-    let seeds = account.match(/.{1,3}/g)
-    var hexValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"];
+    let seeds = account.match(/.{1,3}/g);
+    var hexValues = [
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+    ];
 
     for (var i = 6 * (index - 1); i < 6 * index; i++) {
-      Math.seedrandom(seeds[i])
+      Math.seedrandom(seeds[i]);
       var x = Math.round(Math.random() * 14);
       var y = hexValues[x];
       a += y;
@@ -167,45 +213,43 @@ class Util {
   }
 
   shadeColor(color, percent) {
+    var R = parseInt(color.substring(1, 3), 16);
+    var G = parseInt(color.substring(3, 5), 16);
+    var B = parseInt(color.substring(5, 7), 16);
 
-      var R = parseInt(color.substring(1,3),16);
-      var G = parseInt(color.substring(3,5),16);
-      var B = parseInt(color.substring(5,7),16);
+    R = parseInt((R * (100 + percent)) / 100);
+    G = parseInt((G * (100 + percent)) / 100);
+    B = parseInt((B * (100 + percent)) / 100);
 
-      R = parseInt(R * (100 + percent) / 100);
-      G = parseInt(G * (100 + percent) / 100);
-      B = parseInt(B * (100 + percent) / 100);
+    R = R < 255 ? R : 255;
+    G = G < 255 ? G : 255;
+    B = B < 255 ? B : 255;
 
-      R = (R<255)?R:255;
-      G = (G<255)?G:255;
-      B = (B<255)?B:255;
+    var RR = R.toString(16).length == 1 ? '0' + R.toString(16) : R.toString(16);
+    var GG = G.toString(16).length == 1 ? '0' + G.toString(16) : G.toString(16);
+    var BB = B.toString(16).length == 1 ? '0' + B.toString(16) : B.toString(16);
 
-      var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-      var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-      var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-
-      return "#"+RR+GG+BB;
+    return '#' + RR + GG + BB;
   }
 
-  pickGradient(account){
+  pickGradient(account) {
     // let colors = ['E0BBE4', '957DAD', 'D291BC', 'FEC8D8', 'FFDFD3',
     //               'FCE2C2','B3C8C8','6CB2D1','4F9EC4','58949C',
     //               'DF9881','F2D7B4','7CAA98','8FC1A9','C8D6B9',
     //               'F9665E','FEC9C9','EEF1E6','AFC7D0','95B4CC']
 
-    let colors = ['043bea','043bea']
+    let colors = ['043bea', '043bea'];
     // let colors = ['2c363f','2c363f']
 
-    let seeds = account.match(/.{1,3}/g)
+    let seeds = account.match(/.{1,3}/g);
 
-    Math.seedrandom(seeds[1])
+    Math.seedrandom(seeds[1]);
     var x = Math.round(Math.random() * colors.length);
 
-    return '#'+colors[x];
+    return '#' + colors[x];
   }
-
 }
 
-let util = new Util;
+let util = new Util();
 
 export default util;

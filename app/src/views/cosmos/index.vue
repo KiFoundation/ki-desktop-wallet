@@ -1,0 +1,2777 @@
+<template>
+  <div :class="{ webwallet: account }">
+    <!-- <side-bar
+      :balances="balances"
+      :account="account"
+      :blockchain="blockchain"
+      :sequence="sequence"
+      :account-name="accountName"
+      :items="wallets"
+      :vesting="vesting"
+      :multisig="multisig"
+    /> -->
+    <section class="sec-info">
+      <div class="status-container" :style="gradient_style">
+        <b-row>
+          <b-col>
+            <h5>{{ this.accountName }}</h5>
+            <span>{{ this.account }}</span>
+          </b-col>
+          <b-col style="text-align: right;">
+            <h5>{{ this.balances.list.available }}{{ this.token }}</h5>
+            <a @click="refresh">Refresh account</a>
+          </b-col>
+        </b-row>
+      </div>
+    </section>
+    <!-- =======================Transaction Tabs============================= -->
+    <section class="main-info">
+      <!-- <div>
+        <burger />
+      </div> -->
+
+      <div class="main-container transfer-container">
+        <div id="sent_alert" />
+        <b-row>
+          <b-col>
+            <ul id="txtabs" class="tabs nav nav-tabs">
+              <li>
+                <a
+                  id="transfer-form-tab"
+                  class="tab active"
+                  data-toggle="tab"
+                  href="#transfer-form"
+                  >{{ $t('transfer') }}</a
+                >
+              </li>
+              <li>
+                <a class="tab" data-toggle="tab" href="#delegate-form">{{
+                  $t('delegatetx')
+                }}</a>
+              </li>
+              <li>
+                <a class="tab" data-toggle="tab" href="#undelegate-form">{{
+                  $t('undelegatetx')
+                }}</a>
+              </li>
+              <li>
+                <a class="tab" data-toggle="tab" href="#redelegate-form">{{
+                  $t('redelegatetx')
+                }}</a>
+              </li>
+              <li>
+                <a class="tab" data-toggle="tab" href="#withdraw-form">{{
+                  $t('withdrawtx')
+                }}</a>
+              </li>
+              <li>
+                <a
+                  v-if="advanced && !multisig"
+                  class="tab"
+                  data-toggle="tab"
+                  href="#sign-form"
+                  >{{ $t('signtx') }}</a
+                >
+              </li>
+              <li>
+                <a
+                  v-if="multisig"
+                  class="tab"
+                  data-toggle="tab"
+                  href="#msign-form"
+                  >{{ $t('msigntx') }}</a
+                >
+              </li>
+            </ul>
+          </b-col>
+          <b-col v-if="!multisig" cols="2">
+            <li>
+              <a @click="advanced = true"
+                ><span v-if="!advanced" class="clear-link inactive"
+                  >Advanced mode is off</span
+                >
+              </a>
+              <a
+                @click="
+                  advanced = false;
+                  switchToDefaultTab();
+                "
+                ><span v-if="advanced" class="clear-link active"
+                  >Advanced mode is on</span
+                ></a
+              >
+            </li>
+          </b-col>
+        </b-row>
+
+        <div class="tab-content">
+          <!-- ========================Transfer form============================ -->
+          <div id="transfer-form" class="tab-pane in active">
+            <form class="basic-form">
+              <label>{{ $t('webwallet_to_address') }}</label>
+              <input
+                v-model="transfer.account"
+                type="text"
+                :placeholder="$t('webwallet_to_address_pl')"
+                :class="[transfer.account ? '' : transfer.alert]"
+                list="self_wallets"
+              />
+              <datalist id="self_wallets">
+                <option
+                  v-for="item in wallets"
+                  :key="item.address"
+                  :value="item.address"
+                >
+                  {{ item.account }}
+                </option>
+              </datalist>
+              <ul class="basic-group clearfix">
+                <li class="amount">
+                  <label>{{ $t('transfer_amount') }}</label>
+                  <input
+                    v-model="transfer.amount"
+                    type="text"
+                    placeholder="0"
+                    :class="[transfer.amount ? '' : transfer.alert]"
+                  />
+                </li>
+                <li class="token">
+                  <label>Token</label>
+                  <input
+                    v-model="transfer.token"
+                    type="text"
+                    placeholder="0"
+                    disabled
+                  />
+                </li>
+              </ul>
+              <div class="fee-set">
+                <label>{{ $t('webwallet_fee') }}</label>
+                <label
+                  v-show="selectedSet == 2"
+                  class="setBtn"
+                  @click="setToggle(1)"
+                  >{{ $t('webwallet_simple') }}</label
+                >
+                <label
+                  v-show="selectedSet == 1"
+                  class="setBtn"
+                  @click="setToggle(2)"
+                  >{{ $t('webwallet_advanced') }}</label
+                >
+
+                <ul v-show="selectedSet == 1" class="basic-group clearfix">
+                  <li ref="slider" class="amount slider">
+                    <div ref="thunk" class="thunk" :style="{ left }">
+                      <div class="block">
+                        <img src="static/img/icons/slider@2x.png" width="16" />
+                      </div>
+                    </div>
+                    <div class="cheap">
+                      {{ $t('webwallet_cheap') }}
+                    </div>
+                    <div class="fast">
+                      {{ $t('webwallet_fast') }}
+                    </div>
+                  </li>
+                  <li class="token">
+                    <div class="input">{{ transfer.fee.toFixed(6) }} TKI</div>
+                  </li>
+                </ul>
+
+                <ul v-show="selectedSet == 2" class="basic-group clearfix">
+                  <li class="gas-price">
+                    <span>Gas Price (TKI)</span>
+                    <input
+                      v-model="transfer.gasPrice"
+                      type="text"
+                      placeholder="0"
+                    />
+                  </li>
+                  <li class="gas-limit">
+                    <span>Gas Limit</span>
+                    <input
+                      v-model="transfer.gasLimit"
+                      type="text"
+                      placeholder="0"
+                    />
+                  </li>
+                  <li class="token">
+                    <div class="input">{{ feeCompute.toFixed(6) }} TKI</div>
+                  </li>
+                </ul>
+              </div>
+              <label>{{ $t('memo') }}</label>
+              <input
+                v-model="transfer.memo"
+                type="text"
+                :placeholder="$t('webwallet_memo_pl')"
+              />
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : transfer.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+
+              <li v-if="transfer.output != ''" class="token">
+                <label>{{ $t('webwallet_output') }}</label>
+                <textarea
+                  v-model="transfer.output"
+                  class=""
+                  rows="3"
+                  disabled
+                />
+              </li>
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendTransfer">
+                    <span
+                      v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                      >{{ $t('transfer') }}</span
+                    >
+                    <span v-else>{{ context }}</span>
+                  </a>
+                </b-col>
+                <b-col v-if="advanced" cols="2">
+                  <select v-model="context" style="margin-top:32px">
+                    <option key="Broadcast" value="Broadcast" selected>
+                      Broadcast
+                    </option>
+                    <option key="Sign" value="Sign">
+                      Sign
+                    </option>
+                    <option key="Generate" value="Generate">
+                      Generate
+                    </option>
+                  </select>
+                </b-col>
+              </b-row>
+            </form>
+          </div>
+          <!-- ========================Delegation form============================ -->
+          <div id="delegate-form" class="transfer tab-pane">
+            <form class="basic-form">
+              <li class="token">
+                <label>{{ $t('webwallet_to_validator') }}</label>
+
+                <input
+                  v-model="delegate.validator"
+                  type="text"
+                  :placeholder="$t('webwallet_to_validator_pl')"
+                  :class="[delegate.validator ? '' : delegate.alert]"
+                  list="validator_list"
+                />
+                <datalist id="validator_list">
+                  <option
+                    v-for="(item, index) in validators"
+                    :key="index"
+                    :value="index"
+                  >
+                    {{ item[0] }}
+                  </option>
+                </datalist>
+              </li>
+              <ul class="basic-group clearfix">
+                <li class="amount">
+                  <label>{{ $t('delegation_amount') }}</label>
+                  <input
+                    v-model="delegate.amount"
+                    type="text"
+                    placeholder="0"
+                    :class="[delegate.amount ? '' : delegate.alert]"
+                  />
+                </li>
+                <li class="token">
+                  <label>Token</label>
+                  <input
+                    v-model="transfer.token"
+                    type="text"
+                    placeholder="0"
+                    disabled
+                  />
+                </li>
+              </ul>
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : delegate.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+              <li v-if="delegate.output != ''" class="token">
+                <label>{{ $t('webwallet_output') }}</label>
+                <textarea
+                  v-model="delegate.output"
+                  class=""
+                  rows="3"
+                  disabled
+                />
+              </li>
+
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendDelegateTx">
+                    <span
+                      v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                      >{{ $t('delegatetx') }}</span
+                    >
+                    <span v-else>{{ context }}</span></a
+                  >
+                </b-col>
+                <b-col v-if="advanced" cols="2">
+                  <select v-model="context" style="margin-top:32px">
+                    <option key="Broadcast" value="Broadcast" selected>
+                      Broadcast
+                    </option>
+                    <option key="Sign" value="Sign">
+                      Sign
+                    </option>
+                    <option key="Generate" value="Generate">
+                      Generate
+                    </option>
+                  </select>
+                </b-col>
+              </b-row>
+            </form>
+          </div>
+          <!-- ========================Undonding form============================ -->
+          <div id="undelegate-form" class="transfer tab-pane">
+            <form
+              v-if="Object.keys(this.delegations).length > 0"
+              class="basic-form"
+            >
+              <li class="token">
+                <label>{{ $t('webwallet_to_validator') }}</label>
+
+                <input
+                  v-model="undelegate.validator"
+                  type="text"
+                  :placeholder="$t('webwallet_to_validator_pl')"
+                  :class="[undelegate.validator ? '' : undelegate.alert]"
+                  list="validator_unbond_list"
+                />
+                <datalist id="validator_unbond_list">
+                  <option
+                    v-for="(item, index) in delegations"
+                    :key="index"
+                    :value="index"
+                  >
+                    {{ item[0] }} - {{ item[1] }} {{ delegate.token }}
+                  </option>
+                </datalist>
+              </li>
+              <ul class="basic-group clearfix">
+                <li class="amount">
+                  <label>{{ $t('undelegation_amount') }}</label>
+                  <input
+                    v-model="undelegate.amount"
+                    type="text"
+                    placeholder="0"
+                    :class="[undelegate.amount ? '' : undelegate.alert]"
+                  />
+                </li>
+                <li class="token">
+                  <label>Token</label>
+                  <input
+                    v-model="transfer.token"
+                    type="text"
+                    placeholder="0"
+                    disabled
+                  />
+                </li>
+              </ul>
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : undelegate.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+              <li v-if="undelegate.output != ''" class="token">
+                <label>{{ $t('webwallet_output') }}</label>
+                <textarea
+                  v-model="undelegate.output"
+                  class=""
+                  rows="3"
+                  disabled
+                />
+              </li>
+
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendUnDelegateTx">
+                    <span
+                      v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                      >{{ $t('undelegatetx') }}</span
+                    >
+                    <span v-else>{{ context }}</span></a
+                  >
+                </b-col>
+                <b-col v-if="advanced" cols="2">
+                  <select v-model="context" style="margin-top:32px">
+                    <option key="Broadcast" value="Broadcast" selected>
+                      Broadcast
+                    </option>
+                    <option key="Sign" value="Sign">
+                      Sign
+                    </option>
+                    <option key="Generate" value="Generate">
+                      Generate
+                    </option>
+                  </select>
+                </b-col>
+              </b-row>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message">
+                  <p style="font-size:60px">
+                    🤔
+                  </p>
+                  {{ $t('webwallet_no_delegations') }}
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- ========================Redelegation form============================ -->
+          <div id="redelegate-form" class="transfer tab-pane">
+            <form
+              v-if="Object.keys(this.delegations).length > 0"
+              class="basic-form"
+            >
+              <li class="token">
+                <label>{{ $t('webwallet_from_validator') }}</label>
+
+                <input
+                  v-model="redelegate.from_validator"
+                  type="text"
+                  :placeholder="$t('webwallet_to_validator_pl')"
+                  :class="[redelegate.from_validator ? '' : redelegate.alert]"
+                  list="validator_unbond_list"
+                />
+                <datalist id="validator_unbond_list">
+                  <option
+                    v-for="(item, index) in delegations"
+                    :key="index"
+                    :value="index"
+                  >
+                    {{ item[0] }} - {{ item[1] }} {{ delegate.token }}
+                  </option>
+                </datalist>
+
+                <label>{{ $t('webwallet_to_validator') }}</label>
+
+                <input
+                  v-model="redelegate.to_validator"
+                  type="text"
+                  :placeholder="$t('webwallet_to_validator_pl')"
+                  :class="[redelegate.to_validator ? '' : redelegate.alert]"
+                  list="validator_list_re"
+                />
+                <datalist id="validator_list_re">
+                  <!-- <option v-for="item in validators" :value="item[1]" :key="item[1]"> -->
+                  <option
+                    v-for="(item, index) in validators"
+                    :key="index"
+                    :value="index"
+                  >
+                    {{ item[0] }}
+                  </option>
+                </datalist>
+              </li>
+              <ul class="basic-group clearfix">
+                <li class="amount">
+                  <label>{{ $t('undelegation_amount') }}</label>
+                  <input
+                    v-model="redelegate.amount"
+                    type="text"
+                    placeholder="0"
+                    :class="[redelegate.amount ? '' : redelegate.alert]"
+                  />
+                </li>
+                <li class="token">
+                  <label>Token</label>
+                  <input
+                    v-model="transfer.token"
+                    type="text"
+                    placeholder="0"
+                    disabled
+                  />
+                </li>
+              </ul>
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : redelegate.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+              <li v-if="redelegate.output != ''" class="token">
+                <label>{{ $t('webwallet_output') }}</label>
+                <textarea
+                  v-model="redelegate.output"
+                  class=""
+                  rows="3"
+                  disabled
+                />
+              </li>
+
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendReDelegateTx">
+                    <span
+                      v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                      >{{ $t('redelegatetx') }}</span
+                    >
+                    <span v-else>{{ context }}</span></a
+                  >
+                </b-col>
+                <b-col v-if="advanced" cols="2">
+                  <select v-model="context" style="margin-top:32px">
+                    <option key="Broadcast" value="Broadcast" selected>
+                      Broadcast
+                    </option>
+                    <option key="Sign" value="Sign">
+                      Sign
+                    </option>
+                    <option key="Generate" value="Generate">
+                      Generate
+                    </option>
+                  </select>
+                </b-col>
+              </b-row>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message">
+                  <p style="font-size:60px">
+                    🤔
+                  </p>
+                  {{ $t('webwallet_no_delegations') }}
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- ========================Withdraw form============================ -->
+          <div id="withdraw-form" class="transfer tab-pane">
+            <form
+              v-if="Object.keys(this.delegations).length > 0"
+              class="basic-form"
+            >
+              <li class="token">
+                <label>{{ $t('webwallet_from_validator') }}</label>
+
+                <input
+                  v-model="withdraw.validator_address"
+                  type="text"
+                  :placeholder="$t('webwallet_to_validator_pl')"
+                  :class="[withdraw.validator_address ? '' : withdraw.alert]"
+                  list="validator_withdraw_list"
+                />
+                <datalist id="validator_withdraw_list">
+                  <option
+                    v-for="(item, index) in delegations"
+                    :key="index"
+                    :value="index"
+                  >
+                    {{ item[0] }}
+                  </option>
+                </datalist>
+              </li>
+              <ul>
+                <li>
+                  <!-- <label for="checkbox">{{$t("withdraw_with_commission")}}</label>
+                <input type="checkbox" id="checkbox" > -->
+                  <label>{{ $t('withdraw_config') }}</label>
+                  <select v-model="withdraw.config">
+                    <option key="0" value="0">
+                      Rewards only
+                    </option>
+                    <option key="1" value="1">
+                      Commisions only
+                    </option>
+                    <option key="2" value="2">
+                      Rewards and commissions
+                    </option>
+                  </select>
+                  <span
+                    v-if="withdraw.config == 1 || withdraw.config == 2"
+                    class="local-alert"
+                    >{{ $t('withdraw_with_commission_alert') }}</span
+                  >
+                </li>
+              </ul>
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : withdraw.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+              <li v-if="withdraw.output != ''" class="token">
+                <label>{{ $t('webwallet_output') }}</label>
+                <textarea
+                  v-model="withdraw.output"
+                  class=""
+                  rows="3"
+                  disabled
+                />
+              </li>
+
+              <b-row align-v="center">
+                <b-col>
+                  <a class="btn" @click="sendWithdrawTx">
+                    <span
+                      v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                      >{{ $t('withdrawtx') }}</span
+                    >
+                    <span v-else>{{ context }}</span></a
+                  >
+                </b-col>
+                <b-col v-if="advanced" cols="2">
+                  <select v-model="context" style="margin-top:32px">
+                    <option key="Broadcast" value="Broadcast" selected>
+                      Broadcast
+                    </option>
+                    <option key="Sign" value="Sign">
+                      Sign
+                    </option>
+                    <option key="Generate" value="Generate">
+                      Generate
+                    </option>
+                  </select>
+                </b-col>
+              </b-row>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="form-message">
+                  <p style="font-size:60px">
+                    🤔
+                  </p>
+                  {{ $t('webwallet_no_delegations') }}
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- ========================Sign form============================ -->
+          <div id="sign-form" class="transfer tab-pane">
+            <form v-if="sign.file_valid" class="basic-form">
+              <li class="token">
+                <label>{{ $t('webwallet_signing_file_label') }}</label>
+                <div class="buttonInside">
+                  <input
+                    type="text"
+                    style="margin:0"
+                    :value="sign.file.name"
+                    disabled
+                  />
+                  <a class="inside" @click="removeFile('sf', '')"
+                    ><img
+                      src="static/img/icons/delete.png"
+                      style="width:25px; opacity:0.2"
+                  /></a>
+                </div>
+              </li>
+              <li class="token">
+                <label>{{ $t('webwallet_sign_summary') }}</label>
+                <textarea
+                  v-model="sign.summary"
+                  class="warning"
+                  rows="3"
+                  disabled
+                />
+              </li>
+              <li class="token">
+                <label>{{ $t('webwallet_sign_onbehalf') }}</label>
+                <input
+                  v-model="sign.onbehalf"
+                  type="text"
+                  :placeholder="$t('webwallet_for_multisig')"
+                />
+              </li>
+              <label>{{ $t('enter_password') }}</label>
+              <div class="buttonInside">
+                <input
+                  v-model="wallet_pass_tmp"
+                  :type="password"
+                  :class="[wallet_pass_tmp ? '' : sign.alert]"
+                />
+                <a
+                  v-if="password == 'password'"
+                  class="inside"
+                  @click="password = 'text'"
+                  ><img
+                    src="static/img/icons/eye-on.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+
+                <a
+                  v-if="password == 'text'"
+                  class="inside"
+                  @click="password = 'password'"
+                  ><img
+                    src="static/img/icons/eye-off.png"
+                    style="width:25px; opacity:0.2"
+                /></a>
+              </div>
+              <li v-if="sign.signature != ''" class="token">
+                <label>{{ $t('webwallet_sign_signature') }}</label>
+                <textarea v-model="sign.signature" class="" rows="3" disabled />
+              </li>
+
+              <a v-if="sign.signature == ''" class="btn" @click="signTxFile">{{
+                $t('signtx')
+              }}</a>
+              <a v-else class="btn btn-download " @click="downloadSig">{{
+                $t('download')
+              }}</a>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="upload-form">
+                  <b-row align-v="center">
+                    <b-col cols="4" />
+                    <b-col>
+                      <div
+                        v-cloak
+                        ref="myFile"
+                        class="upload-area"
+                        @drop.prevent="upload"
+                        @dragover.prevent
+                      >
+                        <p>
+                          <img
+                            src="static/img/icons/add.png"
+                            style="width:100px; opacity:0.2;margin-bottom:20px"
+                          />
+                        </p>
+                        <span style="opacity:0.3">{{
+                          $t('webwallet_drag_drop')
+                        }}</span>
+                      </div>
+                    </b-col>
+                    <b-col cols="4" />
+                  </b-row>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- ========================Multisign form============================ -->
+          <div id="msign-form" class="transfer tab-pane">
+            <form v-if="multisign.file_valid">
+              <div class="basic-form">
+                <li class="token">
+                  <label>{{ $t('webwallet_signing_file_label') }}</label>
+                  <div class="buttonInside">
+                    <input
+                      type="text"
+                      style="margin:0"
+                      :value="this.multisign.file.name"
+                      disabled
+                    />
+                    <a class="inside" @click="removeFile('msf', '')"
+                      ><img
+                        src="static/img/icons/delete.png"
+                        style="width:25px; opacity:0.2"
+                    /></a>
+                  </div>
+                </li>
+                <li class="token">
+                  <label>{{ $t('webwallet_sign_summary') }}</label>
+                  <textarea
+                    v-model="this.multisign.summary"
+                    class="warning"
+                    rows="3"
+                    disabled
+                  />
+                </li>
+                <!-- <li class="token">
+              <label>{{$t("webwallet_sign_onbehalf")}}</label>
+              <input type="text" :placeholder="$t('webwallet_for_multisig')">
+            </li> -->
+                <li v-if="this.multisign.signature != ''" class="token">
+                  <label>{{ $t('webwallet_sign_signature') }}</label>
+                  <textarea
+                    v-model="this.multisign.signature"
+                    class=""
+                    rows="3"
+                    disabled
+                  />
+                </li>
+                <div class="upload-form" style="margin-top:35px">
+                  <b-row>
+                    <b-col cols="3">
+                      <div
+                        v-cloak
+                        ref="myFile"
+                        class="upload-area"
+                        @drop.prevent="upload"
+                        @dragover.prevent
+                      >
+                        <p>
+                          <img
+                            src="static/img/icons/add.png"
+                            style="width:70px; opacity:0.2;margin-bottom:20px"
+                          />
+                        </p>
+                        <span style="opacity:0.3">{{
+                          $t('webwallet_drag_drop_sigs')
+                        }}</span>
+                      </div>
+                    </b-col>
+                    <b-col cols="3" style="max-height:240px">
+                      <div class="wallet-list" style="max-height:100%">
+                        <li
+                          v-for="(item, index) in multisign.sigfiles"
+                          :key="index"
+                          class="token"
+                        >
+                          <!-- <label>{{$t("webwallet_signing_file_label")}}</label> -->
+                          <div class="buttonInside">
+                            <input
+                              type="text"
+                              style="margin:0"
+                              :value="item.name"
+                              disabled
+                            />
+                            <a class="inside" @click="removeFile('mssf', item)"
+                              ><img
+                                src="static/img/icons/delete.png"
+                                style="width:25px; opacity:0.2"
+                            /></a>
+                          </div>
+                        </li>
+                      </div>
+                    </b-col>
+
+                    <b-col cols="6" style="max-height:240px">
+                      <div class="wallet-list" style="max-height:100%">
+                        <b-table
+                          ref="selectableTable"
+                          style="font-size:11px; text-align: left;"
+                          sticky-header
+                          no-border-collapse
+                          hover
+                          borderless
+                          select-mode="single"
+                          :items="multisign.pubkeys"
+                          :fields="multisign.fields"
+                          head-variant="null"
+                          responsive="sm"
+                        >
+                          <template #table-caption>
+                            {{ multisign.description }}
+                          </template>
+                        </b-table>
+                      </div>
+                    </b-col>
+                  </b-row>
+                </div>
+                <a
+                  v-if="this.sign.signature == ''"
+                  class="btn"
+                  @click="signTxFile"
+                  >{{ $t('signtx') }}</a
+                >
+                <a v-else class="btn btn-download " @click="downloadSig">{{
+                  $t('download')
+                }}</a>
+              </div>
+            </form>
+            <form v-else>
+              <div class="basic-form">
+                <div class="upload-form">
+                  <b-row align-v="center">
+                    <b-col cols="4" />
+                    <b-col>
+                      <div
+                        v-cloak
+                        ref="myFile"
+                        class="upload-area"
+                        @drop.prevent="upload"
+                        @dragover.prevent
+                      >
+                        <p>
+                          <img
+                            src="static/img/icons/add.png"
+                            style="width:100px; opacity:0.2;margin-bottom:20px"
+                          />
+                        </p>
+                        <span style="opacity:0.3">{{
+                          $t('webwallet_drag_drop')
+                        }}</span>
+                      </div>
+                    </b-col>
+                    <b-col cols="4" />
+                  </b-row>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================Mini explorer============================= -->
+    <section class="main-info">
+      <div
+        v-if="transactions.length > 0 && mini_explorer"
+        class="main-container transfer-container"
+        style="height:300px; padding-bottom: 20px;"
+      >
+        <table class="table">
+          <thead class="thead-null">
+            <tr>
+              <th scope="col">
+                Tx
+              </th>
+              <th scope="col">
+                type
+              </th>
+              <th scope="col">
+                To
+              </th>
+              <th scope="col">
+                Amount
+              </th>
+              <th scope="col">
+                Fees
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in transactions.slice(0, 4)" :key="item[0]">
+              <td class="text">
+                <span
+                  ><a
+                    :href="explorer + 'transactions/' + item[0]"
+                    target="_blank"
+                    >{{ item[0] }}</a
+                  ></span
+                >
+              </td>
+              <td class="text">
+                <span>{{ item[1] }}</span>
+              </td>
+              <td class="text">
+                <span
+                  ><a :href="explorer + 'account/' + item[2]" target="_blank">{{
+                    item[2]
+                  }}</a></span
+                >
+              </td>
+              <td class="text">
+                <span>{{ item[3] }}</span>
+              </td>
+              <td class="text">
+                <span>{{ item[4] }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span
+            ><a :href="explorer + 'account/' + this.account" target="_blank"
+              >See all transactions</a
+            ></span
+          >
+        </div>
+      </div>
+      <div
+        v-if="transactions.length == 0 && mini_explorer"
+        class="main-container transfer-container"
+        style="height:300px; padding-bottom: 20px;"
+      >
+        <div class="form-message">
+          <p>
+            {{ $t('webwallet_no_transactions') }}
+            <span
+              ><a :href="explorer + 'account/' + this.account" target="_blank"
+                >Browse you address in the explorer</a
+              ></span
+            >
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+import Vue from 'vue';
+import sideBar from '@cmp/sidebar';
+import burger from '@cmp/burger';
+import common from '@static/js/common.js';
+import AES from 'crypto-js/aes';
+
+import {
+  KeyPair,
+  signTx,
+  verifyTx,
+  createWalletFromMnemonic,
+  createBroadcastTx,
+} from '@tendermint/sig';
+
+import { BRow, BCol, BContainer } from 'bootstrap-vue';
+Vue.component('BRow', BRow);
+Vue.component('BCol', BCol);
+Vue.component('BContainer', BContainer);
+Vue.filter('kb', val => {
+  return Math.floor(val / 1024);
+});
+
+import axios from 'axios';
+
+export default {
+  components: {
+    // sideBar,
+    // burger,
+  },
+  data() {
+    return {
+      isActive: true,
+      blockchain_lowercase: '',
+      nodeUrl: '',
+      network: '',
+      token: '',
+      blockchain: 'KiChain',
+      prefix: '',
+      account: '',
+      multisig: false,
+      vesting: false,
+      accountName: '',
+      key: '',
+      publickey: '',
+      chainId: '',
+      advanced: false,
+      context: 'Broadcast',
+      explorer: this.globalData.explorer,
+      unit: this.webCoin.unit,
+      mini_explorer: true,
+      selectedSet: 1,
+      slider: null,
+      thunk: null,
+      password: 'password',
+      wallet_pass_tmp: '',
+      progress: {
+        per: 50,
+        min: 10,
+        max: 100,
+      },
+      transfer: {
+        alert: '',
+        account: '',
+        amount: 0,
+        token: 'tki',
+        memo: '',
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        output: '',
+      },
+      delegate: {
+        alert: '',
+        validator: '',
+        amount: 0,
+        token: 'tki',
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        output: '',
+      },
+      undelegate: {
+        alert: '',
+        validator: '',
+        amount: 0,
+        token: 'tki',
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        output: '',
+      },
+      redelegate: {
+        alert: '',
+        to_validator: '',
+        from_validator: '',
+        amount: 0,
+        token: 'tki',
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        output: '',
+      },
+      withdraw: {
+        alert: '',
+        validator_address: '',
+        config: 0,
+        output: '',
+      },
+      sign: {
+        alert: '',
+        file: '',
+        file_valid: false,
+        file_content: '',
+        summary: '',
+        signature: '',
+        onbehalf: '',
+      },
+      multisign: {
+        alert: '',
+        file: '',
+        file_valid: false,
+        file_content: '',
+        summary: '',
+        signature: '',
+        description: '',
+        sigfiles: [],
+        txfile_valid: false,
+        fields: ['address', 'status'],
+        threshold: 0,
+        signed: {},
+        pubkeys: [
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
+        ],
+      },
+
+      reward_config: [
+        'rewards only',
+        'commissions only',
+        'rewards and commission',
+      ],
+
+      account_number: 0,
+      sequence: 0,
+      values: ['TKI'],
+      coin: {
+        cny: 0,
+        usd: 0,
+        krw: 0,
+      },
+      tokenPrice: {
+        rmb: 0,
+        usd: 0,
+      },
+      balances: {
+        sum: 0,
+        USD: 0,
+        CNY: 0,
+        KRW: 0,
+        list: {
+          available: 0,
+          delegate: 0,
+          undelegate: 0,
+          locked: 0,
+        },
+      },
+      validators: {},
+      wallets: [],
+      delegations: {},
+      transactions: [],
+      gradient_style:
+        'background-image: linear-gradient(90deg,#1848E0,#05268E);',
+      isLoading: true,
+    };
+  },
+  computed: {
+    // slider stuff
+    scale() {
+      return (
+        (this.progress.per - this.progress.min) /
+        (this.progress.max - this.progress.min)
+      );
+    },
+    width() {
+      if (this.slider) {
+        return this.slider.offsetWidth * this.scale + 'px';
+      } else {
+        return 0 + 'px';
+      }
+    },
+    left() {
+      if (this.slider) {
+        var left =
+          this.slider.offsetWidth * this.scale - this.thunk.offsetWidth / 2;
+
+        if (left <= 0) {
+          left = 0;
+        } else if (left >= this.slider.offsetWidth - this.thunk.offsetWidth) {
+          left = this.slider.offsetWidth - this.thunk.offsetWidth;
+        }
+        return left + 'px';
+      } else {
+        return '0px';
+      }
+    },
+    feeCompute() {
+      return this.transfer.gasPrice * this.transfer.gasLimit;
+    },
+  },
+  created() {
+    this.getChain();
+    this.getAccounts();
+  },
+  mounted() {
+    this.getUnit();
+    this.isLoading = false;
+  },
+
+  methods: {
+    async getChain() {
+      if (this.blockchain) {
+        let blockchain = this.blockchain.toLowerCase();
+        this.blockchain_lowercase = blockchain;
+        this.nodeUrl = this.globalData[blockchain].nodeUrl;
+        this.network = this.globalData[blockchain].network;
+        this.token = this.globalData[blockchain].token;
+        this.prefix = this.globalData[blockchain].prefix;
+      }
+
+      const identity = localStorage.getItem('identity_kichain');
+      if (identity) {
+        let identity_j = JSON.parse(identity);
+
+        this.account = identity_j.account;
+        this.accountName = identity_j.accountName;
+        this.key = identity_j.privatekey;
+        // console.log(new Buffer(this.key, 'hex').toString('utf8'))
+
+        this.publickey = identity_j.publickey;
+        this.chainId = identity_j.chainId;
+        if (this.key == '') {
+          this.multisig = true;
+          this.context = 'Generate';
+          this.advanced = false;
+        }
+        this.initExtension();
+        this.generate_gradient();
+      }
+    },
+
+    initExtension() {
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      this.webUtil.init().then(res10 => {
+        let account = this.account;
+        this.progressSlide();
+        // let provider = mathExtension.httpProvider(nodeUrl);
+
+        var promise2 = new Promise((resolve, reject) => {
+          let krwPrice = 0;
+        });
+
+        var promise4 = new Promise((resolve, reject) => {
+          axios
+            .get(
+              nodeUrl +
+                '/txs?message.sender=' +
+                this.account +
+                '&message.action=send',
+            )
+            .then(res5 => {
+              let page =
+                res5.data.page_total && res5.data.page_total > 0
+                  ? res5.data.page_total
+                  : 1;
+              return page;
+            })
+            .then(res => {
+              axios
+                .get(
+                  nodeUrl +
+                    '/txs?message.sender=' +
+                    this.account +
+                    '&message.action=send&page=' +
+                    res,
+                )
+                .then(res5 => {
+                  res = res5.data.txs;
+                  if (res) {
+                    res.forEach(value => {
+                      let fee = 0;
+
+                      if (value.tx.value.fee.amount.length > 0) {
+                        fee =
+                          value.tx.value.fee.amount[0].amount / Math.pow(10, 6);
+                      }
+
+                      this.transactions.push([
+                        value.txhash,
+                        'send',
+                        value.tx.value.msg[0].value.to_address,
+                        value.tx.value.msg[0].value.amount[0].amount /
+                          Math.pow(10, 6),
+                        fee,
+                        value.timestamp,
+                      ]);
+                    });
+                  }
+                })
+                .then(resx => {
+                  this.transactions.sort(function(a, b) {
+                    const date_a = Date.parse(a[5]);
+                    const date_b = Date.parse(b[5]);
+
+                    let comparison = 0;
+                    if (date_a > date_b) {
+                      comparison = 1;
+                    } else if (date_a < date_b) {
+                      comparison = -1;
+                    }
+                    return comparison * -1;
+                  });
+                });
+            });
+        });
+
+        var promise5 = new Promise((resolve, reject) => {
+          axios
+            .get(
+              nodeUrl +
+                '/txs?message.sender=' +
+                this.account +
+                '&message.action=delegate',
+            )
+            .then(res6 => {
+              let page =
+                res6.data.page_total && res6.data.page_total > 0
+                  ? res6.data.page_total
+                  : 1;
+              return page;
+            })
+            .then(res => {
+              axios
+                .get(
+                  nodeUrl +
+                    '/txs?message.sender=' +
+                    this.account +
+                    '&message.action=delegate&page=' +
+                    res,
+                )
+                .then(res6 => {
+                  let res = res6.data.txs;
+
+                  if (res) {
+                    res.forEach(value => {
+                      let fee = 0;
+
+                      if (value.tx.value.fee.amount.length > 0) {
+                        fee =
+                          value.tx.value.fee.amount[0].amount / Math.pow(10, 6);
+                      }
+
+                      this.transactions.push([
+                        value.txhash,
+                        'delegate',
+                        value.tx.value.msg[0].value.validator_address,
+                        value.tx.value.msg[0].value.amount.amount /
+                          Math.pow(10, 6),
+                        fee,
+                        value.timestamp,
+                      ]);
+                    });
+                  }
+                })
+                .then(resx => {
+                  this.transactions.sort(function(a, b) {
+                    const date_a = Date.parse(a[5]);
+                    const date_b = Date.parse(b[5]);
+
+                    let comparison = 0;
+                    if (date_a > date_b) {
+                      comparison = 1;
+                    } else if (date_a < date_b) {
+                      comparison = -1;
+                    }
+                    return comparison * -1;
+                  });
+                });
+            });
+        });
+
+        var promise3 = new Promise((resolve, reject) => {
+          axios
+            .get(nodeUrl + '/auth/accounts/' + account)
+            .then(res1 => {
+              if (res1.data.result.value) {
+                let res = '';
+                let available_real = 0;
+                if (
+                  res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount'
+                ) {
+                  this.vesting = true;
+                  res = res1.data.result.value;
+
+                  // get the original vesting
+                  let original =
+                    parseFloat(
+                      res.BaseVestingAccount.original_vesting[0].amount,
+                    ) / Math.pow(10, 6);
+
+                  // get vesting period
+                  let start = res.start_time;
+                  let end = res.BaseVestingAccount.end_time;
+
+                  // get vested amount
+                  let total_duration = end - start;
+                  let elapsed_suration =
+                    Math.floor(Date.now() / 1000) - start > 0
+                      ? Math.floor(Date.now() / 1000) - start
+                      : 0;
+                  let vested_ratio = elapsed_suration / total_duration;
+                  let locked = original * (1 - vested_ratio);
+                  let vested = original - locked;
+
+                  let delegated =
+                    res.BaseVestingAccount.delegated_vesting.length > 0
+                      ? parseFloat(
+                          res.BaseVestingAccount.delegated_vesting[0].amount,
+                        ) / Math.pow(10, 6)
+                      : 0;
+
+                  this.balances.list.locked = locked;
+
+                  res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+                  let coins = res.coins;
+
+                  if (coins) {
+                    coins.forEach(coin => {
+                      if (coin.denom == 'tki') {
+                        this.balances.list.available =
+                          parseFloat(coin.amount) / Math.pow(10, 6) -
+                          locked +
+                          delegated;
+                        available_real =
+                          parseFloat(coin.amount) / Math.pow(10, 6);
+                      }
+                    });
+                  }
+
+                  if (this.multisig) {
+                    let multisig_data = res.public_key.value;
+                    this.multisign.threshold = multisig_data.threshold;
+                    for (var key in multisig_data.pubkeys) {
+                      this.multisign.pubkeys.push({
+                        address: multisig_data.pubkeys[key].value,
+                        status: 'pending...',
+                      });
+                    }
+                    this.multisign.description =
+                      'At least ' +
+                      this.multisign.threshold +
+                      ' out of ' +
+                      this.multisign.pubkeys.length +
+                      ' signatures are required';
+                  }
+                } else {
+                  res = res1.data.result.value;
+                  let coins = res.coins;
+                  if (coins) {
+                    coins.forEach(coin => {
+                      if (coin.denom == 'tki') {
+                        this.balances.list.available =
+                          parseFloat(coin.amount) / Math.pow(10, 6);
+                        available_real = this.balances.list.available;
+                      }
+                    });
+                  }
+                }
+
+                this.account_number = res.account_number;
+                this.sequence = res.sequence;
+
+                this.balances.sum = this.balances.sum + available_real;
+              }
+            })
+            .then(result4 => {
+              axios
+                .get(
+                  nodeUrl +
+                    '/staking/delegators/' +
+                    this.account +
+                    '/validators',
+                )
+                .then(res5 => {
+                  let res = res5.data.result;
+                  if (res) {
+                    res.forEach(value => {
+                      this.delegations[value.operator_address] = [
+                        value.description.moniker,
+                      ];
+                    });
+                  }
+                  return 0;
+                })
+                .then(result1 => {
+                  // 获取委托ATOM
+                  axios
+                    .get(
+                      nodeUrl +
+                        '/staking/delegators/' +
+                        account +
+                        '/delegations',
+                    )
+                    .then(res2 => {
+                      let result = res2.data.result;
+                      if (result) {
+                        for (let i = 0; i < result.length; i++) {
+                          this.delegations[result[i].validator_address].push(
+                            parseFloat(result[i].balance) / Math.pow(10, 6),
+                          );
+
+                          result[i].shares =
+                            parseFloat(result[i].shares) / Math.pow(10, 6);
+                          this.balances.list.delegate =
+                            this.balances.list.delegate + result[i].shares;
+                        }
+                        this.balances.sum =
+                          this.balances.sum + this.balances.list.delegate;
+                      }
+                    })
+                    .then(result2 => {
+                      // 获取解委托ATOM
+                      axios
+                        .get(
+                          nodeUrl +
+                            '/staking/delegators/' +
+                            account +
+                            '/unbonding_delegations',
+                        )
+                        .then(res3 => {
+                          let res = res3.data.result;
+                          if (res) {
+                            res.forEach(value => {
+                              value.entries.forEach(undelegate => {
+                                let balance =
+                                  parseFloat(undelegate.balance) /
+                                  Math.pow(10, 6);
+                                this.balances.list.undelegate =
+                                  this.balances.list.undelegate + balance;
+                              });
+                            });
+                            this.balances.sum =
+                              this.balances.sum + this.balances.list.undelegate;
+                          }
+                          return this.balances.sum;
+                        })
+                        .then(result3 => {
+                          // 获取解委托ATOM
+                          axios
+                            .get(nodeUrl + '/staking/validators')
+                            .then(res4 => {
+                              let res = res4.data.result;
+                              if (res) {
+                                res.forEach(value => {
+                                  // this.validators.push([value.description.moniker, value.operator_address]);
+                                  this.validators[value.operator_address] = [
+                                    value.description.moniker,
+                                  ];
+                                });
+                              }
+                              return 0;
+                            });
+                        });
+                    });
+                });
+            });
+        });
+      });
+    },
+    // ========================Transfer Transaction============================
+    sendTransfer() {
+      this.transfer.alert = 'danger';
+      let filled = true;
+
+      if (!this.transfer.account) {
+        filled = false;
+      }
+      if (!this.transfer.amount) {
+        filled = false;
+      }
+      if (!this.wallet_pass_tmp) {
+        filled = false;
+      }
+      if (this.transfer.amount < Math.pow(10, -6)) {
+        // alert(this.$t('transfer_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
+        return false;
+      }
+
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      let account = this.account;
+      let fee = this.transfer.fee * Math.pow(10, 6);
+      let limit = 300000;
+
+      if (this.selectedSet == 2) {
+        fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
+        limit = this.transfer.gasLimit;
+      }
+
+      const transaction = {
+        msg: [
+          {
+            type: 'cosmos-sdk/MsgSend',
+            value: {
+              from_address: account,
+              to_address: this.transfer.account,
+              amount: [
+                {
+                  denom: 'tki',
+                  amount: (this.transfer.amount * Math.pow(10, 6)).toString(),
+                },
+              ],
+            },
+          },
+        ],
+        fee: {
+          amount: [
+            {
+              denom: 'tki',
+              amount: fee.toString(),
+            },
+          ],
+          gas: limit.toString(),
+        },
+        memo: this.transfer.memo,
+      };
+
+      if (this.context == 'Generate') {
+        this.transfer.output =
+          '{ "type": "cosmos-sdk/StdTx", "value":' +
+          JSON.stringify(transaction) +
+          '}';
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        var CryptoJS = require('crypto-js');
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          privateKey: key,
+          publicKey: publickey,
+        });
+
+        if (this.context == 'Sign') {
+          this.transfer.output = JSON.stringify(signedTransactionme);
+        }
+
+        if (this.context == 'Broadcast') {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+          };
+
+          axios(opts).then(res => {
+            let result = res.data;
+
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' +
+                  log.message +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer ' +
+                  this.transfer.amount +
+                  'tki to ' +
+                  this.transfer.account +
+                  '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
+                  result.txhash +
+                  '>here.</a>' +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+              // alert(this.$t('transfer_success'));
+              // window.location.reload();
+              this.resetForms();
+            }
+          });
+        }
+      });
+    },
+    // ========================Delegation Transaction============================
+    sendDelegateTx() {
+      this.delegate.alert = 'danger';
+      let filled = true;
+
+      if (!this.delegate.validator) {
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+      if (!this.delegate.amount) {
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
+      }
+      if (this.delegate.amount < Math.pow(10, -6)) {
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
+        return false;
+      }
+
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+
+      let account = this.account;
+
+      let fee = this.delegate.fee * Math.pow(10, 6);
+      let limit = 300000;
+
+      if (this.selectedSet == 2) {
+        fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+        limit = this.delegate.gasLimit;
+      }
+
+      const transaction = {
+        msg: [
+          {
+            type: 'cosmos-sdk/MsgDelegate',
+            value: {
+              delegator_address: account,
+              validator_address: this.delegate.validator,
+              amount: {
+                denom: 'tki',
+                amount: (this.delegate.amount * Math.pow(10, 6)).toString(),
+              },
+            },
+          },
+        ],
+        fee: {
+          amount: [
+            {
+              denom: 'tki',
+              amount: '7500',
+            },
+          ],
+          gas: limit.toString(),
+        },
+        memo: '',
+      };
+
+      if (this.context == 'Generate') {
+        this.delegate.output =
+          '{ "type": "cosmos-sdk/StdTx", "value":' +
+          JSON.stringify(transaction) +
+          '}';
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        var CryptoJS = require('crypto-js');
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          privateKey: key,
+          publicKey: publickey,
+        });
+
+        if (this.context == 'Sign') {
+          this.delegate.output = JSON.stringify(signedTransactionme);
+        }
+
+        if (this.context == 'Broadcast') {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+          };
+
+          axios(opts).then(res => {
+            let result = res.data;
+
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' +
+                  log.message +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' +
+                  this.delegate.amount +
+                  'tki to ' +
+                  this.validators[this.delegate.validator] +
+                  '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
+                  result.txhash +
+                  '>here.</a>' +
+                  '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+
+              this.resetForms();
+            }
+          });
+        }
+      });
+    },
+    // =========================Unbonding transaction===========================
+    sendUnDelegateTx() {
+      this.undelegate.alert = 'danger';
+      let filled = true;
+
+      if (!this.undelegate.validator) {
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+      if (!this.undelegate.amount) {
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
+      }
+      if (this.undelegate.amount < Math.pow(10, -6)) {
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
+        return false;
+      }
+
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+
+      let account = this.account;
+
+      let fee = this.undelegate.fee * Math.pow(10, 6);
+      let limit = 300000;
+
+      if (this.selectedSet == 2) {
+        fee = this.delegate.gasPrice * this.delegate.gasLimit * Math.pow(10, 6);
+        limit = this.delegate.gasLimit;
+      }
+
+      const transaction = {
+        msg: [
+          {
+            type: 'cosmos-sdk/MsgUndelegate',
+            value: {
+              delegator_address: account,
+              validator_address: this.undelegate.validator,
+              amount: {
+                denom: 'tki',
+                amount: (this.undelegate.amount * Math.pow(10, 6)).toString(),
+              },
+            },
+          },
+        ],
+        fee: {
+          amount: [
+            {
+              denom: 'tki',
+              amount: '7500',
+            },
+          ],
+          gas: limit.toString(),
+        },
+        memo: '',
+      };
+
+      if (this.context == 'Generate') {
+        this.undelegate.output =
+          '{ "type": "cosmos-sdk/StdTx", "value":' +
+          JSON.stringify(transaction) +
+          '}';
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
+        if (
+          this.delegations[this.undelegate.validator][1] <
+          this.undelegate.amount
+        ) {
+          alert('Cannot unbond more than what is bonded!');
+        } else {
+          const signMeta = {
+            chain_id: this.chainId,
+            account_number: this.account_number.toString(),
+            sequence: this.sequence.toString(),
+          };
+
+          var CryptoJS = require('crypto-js');
+          var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+          let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+          const publickey = Buffer.from(this.publickey, 'hex');
+
+          let signedTransactionme = signTx(transaction, signMeta, {
+            privateKey: key,
+            publicKey: publickey,
+          });
+
+          if (this.context == 'Sign') {
+            this.undelegate.output = JSON.stringify(signedTransactionme);
+          }
+
+          if (this.context == 'Broadcast') {
+            let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+            let url = nodeUrl + `/txs?sync=true`;
+            const opts = {
+              method: 'post',
+              url: url,
+              data: bcTransactionme,
+              headers: {
+                'Content-Type': 'text/plain',
+              },
+            };
+
+            axios(opts).then(res => {
+              let result = res.data;
+
+              if (result.code) {
+                let log = JSON.parse(result.raw_log);
+                $('#sent_alert').html(
+                  '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' +
+                    log.message +
+                    ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+                );
+                alert(log.message);
+              } else if (result.txhash) {
+                $('#sent_alert').html(
+                  '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' +
+                    this.undelegate.amount +
+                    'tki from ' +
+                    this.delegations[this.undelegate.validator][0] +
+                    '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
+                    result.txhash +
+                    '>here.</a>' +
+                    ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+                );
+
+                this.resetForms();
+              }
+            });
+          }
+        }
+      });
+    },
+    // =========================Redelegate transaction===========================
+    sendReDelegateTx() {
+      this.redelegate.alert = 'danger';
+      let filled = true;
+
+      if (!this.redelegate.to_validator) {
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+      if (!this.redelegate.from_validator) {
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+      if (!this.redelegate.amount) {
+        // alert(this.$t('delegate_amount_null'));
+        filled = false;
+      }
+      if (this.redelegate.amount < Math.pow(10, -6)) {
+        // alert(this.$t('delegate_amount_min') + Math.pow(10, -6));
+        filled = false;
+      }
+
+      if (!filled) {
+        return false;
+      }
+
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+
+      let account = this.account;
+
+      let fee = this.redelegate.fee * Math.pow(10, 6);
+      let limit = 300000;
+
+      if (this.selectedSet == 2) {
+        fee =
+          this.redelegate.gasPrice * this.redelegate.gasLimit * Math.pow(10, 6);
+        limit = this.redelegate.gasLimit;
+      }
+
+      const transaction = {
+        msg: [
+          {
+            type: 'cosmos-sdk/MsgBeginRedelegate',
+            value: {
+              delegator_address: account,
+              validator_src_address: this.redelegate.from_validator,
+              validator_dst_address: this.redelegate.to_validator,
+              amount: {
+                denom: 'tki',
+                amount: (this.redelegate.amount * Math.pow(10, 6)).toString(),
+              },
+            },
+          },
+        ],
+        fee: {
+          amount: [
+            {
+              denom: 'tki',
+              amount: '7500',
+            },
+          ],
+          gas: limit.toString(),
+        },
+        memo: '',
+      };
+
+      if (this.context == 'Generate') {
+        this.redelegate.output =
+          '{ "type": "cosmos-sdk/StdTx", "value":' +
+          JSON.stringify(transaction) +
+          '}';
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
+        if (
+          this.delegations[this.redelegate.from_validator][1] <
+          this.redelegate.amount
+        ) {
+          alert('Cannot unbond more than what is bonded!');
+        } else {
+          const signMeta = {
+            chain_id: this.chainId,
+            account_number: this.account_number.toString(),
+            sequence: this.sequence.toString(),
+          };
+
+          var CryptoJS = require('crypto-js');
+          var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+          let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+          const publickey = Buffer.from(this.publickey, 'hex');
+
+          let signedTransactionme = signTx(transaction, signMeta, {
+            privateKey: key,
+            publicKey: publickey,
+          });
+
+          if (this.context == 'Sign') {
+            this.redelegate.output = JSON.stringify(signedTransactionme);
+          }
+
+          if (this.context == 'Broadcast') {
+            let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+            // console.log(JSON.stringify(bcTransactionme), JSON.stringify(signMeta));
+
+            let url = nodeUrl + `/txs?sync=true`;
+            const opts = {
+              method: 'post',
+              url: url,
+              data: bcTransactionme,
+              headers: {
+                'Content-Type': 'text/plain',
+              },
+            };
+
+            axios(opts).then(res => {
+              let result = res.data;
+
+              if (result.code) {
+                let log = JSON.parse(result.raw_log);
+                $('#sent_alert').html(
+                  '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' +
+                    log.message +
+                    ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+                );
+                // alert(log.message);
+              } else if (result.txhash) {
+                $('#sent_alert').html(
+                  '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' +
+                    this.redelegate.amount +
+                    'tki from ' +
+                    this.delegations[this.redelegate.from_validator][0] +
+                    ' to ' +
+                    this.validators[this.redelegate.to_validator] +
+                    '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
+                    result.txhash +
+                    '>here.</a>' +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+                );
+
+                this.resetForms();
+              }
+            });
+          }
+        }
+      });
+    },
+    // =========================Withdraw transaction===========================
+    sendWithdrawTx() {
+      this.withdraw.alert = 'danger';
+      let filled = true;
+
+      if (!this.withdraw.validator_address) {
+        // alert(this.$t('delegate_account_null'));
+        filled = false;
+      }
+
+      if (!filled) {
+        return false;
+      }
+
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      let account = this.account;
+      let limit = 300000;
+
+      const msg_withdraw_reward = {
+        type: 'cosmos-sdk/MsgWithdrawDelegationReward',
+        value: {
+          delegator_address: account,
+          validator_address: this.withdraw.validator_address,
+        },
+      };
+
+      const msg_withdraw_commision = {
+        type: 'cosmos-sdk/MsgWithdrawValidatorCommission',
+        value: {
+          validator_address: this.withdraw.validator_address,
+        },
+      };
+
+      const transaction = {
+        msg: [],
+        fee: {
+          amount: [],
+          gas: limit.toString(),
+        },
+        memo: '',
+      };
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          this.sequence = res.sequence;
+        }
+
+        if (this.withdraw.config == 0) {
+          transaction.msg.push(msg_withdraw_reward);
+        }
+
+        if (this.withdraw.config == 1) {
+          transaction.msg.push(msg_withdraw_commision);
+        }
+
+        if (this.withdraw.config == 2) {
+          transaction.msg.push(msg_withdraw_reward);
+          transaction.msg.push(msg_withdraw_commision);
+        }
+
+        if (this.context == 'Generate') {
+          this.withdraw.output =
+            '{ "type": "cosmos-sdk/StdTx", "value":' +
+            JSON.stringify(transaction) +
+            '}';
+        }
+
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: this.account_number.toString(),
+          sequence: this.sequence.toString(),
+        };
+
+        var CryptoJS = require('crypto-js');
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          privateKey: key,
+          publicKey: publickey,
+        });
+
+        if (this.context == 'Sign') {
+          this.withdraw.output = JSON.stringify(signedTransactionme);
+        }
+        if (this.context == 'Broadcast') {
+          let bcTransactionme = createBroadcastTx(signedTransactionme);
+
+          let url = nodeUrl + `/txs?sync=true`;
+          const opts = {
+            method: 'post',
+            url: url,
+            data: bcTransactionme,
+            headers: {
+              'Content-Type': 'text/plain',
+            },
+          };
+
+          axios(opts).then(res => {
+            let result = res.data;
+
+            if (result.code) {
+              let log = JSON.parse(result.raw_log);
+              $('#sent_alert').html(
+                '<div class="alert alert-danger alert-dismissible fade show" role="alert"> Transaction failed: ' +
+                  log.message +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+              // alert(log.message);
+            } else if (result.txhash) {
+              $('#sent_alert').html(
+                '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Withdraw ' +
+                  this.reward_config[this.withdraw.config] +
+                  ' from ' +
+                  this.delegations[this.withdraw.validator_address][0] +
+                  '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
+                  result.txhash +
+                  '>here.</a>' +
+                  ' <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
+              );
+              this.resetForms();
+            }
+          });
+        }
+      });
+    },
+    // =========================Sign transaction===========================
+    signTxFile() {
+      let nodeUrl = this.globalData.kichain.nodeUrl;
+      let transaction = JSON.parse(this.sign.file_content).value;
+      let account =
+        this.sign.onbehalf == '' ? this.account : this.sign.onbehalf;
+
+      if (transaction.hasOwnProperty('signatures')) {
+        delete transaction['signatures'];
+      }
+
+      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+        let sequence_ = '';
+        let account_number_ = '';
+
+        if (res1.data.result.value) {
+          let res = '';
+          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
+          } else {
+            res = res1.data.result.value;
+          }
+          sequence_ = res.sequence;
+          account_number_ = res.account_number;
+        }
+
+        const signMeta = {
+          chain_id: this.chainId,
+          account_number: account_number_.toString(),
+          sequence: sequence_.toString(),
+        };
+
+        var CryptoJS = require('crypto-js');
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+
+        const publickey = Buffer.from(this.publickey, 'hex');
+
+        let signedTransactionme = signTx(transaction, signMeta, {
+          privateKey: key,
+          publicKey: publickey,
+        });
+
+        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
+      });
+    },
+    // =========================File handlers===========================
+    removeFile(list, file) {
+      if (list == 'sf') {
+        this.sign.file = '';
+        this.sign.summary = '';
+        this.sign.onbehalf = '';
+        this.sign.signature = '';
+        this.sign.file_valid = false;
+        this.sign.file_content = '';
+      }
+
+      if (list == 'msf') {
+        this.multisign.file = '';
+        this.multisign.signed = '';
+        this.multisign.summary = '';
+        this.multisign.sigfiles = [];
+        this.multisign.signature = '';
+        this.multisign.file_valid = false;
+        this.multisign.file_content = '';
+        this.multisign.pubkeys.forEach(key => (key.status = 'signed'));
+      }
+
+      if (list == 'mssf') {
+        this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
+          // console.log(this.multisign.signed[file.name])
+          // console.log(this.multisign.signed)
+
+          this.multisign.pubkeys.forEach(
+            key =>
+              (key.status =
+                key.address == this.multisign.signed[file.name]
+                  ? 'pending...'
+                  : key.status),
+          );
+          return f != file;
+        });
+      }
+    },
+    upload(e) {
+      let file = e.dataTransfer.files[0];
+
+      if (!this.multisig) {
+        this.sign.file = file;
+        if (!file) return;
+
+        let reader = new FileReader();
+        reader.readAsText(file, 'UTF-8');
+        reader.onload = evt => {
+          this.sign.file_content = evt.target.result;
+          this.sign.file_valid = true;
+          this.sign.summary = this.parseMessage(this.sign.file_content);
+        };
+        reader.onerror = evt => {
+          console.error(evt);
+        };
+      } else {
+        if (this.multisign.file_content == '') {
+          this.multisign.file = file;
+          if (!file) return;
+
+          let reader = new FileReader();
+          reader.readAsText(file, 'UTF-8');
+          reader.onload = evt => {
+            this.multisign.file_content = evt.target.result;
+            this.multisign.file_valid = true;
+            this.multisign.summary = this.parseMessage(
+              this.multisign.file_content,
+            );
+          };
+          reader.onerror = evt => {
+            console.error(evt);
+          };
+        } else {
+          this.multisign.sigfiles.push(file);
+          if (!file) return;
+          let reader = new FileReader();
+          reader.readAsText(file, 'UTF-8');
+          reader.onload = evt => {
+            this.parseSignature(file.name, evt.target.result);
+          };
+          reader.onerror = evt => {
+            console.error(evt);
+          };
+        }
+      }
+    },
+    parseMessage(file) {
+      try {
+        let msg_ = JSON.parse(file).value.msg;
+
+        switch (msg_[0].type) {
+          case 'cosmos-sdk/MsgSend':
+            var msg = msg_[0];
+            return (
+              'Send:\t ' +
+              msg.value.amount[0].amount / Math.pow(10, 6) +
+              ' tki \nfrom:\t ' +
+              msg.value.from_address +
+              ' \nto:\t\t ' +
+              msg.value.to_address
+            );
+            break;
+
+          case 'cosmos-sdk/MsgDelegate':
+            var msg = msg_[0];
+            return (
+              'Delegate:\t ' +
+              msg.value.amount.amount / Math.pow(10, 6) +
+              ' tki \nto:\t\t\t ' +
+              msg.value.validator_address
+            );
+            break;
+
+          case 'cosmos-sdk/MsgUndelegate':
+            var msg = msg_[0];
+            return (
+              'Unbond:\t ' +
+              msg.value.amount.amount / Math.pow(10, 6) +
+              ' tki \nfrom:\t ' +
+              msg.value.validator_address
+            );
+            break;
+
+          case 'cosmos-sdk/MsgBeginRedelegate':
+            var msg = msg_[0];
+            return (
+              'Redelagate:\t ' +
+              msg.value.amount.amount / Math.pow(10, 6) +
+              ' tki \nfrom:\t\t ' +
+              msg.value.validator_src_address +
+              ' \nto:\t\t\t ' +
+              msg.value.validator_dst_address
+            );
+            break;
+
+          case 'cosmos-sdk/MsgWithdrawDelegationReward':
+            var msg = msg_[0];
+            var output = 'Withdraw rewards ';
+            if (!(msg_[1] === undefined)) {
+              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                output = 'Withdraw rewards and commissions ';
+              }
+            }
+            output = output + 'from ' + msg.value.validator_address;
+            return output;
+            break;
+
+          case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+            var msg = msg_[0];
+            var output = 'Withdraw commissions';
+            if (!(msg_[1] === undefined)) {
+              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                output = 'Withdraw rewards and commissions ';
+              }
+            }
+            output = output + 'from ' + msg.value.validator_address;
+            return output;
+            break;
+
+          default:
+            return 'The file does not seem to contain a valid transaction structure.';
+        }
+      } catch (error) {
+        return 'The file does not seem to contain a valid transaction structure.';
+      }
+    },
+    parseSignature(name, file) {
+      let sig_data = JSON.parse(file);
+      let pubkey = sig_data.pub_key.value;
+      let sig = sig_data.pub_key.signature;
+
+      this.multisign.signed[name] = pubkey;
+
+      this.multisign.pubkeys.forEach(
+        key => (key.status = key.address == pubkey ? 'signed' : key.status),
+      );
+    },
+    downloadSig() {
+      let filename = 'signed_tx.json';
+      let href =
+        'data:text/plain;charset=utf-8,' +
+        encodeURIComponent(this.sign.signature);
+
+      var element = document.createElement('a');
+      element.setAttribute('href', href);
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    },
+    // =========================Resetting===========================
+    resetForms() {
+      this.mnemonic = '';
+      this.wallet_pass_tmp = '';
+
+      this.transfer.alert = '';
+      this.transfer.account = '';
+      this.transfer.amount = 0;
+      this.transfer.memo = '';
+      this.transfer.fee = 0.00125;
+      this.transfer.gasPrice = '0.0000005';
+      this.transfer.gasLimit = 300000;
+      this.transfer.output = '';
+
+      this.delegate.alert = '';
+      this.delegate.validator = '';
+      this.delegate.amount = 0;
+      this.delegate.output = '';
+
+      this.undelegate.alert = '';
+      this.undelegate.validator = '';
+      this.undelegate.amount = 0;
+      this.undelegate.output = '';
+
+      this.redelegate.alert = '';
+      this.redelegate.to_validator = '';
+      this.redelegate.from_validator = '';
+      this.redelegate.amount = 0;
+      this.redelegate.output = '';
+
+      this.withdraw.alert = '';
+      this.withdraw.validator_address = '';
+      this.withdraw.config = 0;
+      this.withdraw.output = '';
+    },
+    resetData() {
+      this.balances.sum = 0;
+      this.balances.USD = 0;
+      this.balances.list.available = 0;
+      this.balances.list.delegate = 0;
+      this.balances.list.undelegate = 0;
+      this.balances.list.locked = 0;
+      this.validators = {};
+      this.delegations = {};
+      this.transactions = [];
+    },
+    refresh() {
+      this.resetForms();
+      this.resetData();
+      this.initExtension();
+    },
+    switchToDefaultTab() {
+      if (document.getElementById('sign-form').classList.contains('active')) {
+        document.getElementById('transfer-form-tab').classList.add('active');
+        document.getElementById('transfer-form').classList.add('active');
+        document.getElementById('sign-form').classList.remove('active');
+      }
+    },
+
+    // =========================Utils===========================
+    getAccounts() {
+      if (localStorage.getItem('wallet_list')) {
+        let wallet_list = localStorage.getItem('wallet_list').split(',');
+        for (var w in wallet_list) {
+          this.wallets.push({
+            account: wallet_list[w],
+            address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
+            privatekey: Buffer.from(
+              JSON.parse(localStorage.getItem(wallet_list[w])).privateKey,
+            ).toString('hex'),
+            publickey: Buffer.from(
+              JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
+            ).toString('hex'),
+          });
+        }
+      }
+    },
+    getUnit() {
+      common.$on('val', data => {
+        this.unit = data;
+      });
+    },
+    setToggle(val) {
+      this.selectedSet = val;
+    },
+    progressSlide() {
+      this.slider = this.$refs.slider;
+      this.thunk = this.$refs.thunk;
+      let _this = this;
+      this.transfer.fee = 0.015 * (this.progress.per / this.progress.max);
+      this.thunk.onmousedown = function(e) {
+        let width = parseInt(_this.width);
+        let disX = e.clientX;
+        document.onmousemove = function(e) {
+          let newWidth = e.clientX - disX + width;
+          let scale = newWidth / _this.slider.offsetWidth;
+          let max = _this.progress.max;
+          let min = _this.progress.min;
+
+          _this.progress.per = Math.ceil((max - min) * scale + min);
+          _this.progress.per = Math.max(_this.progress.per, min);
+          _this.progress.per = Math.min(_this.progress.per, max);
+          _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6);
+        };
+        document.onmouseup = function(e) {
+          document.onmousemove = document.onmouseup = null;
+        };
+        return false;
+      };
+    },
+    generate_gradient() {
+      // var newColor1 = this.webUtil.populate('#', this.account, 1);
+      // var newColor2 = this.webUtil.populate('#', this.account 2);
+      // var angle = Math.round(Math.random(3) * 360);
+
+      var newColor1 = this.webUtil.pickGradient(this.account);
+      var newColor2 = this.webUtil.shadeColor(newColor1, 0);
+      var angle = 90;
+
+      var gradient =
+        'linear-gradient(' +
+        angle +
+        'deg, ' +
+        newColor1 +
+        ', ' +
+        newColor2 +
+        ')';
+      this.gradient_style = 'background-image:' + gradient;
+    },
+  },
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+
+<style scoped></style>

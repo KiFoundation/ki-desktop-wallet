@@ -1,28 +1,31 @@
-import util from './util'
+import util from './util';
 
 class coin {
   constructor() {
-    this.unit = "USD"
-    this.webUnit = ["USD", "CNY", "KRW"]
+    this.unit = 'USD';
+    this.webUnit = ['USD', 'CNY', 'KRW'];
   }
 
   setUnit(unit) {
-    if (!this.webUnit.includes(unit)) { unit = "USD" }
-    util.setCookie("coinUnit", unit, {
+    if (!this.webUnit.includes(unit)) {
+      unit = 'USD';
+    }
+    localStorage.setItem('coinUnit', unit, {
       expires: 30,
-      path: '/'
+      path: '/',
     });
     this.unit = unit;
     return this.unit;
   }
 
   getUnit() {
-    let unit = util.getCookie("coinUnit");
-    if (!this.webUnit.includes(unit)) { unit = "USD" };
+    let unit = localStorage.getItem('coinUnit');
+    if (!this.webUnit.includes(unit)) {
+      unit = 'USD';
+    }
     this.unit = unit;
-    return this.unit
+    return this.unit;
   }
 }
 
-
-export default new coin;
+export default new coin();
