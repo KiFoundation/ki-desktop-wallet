@@ -5,6 +5,6 @@ export const TOGGLE_NAV = 'TOGGLE_NAV';
 export const mutations = {
   // Nav state
   [TOGGLE_NAV](state) {
-    state.nav.toggle = !state.nav.toggle;
+    state.app.nav.toggle = !state.app.nav.toggle;
   },
 };

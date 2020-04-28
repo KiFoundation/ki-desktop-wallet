@@ -18,7 +18,7 @@
 
 <script>
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
-import { mapMutations } from 'vuex';
+import { mapMutations, mapState } from 'vuex';
 import { SET_WALLETS_LIST } from '@store/wallets';
 import { SET_ACCOUNT } from '@store/account';
 
@@ -26,6 +26,11 @@ export default {
   name: 'App',
   components: {
     BSpinner,
+  },
+  computed: {
+    ...mapState({
+      currentWallet: state => state.wallets.current,
+    }),
   },
   data() {
     return {
@@ -196,9 +201,12 @@ export default {
             this.context = 'Generate';
             this.advanced = false;
           }
+        }
+        console.log('this.currentWallet :: ', this.currentWallet);
+        if (this.currentWallet) {
           this.setAccount({
-            name: identity_j.accountName,
-            id: identity_j.account,
+            id: this.currentWallet.address,
+            name: this.currentWallet.account,
           });
         }
         res(1);
@@ -213,9 +221,8 @@ export default {
             wallets.push({
               account: wallet_list[w],
               address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
-              privatekey: Buffer.from(
-                JSON.parse(localStorage.getItem(wallet_list[w])).privateKey,
-              ).toString('hex'),
+              privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
+                .privateKey,
               publickey: Buffer.from(
                 JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
               ).toString('hex'),

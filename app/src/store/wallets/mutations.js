@@ -6,15 +6,16 @@ export const SET_WALLETS_LIST = 'SET_WALLETS_LIST';
 
 export const mutations = {
   [SET_CURRENT_WALLET](state, wallet) {
-    state.current = wallet;
+    state.wallets.current = wallet;
   },
   [SET_CURRENT_WALLET_BALANCES](state, balances) {
-    state.current = {
+    state.wallets.current = {
       ...state.current,
       balances,
     };
   },
   [SET_WALLETS_LIST](state, walletsList) {
-    state.list = walletsList;
+    console.log('SET_WALLETS_LIST :: ', state);
+    state.wallets.list = walletsList;
   },
 };

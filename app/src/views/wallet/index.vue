@@ -36,7 +36,7 @@
         Withdraw
       </router-link>
     </div>
-    <div class="py-5 pl-2 w-100">
+    <div class="p-4 w-100">
       <router-view />
     </div>
   </div>
@@ -46,10 +46,8 @@
 import { BContainer } from 'bootstrap-vue';
 import { services } from '@services/index';
 import { mapActions, mapGetters, mapState } from 'vuex';
-import {
-  FETCH_WALLET_BALANCES,
-  HYDRATE_CURRENT_WALLET,
-} from '@store/wallets/actions';
+import { FETCH_WALLET_BALANCES, HYDRATE_CURRENT_WALLET } from '@store/wallets';
+import { HYDRATE_ACCOUNT } from '@store/account';
 
 export default {
   computed: {
@@ -63,10 +61,12 @@ export default {
     // => But without balances datas => We fetch all datas we need
     if (this.currentWallet !== null) {
       this.hydrateCurrentWallet(this.currentWallet);
+      this.hydrateAccount(this.currentWallet.address);
     }
   },
   methods: {
     ...mapActions({
+      hydrateAccount: HYDRATE_ACCOUNT,
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
     }),
   },

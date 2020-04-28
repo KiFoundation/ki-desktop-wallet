@@ -105,12 +105,14 @@ export default {
       // Store Wallet
       this.storeInWalletList(wallet_name);
 
+      console.log('AVANT :: ', wallet.privateKey);
       // Encrypt the private key
       var encrypted_key = AES.encrypt(
         wallet.privateKey.toString('hex'),
         wallet_pass_tmp,
       ).toString();
       wallet.privateKey = encrypted_key;
+      console.log('APRES :: ', wallet.privateKey);
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));

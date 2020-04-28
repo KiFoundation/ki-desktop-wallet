@@ -1,5 +1,5 @@
 <template>
-  <b-container class="py-5 px-0 my-3">
+  <b-container fluid class="p-4 my-3">
     <WalletsList @onSelectWallet="handleSelectWallet" />
   </b-container>
 </template>
@@ -10,6 +10,7 @@ import WalletsList from '@cmp/wallets/wallets-list';
 import { mutations } from '@store';
 import { mapMutations, mapActions, mapState } from 'vuex';
 import { HYDRATE_CURRENT_WALLET } from '@store/wallets';
+import { HYDRATE_ACCOUNT } from '@store/account';
 
 export default {
   components: {
@@ -22,8 +23,10 @@ export default {
   methods: {
     ...mapActions({
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
+      hydrateAccount: HYDRATE_ACCOUNT,
     }),
     handleSelectWallet(wallet) {
+      this.hydrateAccount(wallet.address);
       this.hydrateCurrentWallet(wallet);
     },
   },

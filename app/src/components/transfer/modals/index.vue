@@ -205,7 +205,8 @@ import {
   createBroadcastTx,
 } from '@tendermint/sig';
 import { BRow, BCol, BContainer } from 'bootstrap-vue';
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
+import { POST_TRANSFER } from '@store/transfer';
 
 export default {
   components: {
@@ -250,6 +251,7 @@ export default {
   computed: {
     ...mapState({
       wallets: state => state.wallets.list,
+      account: state => state.account,
     }),
     // slider stuff
     scale() {
@@ -283,14 +285,14 @@ export default {
     feeCompute() {
       return this.transfer.gasPrice * this.transfer.gasLimit;
     },
-    account() {
-      return this.$store.account;
-    },
   },
   mounted() {
     this.progressSlide();
   },
   methods: {
+    ...mapActions({
+      postTransfer: POST_TRANSFER,
+    }),
     onResetModal() {
       this.$emit('onResetModal');
     },
@@ -319,6 +321,7 @@ export default {
 
       let nodeUrl = this.globalData.kichain.nodeUrl;
       let account = this.account.id;
+
       let fee = this.transfer.fee * Math.pow(10, 6);
       let limit = 300000;
 
@@ -362,8 +365,21 @@ export default {
           '}';
       }
 
-      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
-        if (res1.data.result.value) {
+      if (this.context == 'Sign') {
+        this.transfer.output = JSON.stringify(signedTransactionme);
+      }
+
+      if (this.context == 'Broadcast') {
+        this.postTransfer({
+          transaction,
+          password: this.wallet_pass_tmp,
+        });
+      }
+
+      // this.postTransfer(transaction)
+
+      // axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
+      /* if (res1.data.result.value) {
           let res = '';
           if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
             res = res1.data.result.value.BaseVestingAccount.BaseAccount;
@@ -388,14 +404,14 @@ export default {
         let signedTransactionme = signTx(transaction, signMeta, {
           privateKey: key,
           publicKey: publickey,
-        });
+        }); */
 
-        if (this.context == 'Sign') {
+      /* if (this.context == 'Sign') {
           this.transfer.output = JSON.stringify(signedTransactionme);
         }
 
-        if (this.context == 'Broadcast') {
-          let bcTransactionme = createBroadcastTx(signedTransactionme);
+        if (this.context == 'Broadcast') { */
+      /* let bcTransactionme = createBroadcastTx(signedTransactionme);
           let url = nodeUrl + `/txs?sync=true`;
           const opts = {
             method: 'post',
@@ -404,10 +420,10 @@ export default {
             headers: {
               'Content-Type': 'text/plain',
             },
-          };
+          }; */
 
-          axios(opts).then(res => {
-            let result = res.data;
+      // axios(opts).then(res => {
+      /*   let result = res.data;
 
             if (result.code) {
               let log = JSON.parse(result.raw_log);
@@ -433,8 +449,8 @@ export default {
               this.resetForms();
             }
           });
-        }
-      });
+        } */
+      // });
     },
     progressSlide() {
       this.slider = this.$refs.slider;
