@@ -8,6 +8,8 @@
 import { BContainer } from 'bootstrap-vue';
 import WalletsList from '@cmp/wallets/wallets-list';
 import { mutations } from '@store';
+import { mapMutations, mapActions, mapState } from 'vuex';
+import { HYDRATE_CURRENT_WALLET } from '@store/wallets';
 
 export default {
   components: {
@@ -15,11 +17,14 @@ export default {
     BContainer,
   },
   mounted() {
-    mutations.setCurrentWallet(null);
+    this.hydrateCurrentWallet(null);
   },
   methods: {
+    ...mapActions({
+      hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
+    }),
     handleSelectWallet(wallet) {
-      mutations.setCurrentWallet(wallet);
+      this.hydrateCurrentWallet(wallet);
     },
   },
 };

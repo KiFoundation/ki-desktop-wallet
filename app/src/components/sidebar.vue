@@ -7,8 +7,7 @@
     />
     <transition name="slide">
       <div>
-        <section v-if="isPanelOpen && account"
-class="user-info text-center">
+        <section v-if="isPanelOpen && account" class="user-info text-center">
           <div class="avator">
             <img
               :src="
@@ -19,35 +18,30 @@ class="user-info text-center">
           </div>
           <h4>{{ blockchain }} Wallet</h4>
           <h5>{{ accountName }}</h5>
-          <p id="copyContent"
-style="margin-top:10px;margin-bottom:10px;">
+          <p id="copyContent" style="margin-top:10px;margin-bottom:10px;">
             {{ account }}
           </p>
           <h6 class="grey-fsz">
-            <b-badge v-if="vesting"
-class="badge">
+            <b-badge v-if="vesting" class="badge">
               Vesting
             </b-badge>
-            <b-badge v-if="multisig"
-class="badge">
+            <b-badge v-if="multisig" class="badge">
               Multisig
             </b-badge>
           </h6>
 
           <div class="operation-list">
-            <a class="grey-fsz"
-@click="removeWallet">{{
-              $t("webwallet_remove_wallet")
+            <a class="grey-fsz" @click="removeWallet">{{
+              $t('webwallet_remove_wallet')
             }}</a>
           </div>
 
           <div class="token-info">
-            <p>{{ $t("webwallet_total") }} {{ token }}</p>
+            <p>{{ $t('webwallet_total') }} {{ token }}</p>
             <h4>{{ webUtil.addCommas(balances.sum, 6) }}</h4>
             <!-- <p class="grey-fsz">≈ {{webUtil.addCommas(balances[unit])}} {{unit}}</p> -->
             <ul class="token-list">
-              <li v-for="(item, index) in balances.list"
-:key="index">
+              <li v-for="(item, index) in balances.list" :key="index">
                 <div>{{ $t(index) }} {{ token }}</div>
                 <div>{{ item ? webUtil.addCommas(item, 6) : 0 }}</div>
               </li>
@@ -86,19 +80,16 @@ class="badge">
             </b-table>
           </div>
           <div class="refresh-logout">
-            <a class="grey-fsz refresh"
-@click="refresh">{{
-              $t("webwallet_refresh")
+            <a class="grey-fsz refresh" @click="refresh">{{
+              $t('webwallet_refresh')
             }}</a>
-            <a class="grey-fsz logout"
-@click="logout">{{
-              $t("webwallet_logout")
+            <a class="grey-fsz logout" @click="logout">{{
+              $t('webwallet_logout')
             }}</a>
           </div>
         </section>
 
-        <section v-if="!account && isPanelOpen"
-class="user-info text-center">
+        <section v-if="!account && isPanelOpen" class="user-info text-center">
           <div class="avator">
             <img
               :src="
@@ -145,63 +136,64 @@ class="user-info text-center">
   </div>
 </template>
 <script>
-import Vue from "vue";
-import common from "@static/js/common.js";
-import { store, mutations } from "@store";
+import Vue from 'vue';
+import common from '@static/js/common.js';
 
 import {
   BootstrapVue,
   IconsPlugin,
   BTable,
   BButton,
-  BBadge
-} from "bootstrap-vue";
-Vue.component("BTable", BTable);
-Vue.component("BButton", BButton);
-Vue.component("BBadge", BBadge);
+  BBadge,
+} from 'bootstrap-vue';
+import { mapMutations } from 'vuex';
+import { TOGGLE_NAV } from '@store/app/mutations';
+Vue.component('BTable', BTable);
+Vue.component('BButton', BButton);
+Vue.component('BBadge', BBadge);
 
 export default {
   props: [
-    "account",
-    "balances",
-    "blockchain",
-    "sequence",
-    "accountName",
-    "items",
-    "vesting",
-    "multisig"
+    'account',
+    'balances',
+    'blockchain',
+    'sequence',
+    'accountName',
+    'items',
+    'vesting',
+    'multisig',
   ],
   data() {
     return {
       unit: this.webCoin.unit,
-      blockchain_lowercase: "",
-      nodeUrl: "",
-      network: "",
-      token: "",
+      blockchain_lowercase: '',
+      nodeUrl: '',
+      network: '',
+      token: '',
       fields: [
-        "account",
+        'account',
         {
-          key: "address",
+          key: 'address',
           formatter: value => {
-            return value.substring(0, 24) + "...";
-          }
-        }
+            return value.substring(0, 24) + '...';
+          },
+        },
       ],
-      selectMode: "single",
+      selectMode: 'single',
       selected: [],
-      selected_index: 0
+      selected_index: 0,
     };
   },
 
   computed: {
     isPanelOpen() {
-      return store.isNavOpen;
-    }
+      return this.$store.state.app.nav.toggle;
+    },
   },
   created() {
     this.getChain();
     this.selected_index = this.items.findIndex(
-      p => p.account == this.accountName
+      p => p.account == this.accountName,
     );
   },
 
@@ -211,7 +203,9 @@ export default {
   },
 
   methods: {
-    closeSidebarPanel: mutations.toggleNav,
+    ...mapMutations({
+      closeSidebarPanel: TOGGLE_NAV,
+    }),
 
     onRowSelected(items) {
       this.selected = items;
@@ -221,7 +215,7 @@ export default {
     switchAccount() {
       let chainid = this.network.chainId;
       if (!(this.selected.length > 0)) {
-        alert("select an account");
+        alert('select an account');
       } else {
         // var confirmed = confirm("You will switch to the selected account");
         var confirmed = true;
@@ -238,17 +232,17 @@ export default {
             JSON.stringify(this.selected[0].privatekey) +
             ', "publickey": ' +
             JSON.stringify(this.selected[0].publickey) +
-            "}";
+            '}';
 
           localStorage.setItem(
-            "identity_" + this.blockchain_lowercase,
+            'identity_' + this.blockchain_lowercase,
             identity,
             {
               expires: 30,
-              path: "/"
-            }
+              path: '/',
+            },
           );
-          this.$emit("sendAccount", identity);
+          this.$emit('sendAccount', identity);
 
           this.refresh();
         }
@@ -269,47 +263,47 @@ export default {
       }
     },
     logout() {
-      localStorage.setItem("identity_" + this.blockchain_lowercase, "", {
+      localStorage.setItem('identity_' + this.blockchain_lowercase, '', {
         expires: -30,
-        path: "/"
+        path: '/',
       });
       window.location.reload();
     },
     copyAddress() {
-      var clipboard = new this.clipboard("#copyBtn");
-      clipboard.on("success", element => {
+      var clipboard = new this.clipboard('#copyBtn');
+      clipboard.on('success', element => {
         //复制成功的回调
-        alert(this.$t("copy_success"));
+        alert(this.$t('copy_success'));
       });
-      clipboard.on("error", element => {
+      clipboard.on('error', element => {
         //复制失败的回调
-        alert(this.$t("copy_fail"));
+        alert(this.$t('copy_fail'));
       });
     },
     getUnit() {
       // 用$on事件来接收参数
-      common.$on("val", data => {
+      common.$on('val', data => {
         this.unit = data;
       });
     },
     removeWallet() {
-      var confirmed = confirm("Are you sure you want to delete this wallet?");
+      var confirmed = confirm('Are you sure you want to delete this wallet?');
 
       if (confirmed) {
         localStorage.removeItem(this.accountName);
-        if (localStorage.getItem("wallet_list")) {
+        if (localStorage.getItem('wallet_list')) {
           let wallet_list = localStorage
-            .getItem("wallet_list")
-            .replace(this.accountName + ",", "");
-          localStorage.setItem("wallet_list", wallet_list);
+            .getItem('wallet_list')
+            .replace(this.accountName + ',', '');
+          localStorage.setItem('wallet_list', wallet_list);
         }
         if (this.items.length > 0) {
           this.selected = [this.items[this.selected_index + 1]];
           this.switchAccount();
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style>

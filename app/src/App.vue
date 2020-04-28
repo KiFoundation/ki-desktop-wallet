@@ -17,9 +17,10 @@
 </template>
 
 <script>
-import { store, mutations } from '@store';
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
-import { services } from './services';
+import { mapMutations } from 'vuex';
+import { SET_WALLETS_LIST } from '@store/wallets';
+import { SET_ACCOUNT } from '@store/account';
 
 export default {
   name: 'App',
@@ -164,6 +165,10 @@ export default {
   },
   mounted() {},
   methods: {
+    ...mapMutations({
+      setWalletsList: SET_WALLETS_LIST,
+      setAccount: SET_ACCOUNT,
+    }),
     getChain() {
       return new Promise(async res => {
         if (this.blockchain) {
@@ -191,7 +196,10 @@ export default {
             this.context = 'Generate';
             this.advanced = false;
           }
-          mutations.setAccount(identity);
+          this.setAccount({
+            name: identity_j.accountName,
+            id: identity_j.account,
+          });
         }
         res(1);
       });
@@ -213,7 +221,7 @@ export default {
               ).toString('hex'),
             });
           }
-          mutations.setWalletsList(wallets);
+          this.setWalletsList(wallets);
           res(1);
         } else {
           res(0);

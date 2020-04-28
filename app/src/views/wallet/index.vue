@@ -1,6 +1,6 @@
 <template>
-  <div class="p-4">
-    <div class="tabs">
+  <div class="p-4 w-100">
+    <div class="tabs w-100">
       <router-link class="tab" :to="{ name: 'home' }">
         <unicon name="arrow-left" fill="black" />
       </router-link>
@@ -36,7 +36,7 @@
         Withdraw
       </router-link>
     </div>
-    <div class="py-5 pl-2">
+    <div class="py-5 pl-2 w-100">
       <router-view />
     </div>
   </div>
@@ -44,23 +44,31 @@
 
 <script>
 import { BContainer } from 'bootstrap-vue';
-import { services } from '@services';
-import { mutations, store } from '@store';
+import { services } from '@services/index';
+import { mapActions, mapGetters, mapState } from 'vuex';
+import {
+  FETCH_WALLET_BALANCES,
+  HYDRATE_CURRENT_WALLET,
+} from '@store/wallets/actions';
 
 export default {
-  computed: {},
-  data() {
-    return {
-      wallet: Object,
-    };
+  computed: {
+    ...mapState({
+      currentWallet: state => state.wallets.current,
+    }),
   },
   mounted() {
-    services.auth
-      .fetchAccount(this.$route.params.wallet_id)
-      .then(({ data, config }) => {
-        this.wallet = data.result;
-      })
-      .catch(err => {});
+    // If currentWallet is not empty at mounted lifecycle
+    // => That means we have a current wallet already in the localstorage
+    // => But without balances datas => We fetch all datas we need
+    if (this.currentWallet !== null) {
+      this.hydrateCurrentWallet(this.currentWallet);
+    }
+  },
+  methods: {
+    ...mapActions({
+      hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
+    }),
   },
 };
 </script>

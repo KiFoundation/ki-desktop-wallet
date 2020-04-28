@@ -205,9 +205,11 @@ import ToggleButton from 'vue-js-toggle-button';
 Vue.use(ToggleButton);
 
 import * as AES from 'crypto-js/aes';
-import { store, mutations } from '@store';
 import ImportWalletForm from '@cmp/wallets/modals/import-wallet';
 import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
+import { mapMutations } from 'vuex';
+import { SET_ACCOUNT } from '@store/account';
+import { SET_CURRENT_WALLET } from '@store/wallets';
 
 export default {
   components: {
@@ -260,6 +262,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setAccount: SET_ACCOUNT,
+      setCurrentWallet: SET_CURRENT_WALLET,
+    }),
     getChain() {
       if (this.blockchain) {
         let blockchain = this.blockchain.toLowerCase();
@@ -377,11 +383,12 @@ export default {
             path: '/',
           },
         );
-
-        mutations.setAccount(identity);
         const id = JSON.parse(identity);
-        console.log(id);
-        mutations.setCurrentWallet({
+        this.setAccount({
+          name: id.accountName,
+          id: id.account,
+        });
+        this.setCurrentWallet({
           account: id.accountName,
           address: id.account,
           privatekey: id.privatekey,

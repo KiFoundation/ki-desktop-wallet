@@ -205,7 +205,7 @@ import {
   createBroadcastTx,
 } from '@tendermint/sig';
 import { BRow, BCol, BContainer } from 'bootstrap-vue';
-import { store } from '@store';
+import { mapState } from 'vuex';
 
 export default {
   components: {
@@ -226,6 +226,7 @@ export default {
       context: 'Broadcast',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
+      slider: null,
       progress: {
         per: 50,
         min: 10,
@@ -247,9 +248,9 @@ export default {
     };
   },
   computed: {
-    wallets() {
-      return store.wallets.list;
-    },
+    ...mapState({
+      wallets: state => state.wallets.list,
+    }),
     // slider stuff
     scale() {
       return (
@@ -283,12 +284,14 @@ export default {
       return this.transfer.gasPrice * this.transfer.gasLimit;
     },
     account() {
-      return store.account;
+      return this.$store.account;
     },
+  },
+  mounted() {
+    this.progressSlide();
   },
   methods: {
     onResetModal() {
-      console.log(this.account);
       this.$emit('onResetModal');
     },
     // Make transfer
@@ -315,7 +318,7 @@ export default {
       }
 
       let nodeUrl = this.globalData.kichain.nodeUrl;
-      let account = this.account.address;
+      let account = this.account.id;
       let fee = this.transfer.fee * Math.pow(10, 6);
       let limit = 300000;
 
@@ -432,6 +435,31 @@ export default {
           });
         }
       });
+    },
+    progressSlide() {
+      this.slider = this.$refs.slider;
+      this.thunk = this.$refs.thunk;
+      let _this = this;
+      this.transfer.fee = 0.015 * (this.progress.per / this.progress.max);
+      this.thunk.onmousedown = function(e) {
+        let width = parseInt(_this.width);
+        let disX = e.clientX;
+        document.onmousemove = function(e) {
+          let newWidth = e.clientX - disX + width;
+          let scale = newWidth / _this.slider.offsetWidth;
+          let max = _this.progress.max;
+          let min = _this.progress.min;
+
+          _this.progress.per = Math.ceil((max - min) * scale + min);
+          _this.progress.per = Math.max(_this.progress.per, min);
+          _this.progress.per = Math.min(_this.progress.per, max);
+          _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6);
+        };
+        document.onmouseup = function(e) {
+          document.onmousemove = document.onmouseup = null;
+        };
+        return false;
+      };
     },
     // Do What ??
     setToggle(val) {

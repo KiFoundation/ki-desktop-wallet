@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import { store } from '@store';
 import { BRow, BCol } from 'bootstrap-vue';
 import WalletCard from '@cmp/wallets/wallet-card';
+import { mapState } from 'vuex';
 
 export default {
   components: {
@@ -27,9 +27,9 @@ export default {
     BCol,
   },
   computed: {
-    list() {
-      return store.wallets.list;
-    },
+    ...mapState({
+      list: state => state.wallets.list,
+    }),
   },
   methods: {
     onSelectWallet(wallet) {

@@ -15,10 +15,7 @@ export class ApiService {
     };
   }
 
-  async get(url, includes, query) {
-    if (includes) {
-      query = { ...query, includes: includes.join(',') };
-    }
+  async get(url, query) {
     url = (query && `${url}?${queryString.stringify(query)}`) || url;
 
     return this.call({

@@ -15,18 +15,19 @@
 <script>
 import NoWalletActions from './no-wallet-actions';
 import WalletActions from './wallet-actions';
-import { store, getters } from '@store';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
-  computed: {
-    currentWallet() {
-      return getters.currentWallet();
-    },
-  },
   components: {
     NoWalletActions,
     WalletActions,
   },
+  computed: {
+    ...mapState({
+      currentWallet: state => state.wallets.current,
+    }),
+  },
+  mounted() {},
 };
 </script>
 

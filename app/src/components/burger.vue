@@ -11,18 +11,19 @@
   </div>
 </template>
 <script>
-import { store, mutations } from "@store";
+import { mapMutations } from 'vuex';
+import { TOGGLE_NAV } from '@store/app/mutations';
 
 export default {
   computed: {
     isBurgerActive() {
-      return store.isNavOpen;
+      return this.$store.app.nav.toggle;
     },
   },
   methods: {
-    toggle() {
-      mutations.toggleNav();
-    },
+    ...mapMutations({
+      toggle: TOGGLE_NAV,
+    }),
   },
 };
 </script>
