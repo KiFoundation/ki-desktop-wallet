@@ -12,10 +12,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in currentWallet.transactions" v-bind:key="item">
-              <td class="text"><span><a :href="explorer+ 'transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
+            <tr v-for="(item, index) in transactions.slice(perPage * currentPage - perPage, perPage * currentPage)" v-bind:key="index">
+              <td class="text"><span><a :href="explorer+ '/transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
               <td class="text"><span>{{item[1]}}</span></td>
-              <td class="text"><span><a :href="explorer+ 'account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
+              <td class="text"><span><a :href="explorer+ '/account/' + item[2]" target="_blank">{{item[2]}}</a></span></td>
               <td class="text"><span>{{item[3]}}</span></td>
               <td class="text"><span>{{item[4]}}</span></td>
             </tr>
@@ -23,19 +23,34 @@
           </tbody>
 
         </table>
-        <div class="table-footer">
-          <span><a :href="explorer+ 'account/' + this.account" target="_blank">See all transactions</a></span>
+        <div class="mt-5">
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="
+              transactions.length
+            "
+            :per-page="perPage"
+            aria-controls="my-table"
+          />
         </div>
+        <!-- <div class="table-footer">
+          <span><a :href="explorer+ 'account/' + this.account" target="_blank">See all transactions</a></span>
+        </div> -->
 
     </section>
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex';
+import {  BPagination } from 'bootstrap-vue';
+
 export default {
   data() {
     return {
       isActive: true,
-      explorer:'',
+      explorer:'https://blockchain.ki',
+      currentPage:1,
+      perPage:10,
       blockchain_lowercase: '',
       nodeUrl: '',
       network: '',
@@ -43,17 +58,18 @@ export default {
       blockchain: 'KiChain',
       prefix: '',
       account: '',
-      transactions: [],
       gradient_style: 'background-image: linear-gradient(90deg,#1848E0,#05268E);',
       isLoading: true
     }
   },
 
+  components: {
+    BPagination,
+  },
   computed: {
-    currentWallet() {
-      console.log(this.$store.state.wallets.current.transactions)
-      return this.$store.state.wallets.current;
-    },
+    ...mapState({
+      transactions: state => state.wallets.current.transactions,
+    }),
   }
 };
 </script>

@@ -32,74 +32,104 @@ export const actions = {
         wallet.address /* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
       );
 
-      const responseWalletTransactionsSend = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "send" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
+      // Fetch the sent transactions
+      let transactions = []
+      let transactionsRaw = []
+
+      const responseWalletTransactionsSendPage = await services.tx.fetchTxsList(
+        {"message.sender" : wallet.address, "message.action": "send" },
       );
 
+      let pages = responseWalletTransactionsSendPage.data.page_total
+      if (pages != 0){
+          for (var page =1; page<=pages; page++ ){
+            let responseWalletTransactionsSend = await services.tx.fetchTxsList(
+              {"message.sender" : wallet.address, "message.action": "send", "page":page },
+            );
 
-      let transactions = []
-      let transactionsRaw = responseWalletTransactionsSend.data.txs
+            transactionsRaw = responseWalletTransactionsSend.data.txs
 
-      for (var tx_key in transactionsRaw){
+            for (var tx_key in transactionsRaw){
 
-        var tx = transactionsRaw[tx_key]
+              var tx = transactionsRaw[tx_key]
 
-        let fee = 0
-        if (tx.tx.value.fee.amount.length > 0) {
-          fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              let fee = 0
+              if (tx.tx.value.fee.amount.length > 0) {
+                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              }
+
+              transactions.push([tx.txhash, 'send',
+                tx.tx.value.msg[0].value.to_address,
+                tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
+                fee, tx.timestamp
+              ])
+            }
+          }
         }
 
-        transactions.push([tx.txhash, 'send',
-          tx.tx.value.msg[0].value.to_address,
-          tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-          fee, tx.timestamp
-        ])
-      }
-
-      const responseWalletTransactionsReceive = await services.tx.fetchTxsList(
+      // Fetch the recieved transactions
+      const responseWalletTransactionsReceivePage = await services.tx.fetchTxsList(
         {"transfer.recipient" : wallet.address, "message.action": "send" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
       );
 
-      transactionsRaw = responseWalletTransactionsReceive.data.txs
+      pages = responseWalletTransactionsReceivePage.data.page_total
+      if (pages != 0){
+          for (var page = 1; page<=pages; page++ ){
+            let responseWalletTransactionsReceive = await services.tx.fetchTxsList(
+              {"transfer.recipient" : wallet.address, "message.action": "send" , "page":page },
+            );
 
-      for (var tx_key in transactionsRaw){
+            transactionsRaw = responseWalletTransactionsReceive.data.txs
 
-        var tx = transactionsRaw[tx_key]
+            for (var tx_key in transactionsRaw){
 
-        let fee = 0
-        if (tx.tx.value.fee.amount.length > 0) {
-          fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              var tx = transactionsRaw[tx_key]
+
+              let fee = 0
+              if (tx.tx.value.fee.amount.length > 0) {
+                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              }
+
+              transactions.push([tx.txhash, 'receive',
+                tx.tx.value.msg[0].value.to_address,
+                tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
+                fee, tx.timestamp
+              ])
+            }
+          }
         }
 
-        transactions.push([tx.txhash, 'receive',
-          tx.tx.value.msg[0].value.to_address,
-          tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-          fee, tx.timestamp
-        ])
-      }
-
-      const responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+        // Fetch the delegate transactions
+      const responseWalletTransactionsDelegatePage = await services.tx.fetchTxsList(
         {"message.sender" : wallet.address, "message.action": "delegate" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
       );
 
-      transactionsRaw = responseWalletTransactionsDelegate.data.txs
+      pages = responseWalletTransactionsDelegatePage.data.page_total
+      if (pages != 0){
+          for (var page = 1; page<=pages; page++ ){
+            let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+              {"message.sender" : wallet.address, "message.action": "delegate" , "page":page },
+            );
 
-      for (var tx_key in transactionsRaw){
-        var tx = transactionsRaw[tx_key]
+            transactionsRaw = responseWalletTransactionsDelegate.data.txs
 
-        let fee = 0
+            for (var tx_key in transactionsRaw){
+              var tx = transactionsRaw[tx_key]
 
-        if (tx.tx.value.fee.amount.length > 0) {
-          fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              let fee = 0
+
+              if (tx.tx.value.fee.amount.length > 0) {
+                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              }
+
+              transactions.push([tx.txhash, 'delegate',
+                tx.tx.value.msg[0].value.validator_address,
+                tx.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
+                fee, tx.timestamp
+              ])
+            }
+          }
         }
-
-        transactions.push([tx.txhash, 'delegate',
-          tx.tx.value.msg[0].value.validator_address,
-          tx.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
-          fee, tx.timestamp
-        ])
-      }
-
       transactions.sort(function(a, b) {
         const date_a = Date.parse(a[5])
         const date_b = Date.parse(b[5])
@@ -113,13 +143,7 @@ export const actions = {
         return comparison * -1;
       })
 
-      // console.log(transactions)
-      // console.log('responseValidators :: ', responseValidators);
-      // console.log('responseDelegation :: ', responseDelegation);
-      // console.log(
-        // 'responseUnbondingDelegation :: ',
-        // responseUnbondingDelegation,
-      // );
+
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,
