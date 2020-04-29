@@ -28,6 +28,9 @@ export class ApiService {
       data,
       method: 'POST',
       url,
+      headers: {
+        "Content-Type": "text/plain",
+      }
     });
   }
 

@@ -43,7 +43,7 @@ export const actions = {
         );
         key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         commit(TRANSFER_ERROR, error);
       }
 
@@ -58,14 +58,17 @@ export const actions = {
         publicKey: publickey,
       });
 
-      console.log('signedTransactionme :: ', signedTransactionme);
+      // console.log('signedTransactionme :: ', JSON.stringify(signedTransactionme));
 
       const bcTransactionme = createBroadcastTx(signedTransactionme);
+
+      // console.log('bcTransactionme :: ', JSON.stringify(bcTransactionme));
+
 
       const responsePostTransfer = await services.transfer.postTransfer(
         bcTransactionme,
       );
-      console.log('responsePostTransfer :: ', responsePostTransfer);
+      // console.log('responsePostTransfer :: ', responsePostTransfer);
     }
   },
 };
