@@ -57,7 +57,11 @@ export const actions = {
       }
     } catch (error) {
       let humanizedError;
-      if (RegExp(`^RangeError: private key length is invalid`).test(error)) {
+      if (
+        RegExp(
+          `^RangeError: private key length is invalid|Malformed UTF-8 data`,
+        ).test(error)
+      ) {
         humanizedError = 'Wrong Password';
       }
       commit(TX_ERROR, humanizedError);

@@ -392,7 +392,6 @@ export default {
         return false;
       };
     },
-    // Do What ??
     setToggle(val) {
       this.selectedSet = val;
     },
