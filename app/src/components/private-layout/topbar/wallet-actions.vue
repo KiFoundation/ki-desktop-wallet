@@ -7,7 +7,7 @@
           size="3.5rem"
           variant="light"
           :style="{ color: 'black' }"
-          :text="currentWallet.account[0]"
+          :text="currentWallet.account[0].toUpperCase()"
         />
       </div>
       <div class="d-flex justify-content-center flex-column ml-3">
@@ -59,9 +59,7 @@
       </div>
       <div class="border-left pl-4">
         <a
-          role="button"
-          data-toggle="modal"
-          data-target="#transfer-modal"
+          v-b-modal="'transfer-modal'"
           class="d-flex flex-column align-items-center justify-content-center"
         >
           <unicon name="exchange" fill="royalblue" />
@@ -71,18 +69,20 @@
         </a>
       </div>
     </div>
-    <TransferModal modalId="transfer-modal" />
+    <TransferModal />
   </div>
 </template>
 
 <script>
 import TransferModal from '@cmp/transfer/modals/index';
 import { BAvatar, BTooltip } from 'bootstrap-vue';
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters, mapState, mapActions } from 'vuex';
 import {
   GET_CURRENT_WALLET_BALANCES_AMOUNT,
   GET_CURRENT_WALLET_BALANCES_DENOM,
+  HYDRATE_CURRENT_WALLET,
 } from '@store/wallets';
+import { FETCH_VALIDATORS_LIST } from '../../../store/validators';
 
 export default {
   components: {
@@ -107,8 +107,13 @@ export default {
     // const clipboard = new this.clipboard('#copy-btn');
   },
   methods: {
+    ...mapActions({
+      hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
+      fetchAllValidators: FETCH_VALIDATORS_LIST,
+    }),
     handleRefresh() {
-      alert('To Implement');
+      this.hydrateCurrentWallet(this.currentWallet);
+      this.fetchAllValidators();
     },
     toggleCopiedTooltip() {},
   },

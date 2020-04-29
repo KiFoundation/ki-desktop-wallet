@@ -10,7 +10,6 @@ export const actions = {
   ) => {
     // Start to fetch data
     const response = await services.auth.fetchAccount(accountId);
-    console.log(state, response.data.result);
     if (response.data.result) {
       commit(SET_ACCOUNT, response.data.result);
     }

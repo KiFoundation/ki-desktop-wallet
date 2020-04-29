@@ -1,13 +1,13 @@
 import { mutations } from './mutations';
 import { actions } from './actions';
-
 export * from './mutations';
 export * from './actions';
 
-export const moduleValidators = {
+export const moduleTx = {
   state: {
-    current: null,
-    list: [],
+    result: null,
+    loading: false,
+    error: null,
   },
   mutations,
   actions,

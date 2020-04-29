@@ -9,7 +9,7 @@
         class="d-flex justify-content-center align-items-center"
         size="4rem"
         :variant="avatarRandomVariant"
-        :text="wallet.account[0]"
+        :text="wallet.account[0].toUpperCase()"
       />
     </b-col>
     <b-col cols="9">

@@ -10,17 +10,17 @@
 
 @font-face {
   font-family: Gotham-Book;
-  src: url("fonts/Gotham-Book.otf");
+  src: url('fonts/Gotham-Book.otf');
 }
 
 @font-face {
   font-family: Gotham-Light;
-  src: url("fonts/Gotham-Light.otf");
+  src: url('fonts/Gotham-Light.otf');
 }
 
 @font-face {
   font-family: Gotham-Medium;
-  src: url("fonts/Gotham-Medium.otf");
+  src: url('fonts/Gotham-Medium.otf');
 }
 
 html {
@@ -101,11 +101,33 @@ i {
 }
 
 .btn {
-  color: #fff !important;
-  background: var(--blueColor);
+  /* color: #fff !important;
+  background: var(--blueColor); */
   padding: 12px 24px;
   font-family: Gotham-Medium;
   font-weight: 500;
+}
+
+.btn.btn-primary {
+  color: #fff !important;
+  background: var(--blueColor);
+}
+
+.btn.btn-outline-primary {
+  color: var(--blueColor) !important;
+  border-color: var(--blueColor) !important;
+}
+
+.btn-outline-primary:not(:disabled):not(.disabled).active {
+  color: white !important;
+  border-color: var(--blueColor) !important;
+  background-color: var(--blueColor) !important;
+}
+
+.btn-outline-primary:not(:disabled):not(.disabled):hover {
+  color: white !important;
+  border-color: var(--blueColor) !important;
+  background-color: var(--blueColor) !important;
 }
 
 .btn-download {

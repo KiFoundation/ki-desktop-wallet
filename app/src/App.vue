@@ -18,9 +18,10 @@
 
 <script>
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
 import { SET_WALLETS_LIST } from '@store/wallets';
 import { SET_ACCOUNT } from '@store/account';
+import { FETCH_VALIDATORS_LIST } from '@/store/validators';
 
 export default {
   name: 'App',
@@ -164,6 +165,7 @@ export default {
     const bootstrap = async () => {
       await this.getChain();
       await this.getAccounts();
+      await this.fetchValidatorsList();
       this.isLoading = false;
     };
     bootstrap();
@@ -173,6 +175,9 @@ export default {
     ...mapMutations({
       setWalletsList: SET_WALLETS_LIST,
       setAccount: SET_ACCOUNT,
+    }),
+    ...mapActions({
+      fetchValidatorsList: FETCH_VALIDATORS_LIST,
     }),
     getChain() {
       return new Promise(async res => {
