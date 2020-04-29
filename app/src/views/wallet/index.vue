@@ -36,32 +36,46 @@
         Withdraw
       </router-link>
     </div>
-    <div class="p-4 w-100">
+    <div class="p-4 w-100" v-if="!loading">
       <router-view />
+    </div>
+    <div v-else>
+      <b-spinner variant="primary" label="Spinning" />
     </div>
   </div>
 </template>
 
 <script>
-import { BContainer } from 'bootstrap-vue';
+import { BContainer, BSpinner } from 'bootstrap-vue';
 import { services } from '@services/index';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { FETCH_WALLET_BALANCES, HYDRATE_CURRENT_WALLET } from '@store/wallets';
 import { HYDRATE_ACCOUNT } from '@store/account';
 
 export default {
+  components: {
+    BSpinner,
+  },
+  data() {
+    return {
+      loading: true,
+    };
+  },
   computed: {
     ...mapState({
       currentWallet: state => state.wallets.current,
     }),
   },
-  mounted() {
+  async mounted() {
     // If currentWallet is not empty at mounted lifecycle
     // => That means we have a current wallet already in the localstorage
     // => But without balances datas => We fetch all datas we need
     if (this.currentWallet !== null) {
-      this.hydrateCurrentWallet(this.currentWallet);
-      this.hydrateAccount(this.currentWallet.address);
+      await this.hydrateCurrentWallet(this.currentWallet);
+      await this.hydrateAccount(this.currentWallet.address);
+      this.loading = false;
+    } else {
+      this.loading = false;
     }
   },
   methods: {

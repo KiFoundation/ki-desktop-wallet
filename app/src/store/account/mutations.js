@@ -5,10 +5,6 @@ export const SET_ACCOUNT = `SET_ACCOUNT`;
 export const mutations = {
   // Account state
   [SET_ACCOUNT](state, payload) {
-    const s = { ...state.account, ...payload };
-    state.account.id = s.id;
-    state.account.name = s.name;
-    state.account.type = s.type;
-    state.account.value = s.value;
+    state.account = { ...state.account, ...payload };
   },
 };

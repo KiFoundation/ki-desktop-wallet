@@ -29,8 +29,8 @@ export class ApiService {
       method: 'POST',
       url,
       headers: {
-        "Content-Type": "text/plain",
-      }
+        'Content-Type': 'text/plain',
+      },
     });
   }
 

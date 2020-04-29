@@ -12,10 +12,18 @@ import globalData from '@static/js/config.js';
 import webCoin from '@static/js/coinUnit.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '@static/css/index.css';
 import clipboard from 'clipboard';
 import Unicon from 'vue-unicons';
 import { store } from '@store/';
+
+import { ToastPlugin } from 'bootstrap-vue';
+Vue.use(ToastPlugin);
+
+import { ModalPlugin } from 'bootstrap-vue';
+Vue.use(ModalPlugin);
+
 import {
   uniWallet,
   uniPlusCircle,
