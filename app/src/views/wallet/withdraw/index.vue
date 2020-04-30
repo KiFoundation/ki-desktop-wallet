@@ -1,12 +1,21 @@
 <template>
   <div class="d-flex w-100 flex-column ">
-    <div class="d-flex justify-content-between align-items-end">
-      <div class="h-100 d-flex">
+    <div
+      class="d-flex justify-content-between align-items-end"
+      :style="{ position: 'relative', height: '47px' }"
+    >
+      <div class="h-100">
         <b-form-input
           v-if="validators && validators.length"
           v-model="text"
           size="lg"
           placeholder="Search by moniker..."
+          :style="{
+            position: 'absolute',
+            top: '0px',
+            height: '100%',
+            width: 'auto',
+          }"
         />
       </div>
     </div>
@@ -17,9 +26,16 @@
           .slice(perPage * currentPage - perPage, perPage * currentPage)"
         :key="`validator-${idx}`"
         :validator="validator"
-        class="mb-4"
-        @onSelectValidator="selectValidator"
-      />
+        class="mb-3"
+      >
+        <a
+          v-b-modal="'withdraw-modal'"
+          class="link"
+          @click="selectedValidator = validator"
+        >
+          Withdraw
+        </a>
+      </ValidatorCard>
       <div class="mt-5">
         <b-pagination
           v-model="currentPage"
@@ -64,7 +80,7 @@ import {
   BFormInput,
 } from 'bootstrap-vue';
 import { FETCH_WALLET_VALIDATORS } from '@store/wallets';
-import ValidatorCard from './validator.card';
+import ValidatorCard from '@cmp/validator/validator.card';
 import WithdrawModal from './modals/withdraw.modal';
 
 export default {

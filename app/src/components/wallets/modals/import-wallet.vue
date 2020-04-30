@@ -161,7 +161,7 @@ export default {
     return {
       multisig: false,
       mnemonic: '',
-      mnemonic_correct: false,
+      mnemonic_correct: true,
       ms_address: '',
       ms_address_correct: false,
       wallet_name: '',

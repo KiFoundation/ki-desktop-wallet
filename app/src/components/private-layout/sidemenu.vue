@@ -1,10 +1,11 @@
 <template>
   <div
-    class="h-100 w-100 d-flex flex-columns rounded justify-content-center list-container"
+    class="h-100 d-flex flex-columns rounded justify-content-center list-container"
     :style="{
       width: '80px',
       backgroundColor: 'white',
       boxShadow: '0 10px 10px rgba(154, 160, 185, 0.05)',
+      maxHeight: '30rem',
     }"
   >
     <ul>

@@ -233,20 +233,47 @@ class Util {
   }
 
   pickGradient(account) {
-    // let colors = ['E0BBE4', '957DAD', 'D291BC', 'FEC8D8', 'FFDFD3',
-    //               'FCE2C2','B3C8C8','6CB2D1','4F9EC4','58949C',
-    //               'DF9881','F2D7B4','7CAA98','8FC1A9','C8D6B9',
-    //               'F9665E','FEC9C9','EEF1E6','AFC7D0','95B4CC']
+    /* let colors = [
+      'E0BBE4',
+      '957DAD',
+      'D291BC',
+      'FEC8D8',
+      'FFDFD3',
+      'FCE2C2',
+      'B3C8C8',
+      '6CB2D1',
+      '4F9EC4',
+      '58949C',
+      'DF9881',
+      'F2D7B4',
+      '7CAA98',
+      '8FC1A9',
+      'C8D6B9',
+      'F9665E',
+      'FEC9C9',
+      'EEF1E6',
+      'AFC7D0',
+      '95B4CC',
+    ]; */
 
-    let colors = ['043bea', '043bea'];
+    let colors = ['052480', '0A47FF', '031240', '0940E6', 'B38100', 'FFBB0A'];
     // let colors = ['2c363f','2c363f']
 
     let seeds = account.match(/.{1,3}/g);
-
-    Math.seedrandom(seeds[1]);
+    Math.seedrandom(seeds[seeds.length - 2]);
     var x = Math.round(Math.random() * colors.length);
 
     return '#' + colors[x];
+  }
+
+  generateWalletGradient(address) {
+    const newColor1 = util.pickGradient(address);
+    const newColor2 = util.shadeColor(newColor1, 0);
+    const angle = 90;
+
+    const gradient =
+      'linear-gradient(' + angle + 'deg, ' + newColor1 + ', ' + newColor2 + ')';
+    return gradient;
   }
 }
 

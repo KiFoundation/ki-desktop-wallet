@@ -1,4 +1,4 @@
-import * as numeral from 'numeral';
+import { tokenUtil } from '@static/js/token';
 
 export const GET_CURRENT_WALLET_BALANCES_AMOUNT =
   'GET_CURRENT_WALLET_BALANCES_AMOUNT';
@@ -11,7 +11,7 @@ export const getters = {
       const balancesAmount = state.wallets.current.balances.reduce((a, b) => {
         return a + b.amount;
       }, 0);
-      return numeral(balancesAmount / Math.pow(10, 6)).format('0,0.000000');
+      return tokenUtil.format(balancesAmount);
     }
     return '';
   },

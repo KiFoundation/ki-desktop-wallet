@@ -1,7 +1,12 @@
 <template>
   <div class="d-flex w-100 h-100 justify-content-between align-items-center">
     <div>
-      <h4>Total Balance</h4>
+      <h4>
+        <span v-if="!loadingWallet">Total Balance</span>
+        <span v-else>
+          <b-spinner type="grow" variant="light" />
+        </span>
+      </h4>
     </div>
     <div class="d-flex flex-row">
       <div class="pr-4">
@@ -50,11 +55,19 @@ import { createWalletFromMnemonic } from '@tendermint/sig';
 import ImportWalletForm from '@cmp/wallets/modals/import-wallet';
 import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import * as AES from 'crypto-js/aes';
+import { mapState } from 'vuex';
+import { BSpinner } from 'bootstrap-vue';
 
 export default {
   components: {
     ImportWalletForm,
     CreateWalletForm,
+    BSpinner,
+  },
+  computed: {
+    ...mapState({
+      loadingWallet: state => state.wallets.loading,
+    }),
   },
   data() {
     return {

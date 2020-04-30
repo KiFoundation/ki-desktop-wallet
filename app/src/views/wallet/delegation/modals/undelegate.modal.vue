@@ -2,7 +2,7 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="`Undelegate to ${validator.description.moniker}`"
+    :title="`Undelegate from ${validator.description.moniker}`"
     hide-footer
     @show="resetData"
   >
@@ -10,7 +10,7 @@
       <form class="basic-form">
         <li class="token">
           <div class="d-flex justify-content-center align-items-center">
-            To
+            From
             <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
               {{ undelegate.validator }}
             </b-badge>
@@ -36,6 +36,11 @@
             />
           </li>
         </ul>
+
+        <ul class="basic-group clearfix">
+          <FeesInput v-model="fees" />
+        </ul>
+
         <label>{{ $t('enter_password') }}</label>
         <div class="buttonInside">
           <input
@@ -110,12 +115,16 @@ import { BRow, BCol, BSpinner, BModal } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
+import { tokenUtil } from '@static/js/token';
+import FeesInput from '@cmp/tx/fees.input';
+
 export default {
   components: {
     BRow,
     BCol,
     BSpinner,
     BModal,
+    FeesInput,
   },
   props: {
     modalId: {
@@ -150,6 +159,12 @@ export default {
         gasPrice: '0.0000005',
         gasLimit: 300000,
         output: '',
+      },
+      fees: {
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        advanced: false,
       },
       password: 'password',
       wallet_pass_tmp: '',
@@ -189,7 +204,7 @@ export default {
         });
     },
     formatAmount(amount) {
-      return numeral(amount / Math.pow(10, 6)).format('0,0.000000');
+      return tokenUtil.format(amount);
     },
     onResetModal() {
       this.wallet_pass_tmp = '';
@@ -216,14 +231,15 @@ export default {
         return false;
       }
 
-      let fee = this.undelegate.fee * Math.pow(10, 6);
+      // Fees stuff
+      let fee = this.fees.fee * Math.pow(10, 6);
       let limit = 300000;
 
-      if (this.selectedSet == 2) {
-        fee =
-          this.undelegate.gasPrice * this.undelegate.gasLimit * Math.pow(10, 6);
-        limit = this.undelegate.gasLimit;
+      if (this.fees.advanced) {
+        fee = this.fees.gasPrice * this.fees.gasLimit * Math.pow(10, 6);
+        limit = this.fees.gasLimit;
       }
+      //
 
       const transaction = {
         msg: [
@@ -243,7 +259,7 @@ export default {
           amount: [
             {
               denom: 'tki',
-              amount: '7500',
+              amount: fee.toString(),
             },
           ],
           gas: limit.toString(),
@@ -264,19 +280,19 @@ export default {
           password: this.wallet_pass_tmp,
         });
         this.$bvToast.toast('Transaction sent with success', {
-          title: `Transaction success`,
           variant: 'success',
           autoHideDelay: 2000,
           solid: true,
+          noCloseButton: true,
           toaster: 'b-toaster-bottom-center',
         });
         this.$emit('onUndelegateSuccess');
       } catch (error) {
         this.$bvToast.toast(error, {
-          title: `Transaction failed`,
           variant: 'danger',
           autoHideDelay: 2000,
           solid: true,
+          noCloseButton: true,
           toaster: 'b-toaster-bottom-center',
         });
         this.$emit('onUndelegateError');

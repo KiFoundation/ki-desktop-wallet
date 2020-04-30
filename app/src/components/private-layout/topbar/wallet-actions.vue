@@ -6,7 +6,10 @@
           class="d-flex justify-content-center align-items-center"
           size="3.5rem"
           variant="light"
-          :style="{ color: 'black' }"
+          :style="{
+            color: 'white',
+            backgroundImage: currentWallet.bgImageStyle,
+          }"
           :text="currentWallet.account[0].toUpperCase()"
         />
       </div>
@@ -20,25 +23,10 @@
           }"
         >
           {{ currentWallet.address }}
-          <!-- <unicon
-            name="copy"
-            width="16px"
-            height="16px"
-            id="copy-btn"
-            :data-clipboard-text="currentWallet.address"
-            class="ml-1"
-            fill="royalblue"
-            :style="{
-              cursor: 'pointer',
-              border: '1px solid royalblue',
-              borderTopRightRadius: '5px',
-              borderBottomRightRadius: '5px',
-              padding: '2px',
-            }"
-          /> -->
         </p>
         <h4 :style="{ fontWeight: 'bolder' }">
-          {{ currentWalletBalancesDenom }} {{ currentWalletBalancesAmount }}
+          {{ currentWalletBalancesDenom }}
+          {{ currentWalletBalancesAmount }}
         </h4>
       </div>
     </div>
@@ -51,7 +39,11 @@
           class="d-flex flex-column align-items-center justify-content-center"
           @click="handleRefresh"
         >
-          <unicon name="sync" fill="royalblue" />
+          <unicon
+            name="sync"
+            :class="[refreshing ? 'rotating' : '']"
+            fill="royalblue"
+          />
           <span class="mt-2" :style="{ fontWeight: '600', color: 'white' }"
             >Refresh</span
           >
@@ -82,7 +74,7 @@ import {
   GET_CURRENT_WALLET_BALANCES_DENOM,
   HYDRATE_CURRENT_WALLET,
 } from '@store/wallets';
-import { FETCH_VALIDATORS_LIST } from '../../../store/validators';
+import { FETCH_VALIDATORS_LIST } from '@store/validators';
 
 export default {
   components: {
@@ -92,6 +84,7 @@ export default {
   data() {
     return {
       tooltipShow: false,
+      refreshing: false,
     };
   },
   computed: {
@@ -111,9 +104,11 @@ export default {
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
       fetchAllValidators: FETCH_VALIDATORS_LIST,
     }),
-    handleRefresh() {
-      this.hydrateCurrentWallet(this.currentWallet);
-      this.fetchAllValidators();
+    async handleRefresh() {
+      this.refreshing = true;
+      await this.hydrateCurrentWallet(this.currentWallet);
+      await this.fetchAllValidators();
+      this.refreshing = false;
     },
     toggleCopiedTooltip() {},
   },

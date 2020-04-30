@@ -11,7 +11,9 @@
       />
     </div>
     <template v-else>
-      <router-view />
+      <transition name="fade">
+        <router-view />
+      </transition>
     </template>
   </div>
 </template>
@@ -206,13 +208,6 @@ export default {
             this.context = 'Generate';
             this.advanced = false;
           }
-        }
-        console.log('this.currentWallet :: ', this.currentWallet);
-        if (this.currentWallet) {
-          this.setAccount({
-            id: this.currentWallet.address,
-            name: this.currentWallet.account,
-          });
         }
         res(1);
       });

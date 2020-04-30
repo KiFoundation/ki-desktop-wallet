@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="p-4 my-3">
+  <b-container fluid class="p-4 mt-3">
     <WalletsList @onSelectWallet="handleSelectWallet" />
   </b-container>
 </template>
@@ -11,6 +11,7 @@ import { mutations } from '@store';
 import { mapMutations, mapActions, mapState } from 'vuex';
 import { HYDRATE_CURRENT_WALLET } from '@store/wallets';
 import { HYDRATE_ACCOUNT } from '@store/account';
+import router from '@router/index';
 
 export default {
   components: {
@@ -25,9 +26,14 @@ export default {
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
       hydrateAccount: HYDRATE_ACCOUNT,
     }),
-    handleSelectWallet(wallet) {
-      this.hydrateAccount(wallet.address);
-      this.hydrateCurrentWallet(wallet);
+    async handleSelectWallet(wallet) {
+      // Save into local storage
+      localStorage.setItem('current_wallet', JSON.stringify(wallet));
+      // Navigate to Wallet page
+      router.push({
+        name: 'wallets_tx',
+        params: { wallet_id: wallet.address },
+      });
     },
   },
 };

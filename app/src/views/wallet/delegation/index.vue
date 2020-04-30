@@ -1,12 +1,22 @@
 <template>
   <div class="d-flex w-100 flex-column ">
-    <div class="d-flex justify-content-between align-items-end">
-      <div class="h-100 d-flex">
+    <div
+      id="top-list"
+      class="d-flex justify-content-between align-items-end "
+      :style="{ position: 'relative' }"
+    >
+      <div class="h-100">
         <b-form-input
           v-if="validators && validators.length"
           v-model="text"
           size="lg"
           placeholder="Search by moniker..."
+          :style="{
+            position: 'absolute',
+            top: '0px',
+            height: '100%',
+            width: 'auto',
+          }"
         />
       </div>
       <b-button-group size="xl">
@@ -28,9 +38,32 @@
           .slice(perPage * currentPage - perPage, perPage * currentPage)"
         :key="`validator-${idx}`"
         :validator="validator"
-        class="mb-4"
-        @onSelectValidator="selectValidator"
-      />
+        class="mb-3"
+      >
+        <div>
+          <a
+            v-b-modal="'delegate-modal'"
+            class="link"
+            @click="selectedValidator = validator"
+          >
+            Delegate
+          </a>
+          <a
+            v-b-modal="'undelegate-modal'"
+            class="link ml-3"
+            @click="selectedValidator = validator"
+          >
+            Undelegate
+          </a>
+          <a
+            v-b-modal="'redelegate-modal'"
+            class="link ml-3"
+            @click="selectedValidator = validator"
+          >
+            Redelegate
+          </a>
+        </div>
+      </ValidatorCard>
       <div class="mt-5">
         <b-pagination
           v-model="currentPage"
@@ -41,6 +74,7 @@
           "
           :per-page="perPage"
           aria-controls="my-table"
+          @input="handleOnPageChange"
         />
       </div>
     </div>
@@ -84,7 +118,7 @@ import {
 } from 'bootstrap-vue';
 import { FETCH_WALLET_VALIDATORS } from '@store/wallets';
 import { FETCH_VALIDATORS_LIST } from '@store/validators';
-import ValidatorCard from './validator.card';
+import ValidatorCard from '@cmp/validator/validator.card';
 import DelegateModal from './modals/delegate.modal';
 import UndelegateModal from './modals/undelegate.modal';
 import RedelegateModal from './modals/redelegate.modal';
@@ -105,7 +139,7 @@ export default {
       selectedValidator: null,
       text: '',
       currentPage: 1,
-      perPage: 5,
+      perPage: 10,
       buttons: [
         {
           caption: 'My',
@@ -113,12 +147,12 @@ export default {
           filter: 'my',
         },
         {
-          caption: 'Other',
+          caption: 'All',
           onPress: this.handleClickOnOtherFilter,
-          filter: 'other',
+          filter: 'all',
         },
       ],
-      filter: 'my',
+      filter: 'all',
     };
   },
   computed: {
@@ -133,7 +167,7 @@ export default {
     },
   },
   created() {
-    this.filter = 'my';
+    this.filter = 'all';
   },
   mounted() {},
   methods: {
@@ -141,6 +175,11 @@ export default {
       fetchMyValidators: FETCH_WALLET_VALIDATORS,
       fetchOtherValidators: FETCH_VALIDATORS_LIST,
     }),
+    handleOnPageChange(page) {
+      document.querySelector('#top-list').scrollIntoView({
+        behavior: 'smooth',
+      });
+    },
     selectValidator(validator) {
       this.selectedValidator = validator;
     },
@@ -175,7 +214,7 @@ export default {
       (this.filter = 'my'), this.fetchMyValidators();
     },
     handleClickOnOtherFilter() {
-      (this.filter = 'other'), this.fetchOtherValidators();
+      (this.filter = 'all'), this.fetchOtherValidators();
     },
   },
 };

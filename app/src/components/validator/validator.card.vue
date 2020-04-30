@@ -1,12 +1,15 @@
 <template>
   <b-row v-if="validator" class="validator-card align-items-center mx-0">
     <b-col cols="1">
-      <b-avatar
-        class="d-flex justify-content-center align-items-center"
-        size="4rem"
-        :variant="avatarRandomVariant"
-        :text="validator.description.moniker[0].toUpperCase()"
-      />
+      <div :style="{ position: 'relative' }">
+        <b-avatar
+          class="d-flex justify-content-center align-items-center"
+          size="3.5rem"
+          :variant="avatarRandomVariant"
+          :text="validator.description.moniker[0].toUpperCase()"
+          :style="{ backgroundImage: avatarGradient, color: 'white' }"
+        />
+      </div>
     </b-col>
     <b-col cols="5">
       <h5>{{ validator.description.moniker }}</h5>
@@ -17,36 +20,21 @@
           textOverflow: 'ellipsis',
         }"
       >
+        {{
+          currentWallet.delegation.find(
+            d => d.validator_address === validator.operator_address,
+          ) &&
+            formatAmount(
+              currentWallet.delegation.find(
+                d => d.validator_address === validator.operator_address,
+              ).shares,
+            ) + ' / '
+        }}
         {{ formatAmount(validator.delegator_shares) }}
       </h6>
     </b-col>
     <b-col cols="6" class="d-flex justify-content-end">
-      <div>
-        <b-button
-          v-b-modal="'delegate-modal'"
-          size="sm"
-          variant="outline-primary"
-          @click="onSelectValidator"
-        >
-          Delegate
-        </b-button>
-        <b-button
-          v-b-modal="'undelegate-modal'"
-          size="sm"
-          variant="outline-primary"
-          @click="onSelectValidator"
-        >
-          Undelegate
-        </b-button>
-        <b-button
-          v-b-modal="'redelegate-modal'"
-          size="sm"
-          variant="outline-primary"
-          @click="onSelectValidator"
-        >
-          Redelegate
-        </b-button>
-      </div>
+      <slot />
     </b-col>
   </b-row>
 </template>
@@ -54,6 +42,9 @@
 <script>
 import { BRow, BCol, BAvatar, BButton } from 'bootstrap-vue';
 import * as numeral from 'numeral';
+import { mapState } from 'vuex';
+import { tokenUtil } from '@static/js/token';
+import util from '@static/js/util';
 
 export default {
   components: {
@@ -68,6 +59,9 @@ export default {
     },
   },
   computed: {
+    ...mapState({
+      currentWallet: state => state.wallets.current,
+    }),
     avatarRandomVariant() {
       const variants = [
         'secondary',
@@ -81,13 +75,16 @@ export default {
       ];
       return variants[Math.floor(Math.random() * variants.length)];
     },
+    avatarGradient() {
+      return util.generateWalletGradient(this.validator.operator_address);
+    },
   },
   methods: {
     onSelectValidator() {
       this.$emit('onSelectValidator', this.validator);
     },
     formatAmount(amount) {
-      return numeral(amount / Math.pow(10, 6)).format('0,0.000000');
+      return tokenUtil.format(amount);
     },
   },
 };
@@ -98,7 +95,7 @@ export default {
   /* cursor: pointer; */
   width: 100%;
   color: black;
-  min-height: 100px;
+  min-height: 75px;
   border: 1px solid #efefef;
   border-radius: 10px;
   background-color: white;
@@ -106,5 +103,13 @@ export default {
 }
 .validator-card:hover {
   box-shadow: 0px 3px 3px rgba(154, 160, 185, 0.04);
+}
+.link {
+  color: var(--primary);
+  font-weight: 600;
+}
+.link:hover {
+  color: var(--primary);
+  text-decoration: underline;
 }
 </style>

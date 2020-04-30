@@ -1,18 +1,18 @@
 <template>
   <b-container fluid class="p-5">
     <b-row>
-      <b-col :style="{ marginRight: '1rem' }" class="pr-0" cols="1">
+      <b-col class="pr-0 mr-lg-3" cols="1">
         <CornerLogo />
       </b-col>
-      <b-col :style="{ marginLeft: '0px' }" class="pl-0">
+      <b-col class="pl-0">
         <TopBar />
       </b-col>
     </b-row>
-    <b-row :style="{ marginTop: '1rem' }">
-      <b-col :style="{ marginRight: '1rem' }" class="pr-0" cols="1">
+    <b-row class="mt-3">
+      <b-col class="pr-0 mr-lg-3" cols="1">
         <SideMenu />
       </b-col>
-      <b-col :style="{ marginLeft: '0px' }" class="pl-0">
+      <b-col class="pl-0">
         <Content>
           <router-view />
         </Content>

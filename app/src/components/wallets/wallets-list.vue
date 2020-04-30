@@ -1,11 +1,7 @@
 <template>
   <b-row v-if="list.length" class="w-100 mx-0">
     <b-col v-for="(wallet, index) in list" :key="index" cols="4" class="mb-4">
-      <router-link
-        :to="{ name: 'wallets_tx', params: { wallet_id: wallet.address } }"
-      >
-        <WalletCard :wallet="wallet" @onSelectWallet="onSelectWallet" />
-      </router-link>
+      <WalletCard :wallet="wallet" @onSelectWallet="onSelectWallet" />
     </b-col>
   </b-row>
   <b-row v-else>

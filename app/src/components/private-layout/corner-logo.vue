@@ -1,10 +1,13 @@
 <template>
-  <div
-    class="d-flex w-100 justify-content-center align-items-center rounded"
+  <router-link
+    class="d-flex justify-content-center align-items-center rounded"
     :style="{ backgroundColor: 'black', width: '80px', height: '80px' }"
+    :to="{
+      name: 'home',
+    }"
   >
     <BImg :src="logo" fluid :style="{ height: '50%' }" />
-  </div>
+  </router-link>
 </template>
 
 <script>
