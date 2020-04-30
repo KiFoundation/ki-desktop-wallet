@@ -8,10 +8,8 @@ export * from './getters';
 
 export const moduleWallets = {
   state: {
-    current:
-      (localStorage.getItem('current_wallet') &&
-        JSON.parse(localStorage.getItem('current_wallet'))) ||
-      null,
+    loading: false,
+    current: null,
     list: [],
   },
   mutations,

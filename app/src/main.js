@@ -14,6 +14,8 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '@static/css/index.css';
+import '@static/css/rotating.animate.css';
+import '@static/css/fade.animate.css';
 import clipboard from 'clipboard';
 import Unicon from 'vue-unicons';
 import { store } from '@store/';

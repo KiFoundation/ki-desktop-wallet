@@ -6,6 +6,7 @@
   --greenColor: #4cd964;
   --greyColor: #8a8a8f;
   --pale-grey: #f3f4f7;
+  --primary: #062ca3;
 }
 
 @font-face {
@@ -110,24 +111,25 @@ i {
 
 .btn.btn-primary {
   color: #fff !important;
-  background: var(--blueColor);
+  background: var(--primary);
+  border-color: var(--primary) !important;
 }
 
 .btn.btn-outline-primary {
-  color: var(--blueColor) !important;
-  border-color: var(--blueColor) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled).active {
   color: white !important;
-  border-color: var(--blueColor) !important;
-  background-color: var(--blueColor) !important;
+  border-color: var(--primary) !important;
+  background-color: var(--primary) !important;
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):hover {
   color: white !important;
-  border-color: var(--blueColor) !important;
-  background-color: var(--blueColor) !important;
+  border-color: var(--primary) !important;
+  background-color: var(--primary) !important;
 }
 
 .btn-download {
@@ -422,8 +424,8 @@ i {
 .tabs .tab.active {
   font-weight: 500;
   font-family: Gotham-Medium;
-  color: var(--blueColor);
-  border-bottom: 2px solid var(--blueColor);
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
 }
 
 .basic-form label {
@@ -768,7 +770,7 @@ a.custom-card:hover {
 .modal-header {
   font-size: 12px;
   color: #fff;
-  background-color: var(--blueColor);
+  background-color: var(--primary);
   /* background-color: var(--pale-grey);  */
   border-bottom: 0px solid #dee2e6;
   border-top-left-radius: 0.3rem;
@@ -785,7 +787,7 @@ a.custom-card:hover {
 .stealth-link {
   margin: 25px;
   font-size: 11px;
-  color: var(--blueColor);
+  color: var(--primary);
 }
 
 .wallet-select {
@@ -902,4 +904,33 @@ a.custom-card:hover {
   text-align: center;
   font-weight: bold;
   padding: 2px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+}
+.pagination .page-item {
+}
+.pagination .page-item.disabled {
+  cursor: not-allowed;
+}
+.pagination .page-item .page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.pagination .page-item .page-link:hover {
+  border-radius: 5px;
+}
+.pagination .page-item.active .page-link {
+  color: white;
+  font-weight: 600;
+  background-color: var(--primary);
+  border-color: var(--blueColor);
+  border-radius: 5px;
 }

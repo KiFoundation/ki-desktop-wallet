@@ -4,12 +4,12 @@
     class="wallet-card align-items-center mx-0"
     @click="selectWallet"
   >
-    <b-col cols="3">
+    <b-col cols="3" class="pr-0">
       <b-avatar
         class="d-flex justify-content-center align-items-center"
-        size="4rem"
-        :variant="avatarRandomVariant"
+        size="56px"
         :text="wallet.account[0].toUpperCase()"
+        :style="{ backgroundImage: avatarGradient, color: 'white' }"
       />
     </b-col>
     <b-col cols="9">
@@ -29,6 +29,7 @@
 
 <script>
 import { BAvatar, BRow, BCol } from 'bootstrap-vue';
+import util from '../../../static/js/util';
 
 export default {
   components: {
@@ -54,11 +55,13 @@ export default {
       ];
       return variants[Math.floor(Math.random() * variants.length)];
     },
+    avatarGradient() {
+      return util.generateWalletGradient(this.wallet.address);
+    },
   },
   data() {
     return {};
   },
-
   methods: {
     selectWallet() {
       this.$emit('onSelectWallet', this.wallet);

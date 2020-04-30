@@ -1093,8 +1093,6 @@
 
 <script>
 import Vue from 'vue';
-import sideBar from '@cmp/sidebar';
-import burger from '@cmp/burger';
 import common from '@static/js/common.js';
 import AES from 'crypto-js/aes';
 

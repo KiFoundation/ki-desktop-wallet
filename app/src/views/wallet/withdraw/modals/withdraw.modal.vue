@@ -2,7 +2,7 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="`Withdraw ${validator.description.moniker}`"
+    :title="`Withdraw from ${validator.description.moniker}`"
     hide-footer
     @show="resetData"
   >
@@ -10,7 +10,7 @@
       <form class="basic-form">
         <li class="token">
           <div class="d-flex justify-content-center align-items-center">
-            To
+            From
             <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
               {{ validator.operator_address }}
             </b-badge>
@@ -222,19 +222,19 @@ export default {
             password: this.wallet_pass_tmp,
           });
           this.$bvToast.toast('Transaction sent with success', {
-            title: `Transaction success`,
             variant: 'success',
             autoHideDelay: 2000,
+            noCloseButton: true,
             solid: true,
             toaster: 'b-toaster-bottom-center',
           });
           this.$emit('onWithdrawSuccess');
         } catch (error) {
           this.$bvToast.toast(error, {
-            title: `Transaction failed`,
             variant: 'danger',
             autoHideDelay: 2000,
             solid: true,
+            noCloseButton: true,
             toaster: 'b-toaster-bottom-center',
           });
           this.$emit('onWithdrawError');

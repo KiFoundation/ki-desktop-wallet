@@ -3,11 +3,15 @@ import {
   SET_CURRENT_WALLET_BALANCES,
   SET_CURRENT_WALLET,
   SET_CURRENT_WALLET_VALIDATORS,
+  START_HYDRATE,
+  END_HYDRATE,
 } from './mutations';
 
 export const HYDRATE_CURRENT_WALLET = 'HYDRATE_CURRENT_WALLET';
 export const FETCH_WALLET_BALANCES = 'FETCH_WALLET_BALANCES';
 export const FETCH_WALLET_VALIDATORS = 'FETCH_WALLET_VALIDATORS';
+
+import util from '@static/js/util';
 
 export const actions = {
   [HYDRATE_CURRENT_WALLET]: async (
@@ -16,8 +20,7 @@ export const actions = {
   ) => {
     let walletTmp = (wallet && Object.assign({}, wallet)) || null;
     if (walletTmp) {
-      // Save into local storage
-      localStorage.setItem('current_wallet', JSON.stringify(walletTmp));
+      commit(START_HYDRATE);
       // Start to fetch data
       const responseBalances = await services.wallet.fetchBalancesList(
         wallet.address,
@@ -147,6 +150,7 @@ export const actions = {
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,
+          bgImageStyle: util.generateWalletGradient(wallet.address),
           balances: responseBalances.data.result,
           validators: responseValidators.data.result,
           delegation: responseDelegation.data.result,
@@ -155,6 +159,7 @@ export const actions = {
           multisign: wallet.privatekey == "",
         };
       }
+      commit(END_HYDRATE);
     } else {
       localStorage.removeItem('current_wallet');
     }
@@ -175,9 +180,7 @@ export const actions = {
     { commit, state, getters, dispatch },
     walletId,
   ) => {
-    const responseBalances = await services.wallet.fetchBalancesList(
-      wallet.address /* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
-    );
+    const responseBalances = await services.wallet.fetchBalancesList(walletId);
     commit(SET_CURRENT_WALLET_BALANCES, responseBalances.data.result);
   },
 };

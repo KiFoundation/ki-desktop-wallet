@@ -37,9 +37,21 @@
       </router-link>
     </div>
     <div class="p-4 w-100" v-if="!loading">
-      <router-view />
+      <transition
+        name="fade"
+        mode="out-in"
+        @beforeLeave="beforeLeave"
+        @enter="enter"
+        @afterEnter="afterEnter"
+      >
+        <router-view />
+      </transition>
     </div>
-    <div v-else>
+    <div
+      v-else
+      class="d-flex h-100 justify-content-center align-items-center"
+      :style="{ minHeight: '10em' }"
+    >
       <b-spinner variant="primary" label="Spinning" />
     </div>
   </div>
@@ -48,9 +60,13 @@
 <script>
 import { BContainer, BSpinner } from 'bootstrap-vue';
 import { services } from '@services/index';
-import { mapActions, mapGetters, mapState } from 'vuex';
-import { FETCH_WALLET_BALANCES, HYDRATE_CURRENT_WALLET } from '@store/wallets';
-import { HYDRATE_ACCOUNT } from '@store/account';
+import { mapActions, mapGetters, mapState, mapMutations } from 'vuex';
+import {
+  FETCH_WALLET_BALANCES,
+  HYDRATE_CURRENT_WALLET,
+  START_HYDRATE,
+} from '@store/wallets';
+import { HYDRATE_ACCOUNT, SET_ACCOUNT } from '@store/account';
 
 export default {
   components: {
@@ -58,7 +74,8 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
+      prevHeight: 0,
     };
   },
   computed: {
@@ -66,15 +83,20 @@ export default {
       currentWallet: state => state.wallets.current,
     }),
   },
-  async mounted() {
-    // If currentWallet is not empty at mounted lifecycle
-    // => That means we have a current wallet already in the localstorage
-    // => But without balances datas => We fetch all datas we need
-    if (this.currentWallet !== null) {
-      await this.hydrateCurrentWallet(this.currentWallet);
-      await this.hydrateAccount(this.currentWallet.address);
-      this.loading = false;
-    } else {
+  async created() {
+    const walletFromLocalStorage =
+      localStorage.getItem('current_wallet') &&
+      JSON.parse(localStorage.getItem('current_wallet'));
+    // Wallet page reloaded
+    if (walletFromLocalStorage && !this.currentWallet) {
+      this.setWalletLoading();
+      this.loading = true;
+      this.setAccount({
+        id: walletFromLocalStorage.address,
+        name: walletFromLocalStorage.account,
+      });
+      await this.hydrateAccount(walletFromLocalStorage.address);
+      await this.hydrateCurrentWallet(walletFromLocalStorage);
       this.loading = false;
     }
   },
@@ -83,6 +105,25 @@ export default {
       hydrateAccount: HYDRATE_ACCOUNT,
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
     }),
+    ...mapMutations({
+      setWalletLoading: START_HYDRATE,
+      setAccount: SET_ACCOUNT,
+    }),
+    beforeLeave(element) {
+      this.prevHeight = getComputedStyle(element).height;
+    },
+    enter(element) {
+      const { height } = getComputedStyle(element);
+
+      element.style.height = this.prevHeight;
+
+      setTimeout(() => {
+        element.style.height = height;
+      });
+    },
+    afterEnter(element) {
+      element.style.height = 'auto';
+    },
   },
 };
 </script>
