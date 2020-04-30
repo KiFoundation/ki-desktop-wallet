@@ -8,7 +8,7 @@ export const moduleApp = {
       toogle: false,
     },
     advanced: false,
-    multisign: false,
+    // multisign: false,
     chainId: config.kichain.network.chainId,
   },
   mutations,

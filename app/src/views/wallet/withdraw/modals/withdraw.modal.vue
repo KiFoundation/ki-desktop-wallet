@@ -74,28 +74,15 @@
               @click="sendWithdrawTx"
             >
               <div v-if="!tx.loading">
-                <span v-if="context == 'Broadcast' || (!advanced && !multisig)">
+                <span v-if="!multisig">
                   {{ $t('withdrawtx') }}
                 </span>
-                <span v-else>{{ context }}</span>
+                <span v-else>Generate</span>
               </div>
               <div v-else>
                 <b-spinner small label="Small Spinner" />
               </div>
             </button>
-          </b-col>
-          <b-col v-if="advanced" cols="2">
-            <select v-model="context" style="margin-top:32px">
-              <option key="Broadcast" value="Broadcast" selected>
-                Broadcast
-              </option>
-              <option key="Sign" value="Sign">
-                Sign
-              </option>
-              <option key="Generate" value="Generate">
-                Generate
-              </option>
-            </select>
           </b-col>
         </b-row>
       </form>
@@ -128,7 +115,6 @@ export default {
   },
   data() {
     return {
-      context: 'Broadcast',
       withdraw: {
         alert: '',
         config: 0,
@@ -144,6 +130,9 @@ export default {
     },
     advanced() {
       return this.$store.state.app.advanced;
+    },
+    multisig() {
+      return this.$store.state.wallets.current.multisign;
     },
     account() {
       return this.$store.state.account;
@@ -197,16 +186,6 @@ export default {
         },
       };
 
-      if (this.context == 'Generate') {
-        this.withdraw.output =
-          '{ "type": "cosmos-sdk/StdTx", "value":' +
-          JSON.stringify(transaction) +
-          '}';
-      }
-
-      if (this.context == 'Sign') {
-        this.withdraw.output = JSON.stringify(signedTransactionme);
-      }
 
       const transaction = {
         msg: [],
@@ -228,7 +207,15 @@ export default {
       if (this.withdraw.config == 2) {
         transaction.msg = [msg_withdraw_reward, msg_withdraw_commision];
       }
-      if (this.context == 'Broadcast') {
+
+      if (this.multisig) {
+        this.withdraw.output =
+          '{ "type": "cosmos-sdk/StdTx", "value":' +
+          JSON.stringify(transaction) +
+          '}';
+      }
+
+      else {
         try {
           await this.postTx({
             transaction,

@@ -143,24 +143,11 @@
             <b-col class="d-flex justify-content-center">
               <a class="btn btn-primary" @click="sendTransfer">
                 <span
-                  v-if="context == 'Broadcast' || (!advanced && !multisig)"
+                  v-if="!multisig"
                   >{{ $t('transfer') }}</span
                 >
-                <span v-else>{{ context }}</span>
+                <span v-else>Generate</span>
               </a>
-            </b-col>
-            <b-col v-if="advanced" cols="2">
-              <select v-model="context" style="margin-top:32px">
-                <option key="Broadcast" value="Broadcast" selected>
-                  Broadcast
-                </option>
-                <option key="Sign" value="Sign">
-                  Sign
-                </option>
-                <option key="Generate" value="Generate">
-                  Generate
-                </option>
-              </select>
             </b-col>
           </b-row>
         </form>
@@ -195,9 +182,6 @@ export default {
   data() {
     return {
       selectedSet: 1,
-      multisig: false,
-      advanced: false,
-      context: 'Broadcast',
       explorer: this.globalData.explorer,
       unit: this.webCoin.unit,
       slider: null,
@@ -227,6 +211,9 @@ export default {
       wallets: state => state.wallets.list,
       account: state => state.account,
     }),
+    multisig() {
+      return this.$store.state.app.multisign;
+    },
     // slider stuff
     scale() {
       return (
@@ -349,22 +336,37 @@ export default {
         memo: this.transfer.memo,
       };
 
-      if (this.context == 'Generate') {
+      if (this.multisig) {
         this.transfer.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
           JSON.stringify(transaction) +
           '}';
       }
 
-      if (this.context == 'Sign') {
-        this.transfer.output = JSON.stringify(signedTransactionme);
-      }
-
-      if (this.context == 'Broadcast') {
+      else {
+        try {
         this.postTx({
           transaction,
           password: this.wallet_pass_tmp,
         });
+        this.$bvToast.toast('Transaction sent with success', {
+          title: `Transaction success`,
+          variant: 'success',
+          autoHideDelay: 2000,
+          solid: true,
+          toaster: 'b-toaster-bottom-center',
+        });
+        this.$emit('onTransferSuccess');
+      } catch (error) {
+        this.$bvToast.toast(error, {
+          title: `Transaction failed`,
+          variant: 'danger',
+          autoHideDelay: 2000,
+          solid: true,
+          toaster: 'b-toaster-bottom-center',
+        });
+        this.$emit('onTransferError');
+      }
       }
     },
     progressSlide() {

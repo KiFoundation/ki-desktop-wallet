@@ -99,6 +99,7 @@ export const actions = {
           }
         }
 
+
         // Fetch the delegate transactions
       const responseWalletTransactionsDelegatePage = await services.tx.fetchTxsList(
         {"message.sender" : wallet.address, "message.action": "delegate" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
@@ -143,7 +144,6 @@ export const actions = {
         return comparison * -1;
       })
 
-
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,
@@ -152,6 +152,7 @@ export const actions = {
           delegation: responseDelegation.data.result,
           unbondingDelegation: responseUnbondingDelegation.data.result,
           transactions: transactions,
+          multisign: wallet.privatekey == "",
         };
       }
     } else {
@@ -163,11 +164,13 @@ export const actions = {
     const responseValidators = await services.wallet.fetchDelegatorsValidatorsList(
       state.wallets.current.address,
     );
+
     commit(
       SET_CURRENT_WALLET_VALIDATORS,
       (responseValidators.data && responseValidators.data.result) || [],
     );
   },
+
   [FETCH_WALLET_BALANCES]: async (
     { commit, state, getters, dispatch },
     walletId,
