@@ -1,9 +1,9 @@
 <template>
   <div class="p-4 w-100">
     <div class="tabs w-100">
-      <router-link class="tab" :to="{ name: 'home' }">
+      <!-- <router-link class="tab" :to="{ name: 'home' }">
         <unicon name="arrow-left" fill="black" />
-      </router-link>
+      </router-link> -->
       <router-link
         class="tab"
         exact
@@ -34,6 +34,28 @@
         }"
       >
         Withdraw
+      </router-link>
+      <router-link
+      v-if="!multisigv && !loading"
+        class="tab"
+        active-class="active"
+        :to="{
+          name: 'wallets_sign',
+          params: { wallet_id: $route.params.wallet_id },
+        }"
+      >
+        Sign
+      </router-link>
+      <router-link
+      v-if="multisigv && !loading"
+        class="tab"
+        active-class="active"
+        :to="{
+          name: 'wallets_multisign',
+          params: { wallet_id: $route.params.wallet_id },
+        }"
+      >
+        Multisign
       </router-link>
     </div>
     <div class="p-4 w-100" v-if="!loading">
@@ -74,6 +96,7 @@ export default {
   },
   data() {
     return {
+      multisigv : false,
       loading: false,
       prevHeight: 0,
     };
@@ -81,6 +104,7 @@ export default {
   computed: {
     ...mapState({
       currentWallet: state => state.wallets.current,
+      multisig: state => state.wallets.current.multisign
     }),
   },
   async created() {
@@ -98,7 +122,10 @@ export default {
       await this.hydrateAccount(walletFromLocalStorage.address);
       await this.hydrateCurrentWallet(walletFromLocalStorage);
       this.loading = false;
+      this.multisigv = this.multisig
     }
+    console.log(this.multisig)
+
   },
   methods: {
     ...mapActions({
