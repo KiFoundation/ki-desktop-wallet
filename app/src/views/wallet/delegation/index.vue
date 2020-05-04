@@ -31,7 +31,7 @@
         </b-button>
       </b-button-group>
     </div>
-    <div v-if="validators && validators.length" class="mt-5">
+    <div v-if="validators && validators.length" class="mt-5 validators-list">
       <ValidatorCard
         v-for="(validator, idx) in validators
           .filter(v => new RegExp(`^${text}`, 'gi').test(v.description.moniker))
@@ -64,19 +64,19 @@
           </a>
         </div>
       </ValidatorCard>
-      <div class="mt-5">
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="
-            validators.filter(v =>
-              new RegExp(`^${text}`, 'gi').test(v.description.moniker),
-            ).length
-          "
-          :per-page="perPage"
-          aria-controls="my-table"
-          @input="handleOnPageChange"
-        />
-      </div>
+    </div>
+    <div class="mt-5" v-if="validators && validators.length">
+      <b-pagination
+        v-model="currentPage"
+        :total-rows="
+          validators.filter(v =>
+            new RegExp(`^${text}`, 'gi').test(v.description.moniker),
+          ).length
+        "
+        :per-page="perPage"
+        aria-controls="my-table"
+        @input="handleOnPageChange"
+      />
     </div>
     <div
       v-else

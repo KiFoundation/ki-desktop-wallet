@@ -1,40 +1,48 @@
 <template>
   <b-row v-if="validator" class="validator-card align-items-center mx-0">
-    <b-col cols="1">
-      <div :style="{ position: 'relative' }">
-        <b-avatar
-          class="d-flex justify-content-center align-items-center"
-          size="3.5rem"
-          :variant="avatarRandomVariant"
-          :text="validator.description.moniker[0].toUpperCase()"
-          :style="{ backgroundImage: avatarGradient, color: 'white' }"
-        />
-      </div>
-    </b-col>
-    <b-col cols="5">
-      <h5>{{ validator.description.moniker }}</h5>
-      <h6
-        :style="{
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }"
-      >
-        {{
-          currentWallet.delegation.find(
-            d => d.validator_address === validator.operator_address,
-          ) &&
-            formatAmount(
+    <b-col>
+      <b-row class="w-100 align-items-center">
+        <b-col cols="4" class="flex-row d-flex align-items-center">
+          <div :style="{ position: 'relative' }">
+            <b-avatar
+              class="d-flex justify-content-center align-items-center"
+              size="2rem"
+              :variant="avatarRandomVariant"
+              :text="
+                validator.description.moniker
+                  .toUpperCase()
+                  .match(new RegExp(/[A-Za-z]/))[0]
+              "
+              :style="{ backgroundImage: avatarGradient, color: 'white' }"
+            />
+          </div>
+          <h5 class="ml-4">{{ validator.description.moniker }}</h5>
+        </b-col>
+        <b-col cols="4">
+          <h6
+            :style="{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }"
+          >
+            {{
               currentWallet.delegation.find(
                 d => d.validator_address === validator.operator_address,
-              ).shares,
-            ) + ' / '
-        }}
-        {{ formatAmount(validator.delegator_shares) }}
-      </h6>
-    </b-col>
-    <b-col cols="6" class="d-flex justify-content-end">
-      <slot />
+              ) &&
+                formatAmount(
+                  currentWallet.delegation.find(
+                    d => d.validator_address === validator.operator_address,
+                  ).shares,
+                ) + ' / '
+            }}
+            {{ formatAmount(validator.delegator_shares) }}
+          </h6>
+        </b-col>
+        <b-col cols="4" class="d-flex justify-content-end">
+          <slot />
+        </b-col>
+      </b-row>
     </b-col>
   </b-row>
 </template>
@@ -95,7 +103,7 @@ export default {
   /* cursor: pointer; */
   width: 100%;
   color: black;
-  min-height: 75px;
+  min-height: 50px;
   border: 1px solid #efefef;
   border-radius: 10px;
   background-color: white;

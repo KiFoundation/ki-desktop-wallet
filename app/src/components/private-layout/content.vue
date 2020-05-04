@@ -1,9 +1,9 @@
 <template>
   <div
-    class="d-flex rounded w-100 h-100"
+    class="d-flex content rounded w-100 h-100"
     :style="{
       backgroundColor: 'white',
-      boxShadow: '0 10px 10px rgba(154, 160, 185, 0.05)'
+      boxShadow: '0 10px 10px rgba(154, 160, 185, 0.05)',
     }"
   >
     <slot />
@@ -14,4 +14,8 @@
 export default {};
 </script>
 
-<style scoped></style>
+<style scoped>
+.content {
+  overflow: auto;
+}
+</style>

@@ -94,6 +94,10 @@ i {
   display: none;
 }
 
+#app {
+  height: 100vh;
+}
+
 .caret {
   width: 12px;
   height: 12px;
