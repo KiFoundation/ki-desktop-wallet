@@ -1,7 +1,7 @@
 @charset "utf-8";
 :root {
   --lightbg: #f3f4f7;
-  --darkbg: #2c363f;
+  --darkbg: #39434a;
   --blueColor: #043bea;
   --greenColor: #4cd964;
   --greyColor: #8a8a8f;
@@ -48,7 +48,7 @@ body {
   font-family: Gotham-Book;
   color: #000;
   background-color: var(--pale-grey);
-  background-color: var(--lightbg);
+  /* background-color: var(--darkbg); */
   min-width: 1040px;
   overflow: scroll;
   /* min-height: 100vh; */
@@ -693,7 +693,7 @@ i {
 }
 
 .table td.text {
-  max-width: 190px;
+  max-width: 80px;
 }
 
 .table td.text span {

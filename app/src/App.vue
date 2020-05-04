@@ -21,7 +21,7 @@
 <script>
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
 import { mapMutations, mapState, mapActions } from 'vuex';
-import { SET_WALLETS_LIST } from '@store/wallets';
+import { SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
 import { SET_ACCOUNT } from '@store/account';
 import { FETCH_VALIDATORS_LIST } from '@/store/validators';
 
@@ -176,6 +176,7 @@ export default {
   methods: {
     ...mapMutations({
       setWalletsList: SET_WALLETS_LIST,
+      setWalletsDict: SET_WALLETS_DICT,
       setAccount: SET_ACCOUNT,
     }),
     ...mapActions({
@@ -216,6 +217,7 @@ export default {
       return new Promise(res => {
         if (localStorage.getItem('wallet_list')) {
           const wallets = [];
+          const wallets_dict = {};
           let wallet_list = localStorage.getItem('wallet_list').split(',');
           for (var w in wallet_list) {
             wallets.push({
@@ -227,8 +229,10 @@ export default {
                 JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
               ).toString('hex'),
             });
+            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
           }
           this.setWalletsList(wallets);
+          this.setWalletsDict(wallets_dict);
           res(1);
         } else {
           res(0);

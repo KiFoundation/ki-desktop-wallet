@@ -5,7 +5,7 @@
       width: '80px',
       backgroundColor: 'white',
       boxShadow: '0 10px 10px rgba(154, 160, 185, 0.05)',
-      maxHeight: '30rem',
+      maxHeight: '100rem',
     }"
   >
     <ul>

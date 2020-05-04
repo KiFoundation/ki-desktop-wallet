@@ -12,6 +12,7 @@ export const FETCH_WALLET_BALANCES = 'FETCH_WALLET_BALANCES';
 export const FETCH_WALLET_VALIDATORS = 'FETCH_WALLET_VALIDATORS';
 
 import util from '@static/js/util';
+import { tokenUtil } from '@static/js/token';
 
 export const actions = {
   [HYDRATE_CURRENT_WALLET]: async (
@@ -63,8 +64,8 @@ export const actions = {
 
               transactions.push([tx.txhash, 'send',
                 tx.tx.value.msg[0].value.to_address,
-                tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-                fee, tx.timestamp
+                tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
+                fee, tx.timestamp,tx.tx.value.msg[0].value.from_address,
               ])
             }
           }
@@ -95,8 +96,8 @@ export const actions = {
 
               transactions.push([tx.txhash, 'receive',
                 tx.tx.value.msg[0].value.to_address,
-                tx.tx.value.msg[0].value.amount[0].amount / Math.pow(10, 6),
-                fee, tx.timestamp
+                tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
+                fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
               ])
             }
           }
@@ -128,8 +129,8 @@ export const actions = {
 
               transactions.push([tx.txhash, 'delegate',
                 tx.tx.value.msg[0].value.validator_address,
-                tx.tx.value.msg[0].value.amount.amount / Math.pow(10, 6),
-                fee, tx.timestamp
+                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
               ])
             }
           }
@@ -147,12 +148,21 @@ export const actions = {
         return comparison * -1;
       })
 
+
+      let validators_dict = {}
+      if (responseValidators.data.result){
+        for (var val in responseValidators.data.result){
+          validators_dict[responseValidators.data.result[val].operator_address] =  responseValidators.data.result[val].description.moniker
+        }
+      }
+
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,
           bgImageStyle: util.generateWalletGradient(wallet.address),
           balances: responseBalances.data.result,
           validators: responseValidators.data.result,
+          validators_dict: validators_dict,
           delegation: responseDelegation.data.result,
           unbondingDelegation: responseUnbondingDelegation.data.result,
           transactions: transactions,
