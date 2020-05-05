@@ -23,6 +23,13 @@ export const actions = {
     if (walletTmp) {
       commit(START_HYDRATE);
 
+      // Check the wallet type (vesting?)
+      const account = await services.auth.fetchAccount(
+        wallet.address,
+      );
+
+      let vesting =  account.data.result.type == "cosmos-sdk/ContinuousVestingAccount"? true : false;
+
       // Start to fetch data
       const responseBalances = await services.wallet.fetchBalancesList(
         wallet.address,
@@ -165,12 +172,8 @@ export const actions = {
       let multisig_data = {}
 
       if (wallet.privatekey == ""){
-        const account = await services.auth.fetchAccount(
-          wallet.address,
-        );
-
         let ms_data ;
-        if (account.data.result.type == "cosmos-sdk/ContinuousVestingAccount"){
+        if (vesting){
           ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
         }
         else{
@@ -191,16 +194,92 @@ export const actions = {
           multisig_data['signerList']= signerList;
       }
 
+
+      // fetch all balances
+      let delegated = 0;
+      let available = 0;
+      let available_real = 0;
+      let unbonding = 0;
+      let locked = 0;
+
+      if (vesting) {
+        let res = account.data.result.value
+
+        // get the original vesting
+        let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount);
+
+        // get vesting period
+        let start = res.start_time;
+        let end = res.BaseVestingAccount.end_time;
+
+        // get vested amount
+        let total_duration = end - start
+        let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0) ? Math.floor(Date.now() / 1000) - start : 0
+        let vested_ratio = elapsed_suration / total_duration
+        let locked_ = original * (1 - vested_ratio)
+        let vested = original - locked_
+
+        let delegated = res.BaseVestingAccount.delegated_vesting.length > 0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) : 0;
+
+        locked = locked_
+
+        res = account.data.result.value.BaseVestingAccount.BaseAccount;
+        let coins = res.coins;
+
+        if (coins) {
+          coins.forEach((coin) => {
+            if (coin.denom == 'tki') {
+              available = parseFloat(coin.amount) - locked_ + delegated;
+              available_real = parseFloat(coin.amount);
+            }
+          });
+        }
+      } else {
+        let res = account.data.result.value;
+        let coins = res.coins;
+        if (coins) {
+          coins.forEach((coin) => {
+            if (coin.denom == 'tki') {
+              available = parseFloat(coin.amount);
+              available_real = available
+            }
+          });
+        }
+      }
+
+
+      if(responseBalances.data.result[0]){
+        available = parseInt(responseBalances.data.result[0].amount)
+      }
+
+      if(responseDelegation.data.result[0]){
+        for (var delegation in responseDelegation.data.result) {
+          delegated += parseInt(responseDelegation.data.result[delegation].balance)
+        }
+
+      }
+
+      if(responseUnbondingDelegation.data.result[0]){
+        for (var delegation in responseUnbondingDelegation.data.result) {
+          for (var entry in responseUnbondingDelegation.data.result[delegation].entries){
+              unbonding += parseInt(responseUnbondingDelegation.data.result[delegation].entries[entry].balance)
+          }
+        }
+      }
+
+      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "denom":"tki" }
+
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,
           bgImageStyle: util.generateWalletGradient(wallet.address),
-          balances: responseBalances.data.result,
+          balances: balances,
           validators: responseValidators.data.result,
           validators_dict: validators_dict,
           delegation: responseDelegation.data.result,
           unbondingDelegation: responseUnbondingDelegation.data.result,
           transactions: transactions,
+          vesting:vesting,
           multisign: wallet.privatekey == "",
           multisign_data: multisig_data,
         };
@@ -225,8 +304,9 @@ export const actions = {
   [FETCH_WALLET_BALANCES]: async (
     { commit, state, getters, dispatch },
     walletId,
-  ) => {
-    const responseBalances = await services.wallet.fetchBalancesList(walletId);
-    commit(SET_CURRENT_WALLET_BALANCES, responseBalances.data.result);
+    ) => {
+
+
+    commit(SET_CURRENT_WALLET_BALANCES, "");
   },
 };
