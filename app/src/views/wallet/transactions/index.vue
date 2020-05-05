@@ -78,9 +78,6 @@ export default {
     }),
 
   },
-  created(){
-    console.log(this.validators_dict)
-  }
 };
 </script>
 

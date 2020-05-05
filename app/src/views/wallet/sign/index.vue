@@ -10,7 +10,7 @@
             :value="sign.file.name"
             disabled
           />
-          <a class="inside" @click="removeFile('sf', '')"
+          <a class="inside" @click="removeFile()"
             ><img
               src="static/img/icons/delete.png"
               style="width:25px; opacity:0.2"
@@ -105,20 +105,14 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-// import {  BPagination } from 'bootstrap-vue';
+import { services } from '@services/index';
+import { signTx, createBroadcastTx } from '@tendermint/sig';
 
 export default {
   data() {
     return {
-      nodeUrl: '',
-      network: '',
-      token: '',
-      blockchain: 'KiChain',
-      prefix: '',
-      account: '',
       password: 'password',
       wallet_pass_tmp: '',
-      gradient_style: 'background-image: linear-gradient(90deg,#1848E0,#05268E);',
       isLoading: true,
       sign: {
         alert: '',
@@ -132,19 +126,17 @@ export default {
     }
   },
 
-  components: {
-    // BPagination,
-  },
   computed: {
     ...mapState({
       transactions: state => state.wallets.current.transactions,
+      key: state => state.wallets.current.privatekey,
+      account: state => state.account,
+      wallet: state => state.wallets.current,
     }),
   },
   methods:{
     upload(e) {
       let file = e.dataTransfer.files[0];
-
-      if (!this.multisig) {
         this.sign.file = file;
         if (!file) return;
 
@@ -158,36 +150,6 @@ export default {
         reader.onerror = evt => {
           console.error(evt);
         };
-      } else {
-        if (this.multisign.file_content == '') {
-          this.multisign.file = file;
-          if (!file) return;
-
-          let reader = new FileReader();
-          reader.readAsText(file, 'UTF-8');
-          reader.onload = evt => {
-            this.multisign.file_content = evt.target.result;
-            this.multisign.file_valid = true;
-            this.multisign.summary = this.parseMessage(
-              this.multisign.file_content,
-            );
-          };
-          reader.onerror = evt => {
-            console.error(evt);
-          };
-        } else {
-          this.multisign.sigfiles.push(file);
-          if (!file) return;
-          let reader = new FileReader();
-          reader.readAsText(file, 'UTF-8');
-          reader.onload = evt => {
-            this.parseSignature(file.name, evt.target.result);
-          };
-          reader.onerror = evt => {
-            console.error(evt);
-          };
-        }
-      }
     },
     parseMessage(file) {
       try {
@@ -269,17 +231,6 @@ export default {
         return 'The file does not seem to contain a valid transaction structure.';
       }
     },
-    parseSignature(name, file) {
-      let sig_data = JSON.parse(file);
-      let pubkey = sig_data.pub_key.value;
-      let sig = sig_data.pub_key.signature;
-
-      this.multisign.signed[name] = pubkey;
-
-      this.multisign.pubkeys.forEach(
-        key => (key.status = key.address == pubkey ? 'signed' : key.status),
-      );
-    },
     downloadSig() {
       let filename = 'signed_tx.json';
       let href =
@@ -297,8 +248,7 @@ export default {
 
       document.body.removeChild(element);
     },
-    signTxFile() {
-      let nodeUrl = this.globalData.kichain.nodeUrl;
+    async signTxFile() {
       let transaction = JSON.parse(this.sign.file_content).value;
       let account =
         this.sign.onbehalf == '' ? this.account : this.sign.onbehalf;
@@ -307,78 +257,50 @@ export default {
         delete transaction['signatures'];
       }
 
-      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
-        let sequence_ = '';
-        let account_number_ = '';
+      const response = await services.auth.fetchAccount(this.account.value.address);
 
-        if (res1.data.result.value) {
-          let res = '';
-          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
-            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
-          } else {
-            res = res1.data.result.value;
-          }
-          sequence_ = res.sequence;
-          account_number_ = res.account_number;
+      let sequence_ = '';
+      let account_number_ = '';
+
+      if (response.data.result.value) {
+        let res = '';
+        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+          res = response.data.result.value.BaseVestingAccount.BaseAccount;
+        } else {
+          res = response.data.result.value;
         }
+        sequence_ = res.sequence;
+        account_number_ = res.account_number;
+      }
 
-        const signMeta = {
-          chain_id: this.chainId,
-          account_number: account_number_.toString(),
-          sequence: sequence_.toString(),
-        };
+      const signMeta = {
+        chain_id: this.chainId,
+        account_number: account_number_.toString(),
+        sequence: sequence_.toString(),
+      };
 
-        var CryptoJS = require('crypto-js');
-        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
-        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+      var CryptoJS = require('crypto-js');
+      var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+      let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
 
-        const publickey = Buffer.from(this.publickey, 'hex');
+      const publickey = Buffer.from(this.wallet.publickey, 'hex');
 
-        let signedTransactionme = signTx(transaction, signMeta, {
-          privateKey: key,
-          publicKey: publickey,
-        });
-
-        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
+      let signedTransactionme = signTx(transaction, signMeta, {
+        privateKey: key,
+        publicKey: publickey,
       });
-    },
 
-    removeFile(list, file) {
-      if (list == 'sf') {
+      this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
+      this.wallet_pass_tmp=''
+    },
+    removeFile() {
         this.sign.file = '';
         this.sign.summary = '';
         this.sign.onbehalf = '';
         this.sign.signature = '';
         this.sign.file_valid = false;
         this.sign.file_content = '';
-      }
-
-      if (list == 'msf') {
-        this.multisign.file = '';
-        this.multisign.signed = '';
-        this.multisign.summary = '';
-        this.multisign.sigfiles = [];
-        this.multisign.signature = '';
-        this.multisign.file_valid = false;
-        this.multisign.file_content = '';
-        this.multisign.pubkeys.forEach(key => (key.status = 'signed'));
-      }
-
-      if (list == 'mssf') {
-        this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
-          // console.log(this.multisign.signed[file.name])
-          // console.log(this.multisign.signed)
-
-          this.multisign.pubkeys.forEach(
-            key =>
-              (key.status =
-                key.address == this.multisign.signed[file.name]
-                  ? 'pending...'
-                  : key.status),
-          );
-          return f != file;
-        });
-      }
+        this.wallet_pass_tmp=''
     },
   }
 };

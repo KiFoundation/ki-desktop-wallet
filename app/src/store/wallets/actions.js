@@ -22,6 +22,7 @@ export const actions = {
     let walletTmp = (wallet && Object.assign({}, wallet)) || null;
     if (walletTmp) {
       commit(START_HYDRATE);
+
       // Start to fetch data
       const responseBalances = await services.wallet.fetchBalancesList(
         wallet.address,
@@ -149,11 +150,45 @@ export const actions = {
       })
 
 
+      // Build a validator dict with  index= address and value= moniker
       let validators_dict = {}
       if (responseValidators.data.result){
         for (var val in responseValidators.data.result){
           validators_dict[responseValidators.data.result[val].operator_address] =  responseValidators.data.result[val].description.moniker
         }
+      }
+
+      // Fetch wallet signers (for multisig wallets)
+      let threshold ;
+      let signerList = []
+      let description = ''
+      let multisig_data = {}
+
+      if (wallet.privatekey == ""){
+        const account = await services.auth.fetchAccount(
+          wallet.address,
+        );
+
+        let ms_data ;
+        if (account.data.result.type == "cosmos-sdk/ContinuousVestingAccount"){
+          ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
+        }
+        else{
+          ms_data = account.data.data.result.value
+        }
+
+        threshold = ms_data.threshold
+        for (var key in ms_data.pubkeys) {
+          signerList.push({
+            'address': ms_data.pubkeys[key].value,
+            'status': 'pending...'
+          })
+        }
+          description = 'At least ' + threshold + ' out of ' + signerList.length + ' signatures are required'
+
+          multisig_data['threshold']= threshold;
+          multisig_data['description']= description;
+          multisig_data['signerList']= signerList;
       }
 
       if (responseBalances.data.result) {
@@ -167,6 +202,7 @@ export const actions = {
           unbondingDelegation: responseUnbondingDelegation.data.result,
           transactions: transactions,
           multisign: wallet.privatekey == "",
+          multisign_data: multisig_data,
         };
       }
       commit(END_HYDRATE);

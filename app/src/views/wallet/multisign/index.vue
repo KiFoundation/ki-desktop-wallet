@@ -17,10 +17,7 @@
                 <label>{{$t("webwallet_sign_onbehalf")}}</label>
                 <input type="text" :placeholder="$t('webwallet_for_multisig')">
               </li> -->
-                <li v-if="this.multisign.signature!=''" class="token">
-                  <label>{{$t("webwallet_sign_signature")}}</label>
-                  <textarea class="" v-model="this.multisign.signature" rows="3" disabled />
-                </li>
+
                 <div class="upload-form" style="margin-top:35px">
                   <b-row>
                     <b-col cols="3">
@@ -44,15 +41,19 @@
 
                     <b-col cols="6" style="max-height:240px">
                       <div class="wallet-list" style="max-height:100%">
-                        <b-table style="font-size:11px; text-align: left;" sticky-header no-border-collapse hover borderless ref="selectableTable" select-mode="single" :items="multisign.pubkeys" :fields="multisign.fields" head-variant="null"
+                        <b-table style="font-size:11px; text-align: left;" sticky-header no-border-collapse hover borderless ref="selectableTable" select-mode="single" :items="pubkeys" :fields="multisign.fields" head-variant="null"
                           responsive="sm">
-                          <template v-slot:table-caption>{{multisign.description}}</template>
+                          <template v-slot:table-caption>{{description}}</template>
                         </b-table>
                       </div>
                     </b-col>
                   </b-row>
                 </div>
-                <a v-if="this.multisign.signature==''" class="btn" @click="msignTxFile">{{$t("signtx")}}</a>
+                <li v-if="this.multisign.signature!=''" class="token">
+                  <label>{{$t("webwallet_sign_signature")}}</label>
+                  <textarea class="" v-model="this.multisign.signature" rows="3" disabled />
+                </li>
+                <a v-if="this.multisign.signature==''" class="btn  btn-primary" @click="msignTxFile">{{$t("signtx")}}</a>
                 <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
               </div>
             </form>
@@ -76,31 +77,29 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapActions, mapState } from 'vuex';
-// import {  BPagination } from 'bootstrap-vue';
+import {  BTable } from 'bootstrap-vue'
+Vue.component('b-table', BTable);
 
 export default {
   data() {
     return {
-      nodeUrl: '',
-      network: '',
-      token: '',
-      blockchain: 'KiChain',
-      prefix: '',
-      account: '',
       password: 'password',
       wallet_pass_tmp: '',
-      gradient_style: 'background-image: linear-gradient(90deg,#1848E0,#05268E);',
       isLoading: true,
-      sign: {
-        alert: '',
-        file: '',
-        file_valid: false,
-        file_content: '',
-        summary: '',
-        signature: '',
-        onbehalf: '',
-      },
+      multisign: {
+        'alert': '',
+        'file': '',
+        'file_valid': false,
+        'file_content': '',
+        'summary': '',
+        'signature': '',
+        'sigfiles': [],
+        'txfile_valid': false,
+        'fields': ['address', 'status'],
+        'signed': {},
+      }
     }
   },
 
@@ -110,27 +109,15 @@ export default {
   computed: {
     ...mapState({
       transactions: state => state.wallets.current.transactions,
+      pubkeys: state => state.wallets.current.multisign_data.signerList,
+      threshold: state => state.wallets.current.multisign_data.threshold,
+      description: state => state.wallets.current.multisign_data.description,
     }),
   },
   methods:{
     upload(e) {
       let file = e.dataTransfer.files[0];
 
-      if (!this.multisig) {
-        this.sign.file = file;
-        if (!file) return;
-
-        let reader = new FileReader();
-        reader.readAsText(file, 'UTF-8');
-        reader.onload = evt => {
-          this.sign.file_content = evt.target.result;
-          this.sign.file_valid = true;
-          this.sign.summary = this.parseMessage(this.sign.file_content);
-        };
-        reader.onerror = evt => {
-          console.error(evt);
-        };
-      } else {
         if (this.multisign.file_content == '') {
           this.multisign.file = file;
           if (!file) return;
@@ -159,7 +146,6 @@ export default {
             console.error(evt);
           };
         }
-      }
     },
     parseMessage(file) {
       try {
@@ -244,11 +230,11 @@ export default {
     parseSignature(name, file) {
       let sig_data = JSON.parse(file);
       let pubkey = sig_data.pub_key.value;
-      let sig = sig_data.pub_key.signature;
+      let sig = sig_data.signature;
 
-      this.multisign.signed[name] = pubkey;
+      this.multisign.signed[name] = [pubkey, sig];
 
-      this.multisign.pubkeys.forEach(
+      this.pubkeys.forEach(
         key => (key.status = key.address == pubkey ? 'signed' : key.status),
       );
     },
@@ -256,7 +242,7 @@ export default {
       let filename = 'signed_tx.json';
       let href =
         'data:text/plain;charset=utf-8,' +
-        encodeURIComponent(this.sign.signature);
+        encodeURIComponent(this.multisign.signature);
 
       var element = document.createElement('a');
       element.setAttribute('href', href);
@@ -269,82 +255,77 @@ export default {
 
       document.body.removeChild(element);
     },
-    signTxFile() {
-      let nodeUrl = this.globalData.kichain.nodeUrl;
-      let transaction = JSON.parse(this.sign.file_content).value;
-      let account =
-        this.sign.onbehalf == '' ? this.account : this.sign.onbehalf;
+    msignTxFile() {
+      var bsigs= []
+      var prefix_signer_byte = 0
 
-      if (transaction.hasOwnProperty('signatures')) {
-        delete transaction['signatures'];
+      for (var sig in this.multisign.signed){
+        let tmp = this.multisign.signed[sig][0]
+
+        // compute the signer order prefix byte
+        var index = this.pubkeys.findIndex(function(signer) {
+          return signer.address == tmp
+        })
+
+        prefix_signer_byte += Math.pow(2, 7-index)
+
+        // encode each signature (base 64)
+        var binary_string = window.atob(this.multisign.signed[sig][1]);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        var b = []
+        for (var i = 0; i < len; i++) {
+           b[i] = binary_string.charCodeAt(i);
+         }
+         bsigs.push(b)
       }
 
-      axios.get(nodeUrl + '/auth/accounts/' + account).then(res1 => {
-        let sequence_ = '';
-        let account_number_ = '';
+      // create the signature prefixes
+      var prefix_struct = [10, 5, 8, 3, 18, 1]
+      var prefix_signer = [prefix_signer_byte]
+      var prefix_separator = [18, 64]
+      var prefix =[]
+      prefix = prefix.concat(prefix_struct)
+      prefix = prefix.concat(prefix_signer)
 
-        if (res1.data.result.value) {
-          let res = '';
-          if (res1.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
-            res = res1.data.result.value.BaseVestingAccount.BaseAccount;
-          } else {
-            res = res1.data.result.value;
-          }
-          sequence_ = res.sequence;
-          account_number_ = res.account_number;
-        }
+      var sig = []
 
-        const signMeta = {
-          chain_id: this.chainId,
-          account_number: account_number_.toString(),
-          sequence: sequence_.toString(),
-        };
+      // Concatenate the signatures and separate them with the separator
+      sig = sig.concat(prefix)
+      for (var bsig in bsigs){
+        sig = sig.concat(prefix_separator)
+        sig = sig.concat(bsigs[bsig])
+      }
 
-        var CryptoJS = require('crypto-js');
-        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
-        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+      var buffer = Buffer.from(sig);
+      var binary = '';
 
-        const publickey = Buffer.from(this.publickey, 'hex');
+      var bytes = new Uint8Array( buffer );
 
-        let signedTransactionme = signTx(transaction, signMeta, {
-          privateKey: key,
-          publicKey: publickey,
-        });
-
-        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
-      });
+      var len = bytes.byteLength;
+      for (var i = 0; i < len; i++) {
+          binary += String.fromCharCode( bytes[ i ] );
+      }
+      this.multisign.signature = window.btoa( binary );
     },
-
     removeFile(list, file) {
-      if (list == 'sf') {
-        this.sign.file = '';
-        this.sign.summary = '';
-        this.sign.onbehalf = '';
-        this.sign.signature = '';
-        this.sign.file_valid = false;
-        this.sign.file_content = '';
-      }
-
       if (list == 'msf') {
         this.multisign.file = '';
-        this.multisign.signed = '';
+        this.multisign.signed = {};
         this.multisign.summary = '';
         this.multisign.sigfiles = [];
         this.multisign.signature = '';
         this.multisign.file_valid = false;
         this.multisign.file_content = '';
-        this.multisign.pubkeys.forEach(key => (key.status = 'signed'));
+        this.pubkeys.forEach(key => (key.status = 'pending...'));
       }
 
       if (list == 'mssf') {
         this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
-          // console.log(this.multisign.signed[file.name])
-          // console.log(this.multisign.signed)
-
-          this.multisign.pubkeys.forEach(
+          this.pubkeys.forEach(
             key =>
               (key.status =
-                key.address == this.multisign.signed[file.name]
+                key.address == this.multisign.signed[file.name][0]
                   ? 'pending...'
                   : key.status),
           );
