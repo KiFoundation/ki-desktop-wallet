@@ -21,7 +21,7 @@
 <script>
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
 import { mapMutations, mapState, mapActions } from 'vuex';
-import { SET_WALLETS_LIST, SET_WALLETS_DICT, FETCH_WALLET_BALANCES } from '@store/wallets';
+import { SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
 import { SET_ACCOUNT } from '@store/account';
 import { FETCH_VALIDATORS_LIST } from '@/store/validators';
 
@@ -93,7 +93,6 @@ export default {
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
-      fetchwalletBalance: FETCH_WALLET_BALANCES,
     }),
     getChain() {
       return new Promise(async res => {

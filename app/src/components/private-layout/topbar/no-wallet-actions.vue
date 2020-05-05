@@ -175,7 +175,6 @@ export default {
         if(responseUndelegations.data.result[0]){
           for (var delegation in responseUndelegations.data.result) {
             for (var entry in responseUndelegations.data.result[delegation].entries){
-              console.log(responseUndelegations.data.result[delegation].entries[entry].balance)
                 total += parseInt(responseUndelegations.data.result[delegation].entries[entry].balance)
             }
           }

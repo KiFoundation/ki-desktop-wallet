@@ -26,7 +26,7 @@
         </p>
         <h4 :style="{ fontWeight: 'bolder' }">
           {{ currentWalletBalancesDenom }}
-          {{ currentWalletBalancesAmount }}
+          {{ currentWalletBalancesAmount.available }}
         </h4>
       </div>
     </div>
