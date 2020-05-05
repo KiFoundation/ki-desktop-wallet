@@ -251,13 +251,13 @@ export default {
     async signTxFile() {
       let transaction = JSON.parse(this.sign.file_content).value;
       let account =
-        this.sign.onbehalf == '' ? this.account : this.sign.onbehalf;
+        this.sign.onbehalf == '' ? this.account.id : this.sign.onbehalf;
 
       if (transaction.hasOwnProperty('signatures')) {
         delete transaction['signatures'];
       }
 
-      const response = await services.auth.fetchAccount(this.account.value.address);
+      const response = await services.auth.fetchAccount(account);
 
       let sequence_ = '';
       let account_number_ = '';
