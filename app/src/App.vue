@@ -21,7 +21,7 @@
 <script>
 import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
 import { mapMutations, mapState, mapActions } from 'vuex';
-import { SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
+import { SET_WALLETS_LIST, SET_WALLETS_DICT, FETCH_WALLET_BALANCES } from '@store/wallets';
 import { SET_ACCOUNT } from '@store/account';
 import { FETCH_VALIDATORS_LIST } from '@/store/validators';
 
@@ -44,94 +44,6 @@ export default {
         min: 10,
         max: 100,
       },
-      transfer: {
-        alert: '',
-        account: '',
-        amount: 0,
-        token: 'tki',
-        memo: '',
-        fee: 0.00125,
-        gasPrice: '0.0000005',
-        gasLimit: 300000,
-        output: '',
-      },
-      delegate: {
-        alert: '',
-        validator: '',
-        amount: 0,
-        token: 'tki',
-        fee: 0.00125,
-        gasPrice: '0.0000005',
-        gasLimit: 300000,
-        output: '',
-      },
-      undelegate: {
-        alert: '',
-        validator: '',
-        amount: 0,
-        token: 'tki',
-        fee: 0.00125,
-        gasPrice: '0.0000005',
-        gasLimit: 300000,
-        output: '',
-      },
-      redelegate: {
-        alert: '',
-        to_validator: '',
-        from_validator: '',
-        amount: 0,
-        token: 'tki',
-        fee: 0.00125,
-        gasPrice: '0.0000005',
-        gasLimit: 300000,
-        output: '',
-      },
-      withdraw: {
-        alert: '',
-        validator_address: '',
-        config: 0,
-        output: '',
-      },
-      sign: {
-        alert: '',
-        file: '',
-        file_valid: false,
-        file_content: '',
-        summary: '',
-        signature: '',
-        onbehalf: '',
-      },
-      multisign: {
-        alert: '',
-        file: '',
-        file_valid: false,
-        file_content: '',
-        summary: '',
-        signature: '',
-        description: '',
-        sigfiles: [],
-        txfile_valid: false,
-        fields: ['address', 'status'],
-        threshold: 0,
-        signed: {},
-        pubkeys: [
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-        ],
-      },
-
-      reward_config: [
-        'rewards only',
-        'commissions only',
-        'rewards and commission',
-      ],
 
       account_number: 0,
       sequence: 0,
@@ -181,6 +93,7 @@ export default {
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
+      fetchwalletBalance: FETCH_WALLET_BALANCES,
     }),
     getChain() {
       return new Promise(async res => {
@@ -230,6 +143,7 @@ export default {
               ).toString('hex'),
             });
             wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+
           }
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);
@@ -239,6 +153,8 @@ export default {
         }
       });
     },
+
+
   },
 };
 </script>

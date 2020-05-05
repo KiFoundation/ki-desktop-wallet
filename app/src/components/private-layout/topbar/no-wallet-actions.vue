@@ -2,7 +2,8 @@
   <div class="d-flex w-100 h-100 justify-content-between align-items-center">
     <div>
       <h4>
-        <span v-if="!loadingWallet">Total Balance</span>
+        <span v-if="!loadingWallet">Total Balance
+          <h6> {{total}}</h6></span>
         <span v-else>
           <b-spinner type="grow" variant="light" />
         </span>
@@ -57,6 +58,9 @@ import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import * as AES from 'crypto-js/aes';
 import { mapState } from 'vuex';
 import { BSpinner } from 'bootstrap-vue';
+import { services } from '@services/index';
+import { tokenUtil } from '@static/js/token';
+
 
 export default {
   components: {
@@ -67,6 +71,7 @@ export default {
   computed: {
     ...mapState({
       loadingWallet: state => state.wallets.loading,
+      wallets: state => state.wallets.list,
     }),
   },
   data() {
@@ -76,10 +81,12 @@ export default {
       nodeUrl: '',
       network: '',
       token: '',
+      total:0,
     };
   },
   mounted() {
     this.getChain();
+    this.getTotalBalance();
   },
   methods: {
     getChain() {
@@ -118,14 +125,12 @@ export default {
       // Store Wallet
       this.storeInWalletList(wallet_name);
 
-      console.log('AVANT :: ', wallet.privateKey);
       // Encrypt the private key
       var encrypted_key = AES.encrypt(
         wallet.privateKey.toString('hex'),
         wallet_pass_tmp,
       ).toString();
       wallet.privateKey = encrypted_key;
-      console.log('APRES :: ', wallet.privateKey);
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
@@ -143,6 +148,42 @@ export default {
         (list && wallet_name + ',' + list) || wallet_name,
       );
     },
+    async getTotalBalance(){
+      let total = 0
+
+      for (var w in this.wallets){
+        const responseBalances = await services.wallet.fetchBalancesList(
+          this.wallets[w].address,
+        );
+        if(responseBalances.data.result[0]){
+          total += parseInt(responseBalances.data.result[0].amount)
+        }
+
+        const responseDelegations = await services.wallet.fetchDelegatorsDelegationsList(
+          this.wallets[w].address,
+        );
+        if(responseDelegations.data.result[0]){
+          for (var delegation in responseDelegations.data.result) {
+            total += parseInt(responseDelegations.data.result[delegation].balance)
+          }
+
+        }
+
+        const responseUndelegations = await services.wallet.fetchDelegatorsUnbondingDelegationsList(
+          this.wallets[w].address,
+        );
+        if(responseUndelegations.data.result[0]){
+          for (var delegation in responseUndelegations.data.result) {
+            for (var entry in responseUndelegations.data.result[delegation].entries){
+              console.log(responseUndelegations.data.result[delegation].entries[entry].balance)
+                total += parseInt(responseUndelegations.data.result[delegation].entries[entry].balance)
+            }
+          }
+        }
+      }
+
+      this.total = tokenUtil.format(total)
+    }
   },
 };
 </script>
