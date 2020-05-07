@@ -17,14 +17,14 @@
         <h5>{{ currentWallet.account }}</h5>
         <p
           :style="{
-            color: 'royalblue',
+            color: 'var(--secondary)',
             fontSize: '0.85rem',
             fontWeight: '600',
           }"
         >
           {{ currentWallet.address }}
         </p>
-        <h4 :style="{ fontWeight: 'bolder' }">
+        <h5 :style="{ fontWeight: 'bolder' }">
           {{ currentWalletBalancesDenom }}
           {{ currentWalletBalancesAmount.available }}
         </h4>
@@ -42,11 +42,9 @@
           <unicon
             name="sync"
             :class="[refreshing ? 'rotating' : '']"
-            fill="royalblue"
+            :fill="colors.secondary"
           />
-          <span class="mt-2" :style="{ fontWeight: '600', color: 'white' }"
-            >Refresh</span
-          >
+          <span class="mt-2" :style="{ fontWeight: '500' }">Refresh</span>
         </a>
       </div>
       <div class="border-left pl-4">
@@ -54,10 +52,8 @@
           v-b-modal="'transfer-modal'"
           class="d-flex flex-column align-items-center justify-content-center"
         >
-          <unicon name="exchange" fill="royalblue" />
-          <span class="mt-2" :style="{ fontWeight: '600', color: 'white' }"
-            >Transfer</span
-          >
+          <unicon name="exchange" :fill="colors.secondary" />
+          <span class="mt-2" :style="{ fontWeight: '500' }">Transfer</span>
         </a>
       </div>
     </div>
@@ -117,6 +113,6 @@ export default {
 
 <style scoped>
 * {
-  color: white;
+  color: var(--textColor);
 }
 </style>

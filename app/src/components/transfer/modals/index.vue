@@ -4,7 +4,6 @@
     :title="$t('transfer_modal_title')"
     hide-footer
     @show="onResetModal"
-    @shown="progressSlide"
   >
     <div class="basic-form modal-body d-flex w-100">
       <!-- ========================Transfer form============================ -->
@@ -47,62 +46,9 @@
               />
             </li>
           </ul>
-          <div class="fee-set">
-            <label>{{ $t('webwallet_fee') }}</label>
-            <label
-              v-show="selectedSet == 2"
-              class="setBtn"
-              @click="setToggle(1)"
-              >{{ $t('webwallet_simple') }}</label
-            >
-            <label
-              v-show="selectedSet == 1"
-              class="setBtn"
-              @click="setToggle(2)"
-              >{{ $t('webwallet_advanced') }}</label
-            >
-
-            <ul v-if="selectedSet == 1" class="basic-group clearfix">
-              <li ref="slider" class="amount slider">
-                <div ref="thunk" class="thunk" :style="{ left }">
-                  <div class="block">
-                    <img src="static/img/icons/slider@2x.png" width="16" />
-                  </div>
-                </div>
-                <div class="cheap">
-                  {{ $t('webwallet_cheap') }}
-                </div>
-                <div class="fast">
-                  {{ $t('webwallet_fast') }}
-                </div>
-              </li>
-              <li class="token">
-                <div class="input">{{ transfer.fee.toFixed(6) }} TKI</div>
-              </li>
-            </ul>
-
-            <ul v-else-if="selectedSet == 2" class="basic-group clearfix">
-              <li class="gas-price">
-                <span>Gas Price (TKI)</span>
-                <input
-                  v-model="transfer.gasPrice"
-                  type="text"
-                  placeholder="0"
-                />
-              </li>
-              <li class="gas-limit">
-                <span>Gas Limit</span>
-                <input
-                  v-model="transfer.gasLimit"
-                  type="text"
-                  placeholder="0"
-                />
-              </li>
-              <li class="token">
-                <div class="input">{{ feeCompute.toFixed(6) }} TKI</div>
-              </li>
-            </ul>
-          </div>
+          <ul class="basic-group clearfix">
+            <FeesInput v-model="fees" />
+          </ul>
           <label>{{ $t('memo') }}</label>
           <input
             v-model="transfer.memo"
@@ -167,11 +113,13 @@ import {
 import { BRow, BCol, BContainer, BModal } from 'bootstrap-vue';
 import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
+import FeesInput from '@cmp/tx/fees.input';
 
 export default {
   components: {
     BRow,
     BCol,
+    FeesInput,
   },
   props: {
     modalId: {
@@ -186,11 +134,6 @@ export default {
       unit: this.webCoin.unit,
       slider: null,
       thunk: null,
-      progress: {
-        per: 50,
-        min: 10,
-        max: 100,
-      },
       transfer: {
         alert: '',
         account: '',
@@ -201,6 +144,12 @@ export default {
         gasPrice: '0.0000005',
         gasLimit: 300000,
         output: '',
+      },
+      fees: {
+        fee: 0.00125,
+        gasPrice: '0.0000005',
+        gasLimit: 300000,
+        advanced: false,
       },
       password: 'password',
       wallet_pass_tmp: '',
@@ -297,16 +246,17 @@ export default {
         return false;
       }
 
-      let nodeUrl = this.globalData.kichain.nodeUrl;
       let account = this.account.id;
 
-      let fee = this.transfer.fee * Math.pow(10, 6);
+      // Fees stuff
+      let fee = this.fees.fee * Math.pow(10, 6);
       let limit = 300000;
 
-      if (this.selectedSet == 2) {
-        fee = this.transfer.gasPrice * this.transfer.gasLimit * Math.pow(10, 6);
-        limit = this.transfer.gasLimit;
+      if (this.fees.advanced) {
+        fee = this.fees.gasPrice * this.fees.gasLimit * Math.pow(10, 6);
+        limit = this.fees.gasLimit;
       }
+      //
 
       const transaction = {
         msg: [
@@ -368,31 +318,6 @@ export default {
         this.$emit('onTransferError');
       }
       }
-    },
-    progressSlide() {
-      this.slider = this.$refs.slider;
-      this.thunk = this.$refs.thunk;
-      let _this = this;
-      this.transfer.fee = 0.015 * (this.progress.per / this.progress.max);
-      this.thunk.onmousedown = function(e) {
-        let width = parseInt(_this.width);
-        let disX = e.clientX;
-        document.onmousemove = function(e) {
-          let newWidth = e.clientX - disX + width;
-          let scale = newWidth / _this.slider.offsetWidth;
-          let max = _this.progress.max;
-          let min = _this.progress.min;
-
-          _this.progress.per = Math.ceil((max - min) * scale + min);
-          _this.progress.per = Math.max(_this.progress.per, min);
-          _this.progress.per = Math.min(_this.progress.per, max);
-          _this.transfer.fee = 0.015 * (_this.progress.per / max).toFixed(6);
-        };
-        document.onmouseup = function(e) {
-          document.onmousemove = document.onmouseup = null;
-        };
-        return false;
-      };
     },
     setToggle(val) {
       this.selectedSet = val;

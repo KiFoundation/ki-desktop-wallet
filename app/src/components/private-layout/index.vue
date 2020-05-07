@@ -1,14 +1,14 @@
 <template>
   <b-container class="py-5 h-100">
     <b-row>
-      <b-col class="pr-0" :style="{ marginRight: '20px' }" cols="1">
+      <b-col class="pr-0" :style="{ marginRight: '5px' }" cols="1">
         <CornerLogo />
       </b-col>
       <b-col class="pl-0">
         <TopBar />
       </b-col>
     </b-row>
-    <b-row :style="{ marginTop: '15px', height: 'calc(100% - 80px)' }">
+    <b-row :style="{ marginTop: '5px', height: 'calc(100% - 80px)' }">
       <b-col class="pr-0" cols="1" :style="{ marginRight: '20px' }">
         <SideMenu />
       </b-col>

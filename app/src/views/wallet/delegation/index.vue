@@ -16,6 +16,7 @@
             top: '0px',
             height: '100%',
             width: 'auto',
+            color: colors.textColor,
           }"
         />
       </div>
@@ -65,7 +66,10 @@
         </div>
       </ValidatorCard>
     </div>
-    <div class="mt-5" v-if="validators && validators.length">
+    <div
+      class="mt-5"
+      v-if="validators && validators.length && validators.length > perPage"
+    >
       <b-pagination
         v-model="currentPage"
         :total-rows="

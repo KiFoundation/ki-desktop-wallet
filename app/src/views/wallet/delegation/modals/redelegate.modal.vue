@@ -27,7 +27,7 @@
               {{ redelegate.token }}
             </option>
           </datalist>
-          <div class="d-flex justify-content-center align-items-center mt-4">
+          <div class="d-flex justify-content-start align-items-center mt-4">
             <label class="my-0">To</label>
             <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
               {{ redelegate.validator }}

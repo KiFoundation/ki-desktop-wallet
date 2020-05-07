@@ -1,7 +1,7 @@
 <template>
   <div
     class="px-4 w-100 h-100 rounded d-flex align-items-center"
-    :style="{ backgroundColor: '#062ca3' }"
+    :style="{ backgroundColor: 'white' }"
   >
     <template v-if="!currentWallet">
       <NoWalletActions />

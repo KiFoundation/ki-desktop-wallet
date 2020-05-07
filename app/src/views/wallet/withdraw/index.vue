@@ -15,6 +15,7 @@
             top: '0px',
             height: '100%',
             width: 'auto',
+            color: colors.secondary,
           }"
         />
       </div>
@@ -36,7 +37,10 @@
           Withdraw
         </a>
       </ValidatorCard>
-      <div class="mt-5">
+      <div
+        class="mt-5"
+        v-if="validators && validators.length && validators.length > perPage"
+      >
         <b-pagination
           v-model="currentPage"
           :total-rows="

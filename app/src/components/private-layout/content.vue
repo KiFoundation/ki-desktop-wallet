@@ -2,8 +2,7 @@
   <div
     class="d-flex content rounded w-100 h-100"
     :style="{
-      backgroundColor: 'white',
-      boxShadow: '0 10px 10px rgba(154, 160, 185, 0.05)',
+      backgroundColor: 'transparent',
     }"
   >
     <slot />
@@ -16,6 +15,6 @@ export default {};
 
 <style scoped>
 .content {
-  overflow: auto;
+  overflow: hidden;
 }
 </style>

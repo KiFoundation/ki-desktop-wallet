@@ -19,6 +19,7 @@ import '@static/css/fade.animate.css';
 import clipboard from 'clipboard';
 import Unicon from 'vue-unicons';
 import { store } from '@store/';
+import { colors } from '@static/js/colors';
 
 import { ToastPlugin } from 'bootstrap-vue';
 Vue.use(ToastPlugin);
@@ -58,6 +59,7 @@ Vue.prototype.clipboard = clipboard;
 Vue.prototype.webUtil = webUtil;
 Vue.prototype.webCoin = webCoin;
 Vue.prototype.seedRandom = seedRandom;
+Vue.prototype.colors = colors;
 // Vue.prototype.accounts = accounts;
 
 /* eslint-disable no-new */
