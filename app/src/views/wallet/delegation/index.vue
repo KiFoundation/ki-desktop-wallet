@@ -1,8 +1,7 @@
 <template>
-  <div class="d-flex w-100 flex-column ">
+  <div class="d-flex w-100 h-100 flex-column px-3">
     <div
-      id="top-list"
-      class="d-flex justify-content-between align-items-end "
+      class="d-flex justify-content-between align-items-end mt-3"
       :style="{ position: 'relative' }"
     >
       <div class="h-100">
@@ -32,58 +31,65 @@
         </b-button>
       </b-button-group>
     </div>
-    <div v-if="validators && validators.length" class="mt-5 validators-list">
-      <ValidatorCard
-        v-for="(validator, idx) in validators
-          .filter(v => new RegExp(`^${text}`, 'gi').test(v.description.moniker))
-          .slice(perPage * currentPage - perPage, perPage * currentPage)"
-        :key="`validator-${idx}`"
-        :validator="validator"
-        class="mb-3"
-      >
-        <div>
-          <a
-            v-b-modal="'delegate-modal'"
-            class="link"
-            @click="selectedValidator = validator"
-          >
-            Delegate
-          </a>
-          <a
-            v-b-modal="'undelegate-modal'"
-            class="link ml-3"
-            @click="selectedValidator = validator"
-          >
-            Undelegate
-          </a>
-          <a
-            v-b-modal="'redelegate-modal'"
-            class="link ml-3"
-            @click="selectedValidator = validator"
-          >
-            Redelegate
-          </a>
-        </div>
-      </ValidatorCard>
-    </div>
     <div
-      class="mt-5"
-      v-if="validators && validators.length && validators.length > perPage"
+      v-if="validators && validators.length"
+      class="mt-5 d-flex flex-column justify-content-between h-100"
     >
-      <b-pagination
-        v-model="currentPage"
-        :total-rows="
-          validators.filter(v =>
-            new RegExp(`^${text}`, 'gi').test(v.description.moniker),
-          ).length
-        "
-        :per-page="perPage"
-        aria-controls="my-table"
-        @input="handleOnPageChange"
-      />
+      <div>
+        <ValidatorCard
+          v-for="(validator, idx) in validators
+            .filter(v =>
+              new RegExp(`^${text}`, 'gi').test(v.description.moniker),
+            )
+            .slice(perPage * currentPage - perPage, perPage * currentPage)"
+          :key="`validator-${idx}`"
+          :validator="validator"
+          class="mb-3"
+        >
+          <div>
+            <a
+              v-b-modal="'delegate-modal'"
+              class="link"
+              @click="selectedValidator = validator"
+            >
+              Delegate
+            </a>
+            <a
+              v-b-modal="'undelegate-modal'"
+              class="link ml-3"
+              @click="selectedValidator = validator"
+            >
+              Undelegate
+            </a>
+            <a
+              v-b-modal="'redelegate-modal'"
+              class="link ml-3"
+              @click="selectedValidator = validator"
+            >
+              Redelegate
+            </a>
+          </div>
+        </ValidatorCard>
+      </div>
+      <div
+        class="mt-5"
+        v-if="validators && validators.length && validators.length > perPage"
+      >
+        <b-pagination
+          v-model="currentPage"
+          :total-rows="
+            validators.filter(v =>
+              new RegExp(`^${text}`, 'gi').test(v.description.moniker),
+            ).length
+          "
+          :per-page="perPage"
+          aria-controls="my-table"
+          @input="handleOnPageChange"
+        />
+      </div>
     </div>
     <div
-      v-else
+      v-if="validators && !validators.length"
       class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
     >
       <div>
@@ -180,9 +186,7 @@ export default {
       fetchOtherValidators: FETCH_VALIDATORS_LIST,
     }),
     handleOnPageChange(page) {
-      document.querySelector('#top-list').scrollIntoView({
-        behavior: 'smooth',
-      });
+      document.querySelector('#content-renderer').scrollTop = 0;
     },
     selectValidator(validator) {
       this.selectedValidator = validator;

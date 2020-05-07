@@ -1,5 +1,5 @@
 <template>
-  <div class="py-4 w-100">
+  <div class="w-100">
     <div class="tabs w-100 pb-3">
       <router-link class="tab" :to="{ name: 'home' }">
         <unicon name="arrow-left" fill="black" />
@@ -58,7 +58,12 @@
         Multisign
       </router-link>
     </div>
-    <div class="p-4 w-100 h-100" :style="{ overflow: 'auto' }" v-if="!loading">
+    <div
+      id="content-renderer"
+      class="w-100 h-100"
+      :style="{ overflow: 'auto' }"
+      v-if="!loading"
+    >
       <transition
         name="fade"
         mode="out-in"
