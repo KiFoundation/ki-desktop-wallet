@@ -36,6 +36,7 @@ import {
   uniSync,
   uniExchange,
   uniCopy,
+  uniLocationArrow,
 } from 'vue-unicons/src/icons';
 
 Vue.config.productionTip = false;
@@ -51,6 +52,7 @@ Unicon.add([
   uniSync,
   uniExchange,
   uniCopy,
+  uniLocationArrow,
 ]);
 Vue.use(Unicon);
 

@@ -1,7 +1,7 @@
 <template>
   <section >
 
-        <table class="table">
+        <!-- <table class="table">
           <thead class="thead-null">
             <tr>
               <th scope="col">Tx</th>
@@ -25,7 +25,26 @@
 
           </tbody>
 
-        </table>
+        </table> -->
+
+        <b-row class="header align-items-center mx-0">
+          <b-col>
+            <b-row class="w-100 align-items-center">
+              <b-col cols="2"><span class="ml-4">Tx</span></b-col>
+              <b-col cols="1">type</b-col>
+              <b-col cols="2"><span class="ml-3">From</span></b-col>
+              <b-col cols="2">To</b-col>
+              <b-col cols="3">Amount</b-col>
+              <b-col cols="2">Fees</b-col>
+            </b-row>
+          </b-col>
+        </b-row>
+        <TransactionCard v-for="(item, index) in transactions
+                .slice(perPage * currentPage - perPage, perPage * currentPage)"
+                 v-bind:key="index"
+                 :transaction="item"
+                 class="mb-3" />
+
         <div class="mt-5">
           <b-pagination
             v-model="currentPage"
@@ -46,6 +65,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import {  BPagination } from 'bootstrap-vue';
+import TransactionCard from '@cmp/tx/tx.card';
 
 export default {
   data() {
@@ -69,12 +89,13 @@ export default {
 
   components: {
     BPagination,
+    TransactionCard
   },
   computed: {
     ...mapState({
       transactions: state => state.wallets.current.transactions,
-      wallets_dict: state => state.wallets.dict,
-      validators_dict: state => state.wallets.current.validators_dict,
+      // wallets_dict: state => state.wallets.dict,
+      // validators_dict: state => state.wallets.current.validators_dict,
     }),
 
   },

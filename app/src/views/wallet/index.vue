@@ -3,7 +3,7 @@
     <div class="tabs w-100 pb-3">
       <router-link class="tab" :to="{ name: 'home' }">
         <unicon name="arrow-left" fill="black" />
-      </router-link> -->
+      </router-link>
       <router-link
         class="tab"
         exact

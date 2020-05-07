@@ -25,9 +25,9 @@
           {{ currentWallet.address }}
         </p>
         <h5 :style="{ fontWeight: 'bolder' }">
-          {{ currentWalletBalancesDenom }}
+          {{ globalData.kichain.token }}
           {{ currentWalletBalancesAmount.available }}
-        </h4>
+        </h5>
       </div>
     </div>
     <div class="d-flex flex-row">

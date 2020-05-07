@@ -3,7 +3,8 @@
     <div>
       <h4>
         <span v-if="!loadingWallet">Total Balance
-          <h6> {{total}}</h6></span>
+          <h6>  {{ globalData.kichain.token }} {{total}}</h6>
+        </span>
         <span v-else>
           <b-spinner type="grow" variant="light" />
         </span>
