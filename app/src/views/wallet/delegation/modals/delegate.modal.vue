@@ -146,7 +146,7 @@ export default {
         alert: '',
         validator: this.validator.operator_address,
         amount: 0,
-        token: 'tki',
+        token: this.globalData.kichain.token,
         output: '',
       },
       fees: {
@@ -184,7 +184,7 @@ export default {
           alert: '',
           validator: this.validator.operator_address,
           amount: 0,
-          token: 'tki',
+          token: this.globalData.kichain.token,
           fee: 0.00125,
           gasPrice: '0.0000005',
           gasLimit: 300000,

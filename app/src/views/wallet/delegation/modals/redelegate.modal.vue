@@ -9,12 +9,18 @@
     <div class="basic-form modal-body">
       <form class="basic-form">
         <li class="token">
-          <label class="mt-0">{{ $t('webwallet_from_validator') }}</label>
+          <div class="d-flex justify-content-start align-items-center">
+            <label class="my-0">From</label>
+            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+              {{ redelegate.validator }}
+            </b-badge>
+          </div>
+          <label class="mt-4">{{ $t('webwallet_to_validator') }}</label>
           <input
-            v-model="redelegate.from_validator"
+            v-model="redelegate.to_validator"
             type="text"
             :placeholder="$t('webwallet_to_validator_pl')"
-            :class="[redelegate.from_validator ? '' : redelegate.alert]"
+            :class="[redelegate.to_validator ? '' : redelegate.alert]"
             list="validator_unbond_list"
           />
           <datalist id="validator_unbond_list">
@@ -27,12 +33,6 @@
               {{ redelegate.token }}
             </option>
           </datalist>
-          <div class="d-flex justify-content-start align-items-center mt-4">
-            <label class="my-0">To</label>
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
-              {{ redelegate.validator }}
-            </b-badge>
-          </div>
         </li>
         <ul class="basic-group clearfix">
           <li class="amount">
@@ -159,10 +159,10 @@ export default {
       context: 'Broadcast',
       redelegate: {
         alert: '',
-        to_validator: this.validator.operator_address,
-        from_validator: '',
+        to_validator: '',
+        from_validator: this.validator.operator_address,
         amount: 0,
-        token: 'tki',
+        token: this.globalData.kichain.token,
         fee: 0.00125,
         gasPrice: '0.0000005',
         gasLimit: 300000,
@@ -203,7 +203,7 @@ export default {
           alert: '',
           validator: this.validator.operator_address,
           amount: 0,
-          token: 'tki',
+          token: this.globalData.kichain.token,
           fee: 0.00125,
           gasPrice: '0.0000005',
           gasLimit: 300000,
