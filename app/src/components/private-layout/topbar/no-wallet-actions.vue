@@ -16,8 +16,8 @@
           data-target="#add-form-topbar"
           class="d-flex flex-column align-items-center justify-content-center"
         >
-          <unicon name="plus-circle" fill="royalblue" />
-          <span class="mt-2" :style="{ fontWeight: '600', color: 'white' }">
+          <unicon name="plus-circle" :fill="colors.secondary" />
+          <span class="mt-2" :style="{ fontWeight: '500' }">
             Create a Wallet
           </span>
         </a>
@@ -29,8 +29,8 @@
           data-target="#import-form-topbar"
           class="d-flex flex-column align-items-center justify-content-center"
         >
-          <unicon name="import" fill="royalblue" />
-          <span class="mt-2" :style="{ fontWeight: '600', color: 'white' }">
+          <unicon name="import" :fill="colors.secondary" />
+          <span class="mt-2" :style="{ fontWeight: '500' }">
             Import a Wallet
           </span>
         </a>

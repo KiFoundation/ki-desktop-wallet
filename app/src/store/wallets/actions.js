@@ -34,7 +34,6 @@ export const actions = {
       const responseUnbondingDelegation = await services.wallet.fetchDelegatorsUnbondingDelegationsList(
         wallet.address,
       );
-
       if (responseBalances.data.result) {
         walletTmp = {
           ...walletTmp,

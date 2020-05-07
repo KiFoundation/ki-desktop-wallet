@@ -1,16 +1,18 @@
 <template>
-  <b-modal
-    :id="modalId"
-    tabindex="-1"
-    :title="`Undelegate from ${validator.description.moniker}`"
-    hide-footer
-    @show="resetData"
-  >
+  <b-modal :id="modalId" tabindex="-1" hide-footer @show="resetData">
+    <template v-slot:modal-title>
+      <h5 class="modal-title">
+        Undelegate from
+        <strong :style="{ fontWeight: '600' }">{{
+          validator.description.moniker
+        }}</strong>
+      </h5>
+    </template>
     <div class="basic-form modal-body">
       <form class="basic-form">
         <li class="token">
-          <div class="d-flex justify-content-center align-items-center">
-            From
+          <div class="d-flex justify-content-start align-items-center">
+            <label class="m-0">From</label>
             <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
               {{ undelegate.validator }}
             </b-badge>
@@ -111,7 +113,7 @@
 </template>
 
 <script>
-import { BRow, BCol, BSpinner, BModal } from 'bootstrap-vue';
+import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
@@ -125,6 +127,7 @@ export default {
     BSpinner,
     BModal,
     FeesInput,
+    BBadge,
   },
   props: {
     modalId: {

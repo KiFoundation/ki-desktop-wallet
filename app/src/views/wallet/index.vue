@@ -1,6 +1,6 @@
 <template>
-  <div class="p-4 w-100">
-    <div class="tabs w-100">
+  <div class="py-4 w-100">
+    <div class="tabs w-100 pb-3">
       <router-link class="tab" :to="{ name: 'home' }">
         <unicon name="arrow-left" fill="black" />
       </router-link>
@@ -36,7 +36,7 @@
         Withdraw
       </router-link>
     </div>
-    <div class="p-4 w-100" v-if="!loading">
+    <div class="p-4 w-100 h-100" :style="{ overflow: 'auto' }" v-if="!loading">
       <transition
         name="fade"
         mode="out-in"
@@ -61,11 +61,7 @@
 import { BContainer, BSpinner } from 'bootstrap-vue';
 import { services } from '@services/index';
 import { mapActions, mapGetters, mapState, mapMutations } from 'vuex';
-import {
-  FETCH_WALLET_BALANCES,
-  HYDRATE_CURRENT_WALLET,
-  START_HYDRATE,
-} from '@store/wallets';
+import { HYDRATE_CURRENT_WALLET, START_HYDRATE } from '@store/wallets';
 import { HYDRATE_ACCOUNT, SET_ACCOUNT } from '@store/account';
 
 export default {
@@ -130,6 +126,6 @@ export default {
 
 <style scoped>
 .tabs .tab {
-  padding-bottom: 5px;
+  padding-bottom: 3px;
 }
 </style>

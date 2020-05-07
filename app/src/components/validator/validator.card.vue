@@ -16,7 +16,7 @@
               :style="{ backgroundImage: avatarGradient, color: 'white' }"
             />
           </div>
-          <h5 class="ml-4">{{ validator.description.moniker }}</h5>
+          <h6 class="ml-4">{{ validator.description.moniker }}</h6>
         </b-col>
         <b-col cols="4">
           <h6

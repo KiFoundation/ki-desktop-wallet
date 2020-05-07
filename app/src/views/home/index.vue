@@ -1,7 +1,7 @@
 <template>
-  <b-container fluid class="p-4 mt-3">
+  <div class="py-4">
     <WalletsList @onSelectWallet="handleSelectWallet" />
-  </b-container>
+  </div>
 </template>
 
 <script>
@@ -16,7 +16,6 @@ import router from '@router/index';
 export default {
   components: {
     WalletsList,
-    BContainer,
   },
   mounted() {
     this.hydrateCurrentWallet(null);

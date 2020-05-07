@@ -1,8 +1,8 @@
 <template>
-  <div class="fee-set">
-    <div class="d-flex align-items-center">
-      <label>{{ $t('webwallet_fee') }}</label>
-      <div class="setBtn">
+  <div class="fee-set mt-5">
+    <div class="d-flex align-items-center justify-content-between">
+      <label class="my-0">{{ $t('webwallet_fee') }}</label>
+      <!-- <div class="setBtn">
         <toggle-button
           :value="value.advanced"
           :labels="{ checked: 'Advanced', unchecked: 'Simple' }"
@@ -16,7 +16,10 @@
           :height="28"
           @input="handleChangeSimple"
         />
-      </div>
+      </div> -->
+      <a @click="handleChangeSimple(!value.advanced)" class="mode-link">{{
+        (value.advanced && 'Simple mode') || 'Advanced mode'
+      }}</a>
     </div>
 
     <ul v-if="!value.advanced" class="basic-group clearfix mt-3">
@@ -170,5 +173,13 @@ input,
 }
 .setBtn {
   border: none;
+}
+.mode-link {
+  font-size: 13px;
+  color: #ccc;
+  transition: color 250ms ease;
+}
+.mode-link:hover {
+  color: var(--textColor);
 }
 </style>

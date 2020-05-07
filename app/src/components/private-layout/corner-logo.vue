@@ -1,7 +1,7 @@
 <template>
   <router-link
-    class="d-flex justify-content-center align-items-center rounded"
-    :style="{ backgroundColor: 'black', width: '80px', height: '80px' }"
+    class="d-flex justify-content-center align-items-center"
+    :style="{ backgroundColor: 'transparent', width: '80px', height: '80px' }"
     :to="{
       name: 'home',
     }"
@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      logo: 'static/img/chain/kichain1_white@2x.png',
+      logo: 'static/img/chain/kichain_icon@2x.png',
     };
   },
 };

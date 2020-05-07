@@ -19,6 +19,7 @@
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          color: colors.secondary,
         }"
       >
         {{ wallet.address }}
