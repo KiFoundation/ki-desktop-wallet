@@ -3,7 +3,7 @@ export default {
   kichain: {
     // nodeUrl: "https://api-devnet.blockchain.ki",
     nodeUrl: 'https://api-testnet.blockchain.ki',
-    token: process.env.NODE_ENV !== 'production' ? 'tҟi' : 'ҟi',
+    token: process.env.NODE_ENV !== 'production' ? 'tҟ' : 'ҟ',
     prefix: 'tki',
     network: {
       // network: 'Devnet',

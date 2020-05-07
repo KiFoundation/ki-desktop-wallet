@@ -1,32 +1,6 @@
 <template>
   <section >
-
-        <!-- <table class="table">
-          <thead class="thead-null">
-            <tr>
-              <th scope="col">Tx</th>
-              <th scope="col">type</th>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
-              <th scope="col">Amount</th>
-              <th scope="col">Fees</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in transactions.slice(perPage * currentPage - perPage, perPage * currentPage)" v-bind:key="index">
-              <td class="text"><span><a :href="explorer+ '/transactions/' + item[0]" target="_blank">{{item[0]}}</a></span></td>
-              <td class="text"><span>{{item[1]}}</span></td>
-              <td class="text"><span><a :href="explorer+ '/account/' + item[6]" target="_blank">{{wallets_dict[item[6]]? wallets_dict[item[6]] : item[6] }}</a></span></td>
-              <td v-if="item[1]=='delegate'" class="text"><span><a :href="explorer+ '/validator/' + item[2]" target="_blank">{{validators_dict[item[2]]? validators_dict[item[2]] : item[2] }}</a></span></td>
-              <td  v-else  class="text"><span><a :href="explorer+ '/account/' + item[2]" target="_blank">{{wallets_dict[item[2]]? wallets_dict[item[2]] : item[2] }}</a></span></td>
-              <td class="text"><span :style="{color:colors[item[1]]}">{{item[3]}}</span></td>
-              <td class="text"><span>{{item[4]}}</span></td>
-            </tr>
-
-          </tbody>
-
-        </table> -->
-
+      <div v-if="transactions && transactions.length">
         <b-row class="header align-items-center mx-0">
           <b-col>
             <b-row class="w-100 align-items-center">
@@ -43,7 +17,7 @@
                 .slice(perPage * currentPage - perPage, perPage * currentPage)"
                  v-bind:key="index"
                  :transaction="item"
-                 class="mb-3" />
+                 class="mb-2" />
 
         <div class="mt-5">
           <b-pagination
@@ -55,9 +29,19 @@
             aria-controls="my-table"
           />
         </div>
-        <!-- <div class="table-footer">
-          <span><a :href="explorer+ 'account/' + this.account" target="_blank">See all transactions</a></span>
-        </div> -->
+      </div>
+      <div
+        v-else
+        class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
+      >
+        <div>
+          <p style="font-size:60px">
+            🤔
+          </p>
+          {{ $t('webwallet_no_transactions') }}
+        </div>
+      </div>
+
 
     </section>
 </template>
