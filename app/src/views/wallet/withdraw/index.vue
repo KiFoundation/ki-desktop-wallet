@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex w-100 flex-column ">
+  <div class="d-flex w-100 h-100 flex-column px-3">
     <div
-      class="d-flex justify-content-between align-items-end"
+      class="d-flex justify-content-between align-items-end mt-3"
       :style="{ position: 'relative', height: '47px' }"
     >
       <div class="h-100">
@@ -20,23 +20,30 @@
         />
       </div>
     </div>
-    <div v-if="validators && validators.length" class="mt-5">
-      <ValidatorCard
-        v-for="(validator, idx) in validators
-          .filter(v => new RegExp(`^${text}`, 'gi').test(v.description.moniker))
-          .slice(perPage * currentPage - perPage, perPage * currentPage)"
-        :key="`validator-${idx}`"
-        :validator="validator"
-        class="mb-3"
-      >
-        <a
-          v-b-modal="'withdraw-modal'"
-          class="link"
-          @click="selectedValidator = validator"
+    <div
+      v-if="validators && validators.length"
+      class="mt-5 d-flex flex-column justify-content-between h-100"
+    >
+      <div>
+        <ValidatorCard
+          v-for="(validator, idx) in validators
+            .filter(v =>
+              new RegExp(`^${text}`, 'gi').test(v.description.moniker),
+            )
+            .slice(perPage * currentPage - perPage, perPage * currentPage)"
+          :key="`validator-${idx}`"
+          :validator="validator"
+          class="mb-3"
         >
-          Withdraw
-        </a>
-      </ValidatorCard>
+          <a
+            v-b-modal="'withdraw-modal'"
+            class="link"
+            @click="selectedValidator = validator"
+          >
+            Withdraw
+          </a>
+        </ValidatorCard>
+      </div>
       <div
         class="mt-5"
         v-if="validators && validators.length && validators.length > perPage"
@@ -54,7 +61,7 @@
       </div>
     </div>
     <div
-      v-else
+      v-if="validators && !validators.length"
       class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
     >
       <div>
