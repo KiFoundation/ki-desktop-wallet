@@ -18,7 +18,7 @@
                 <input type="text" :placeholder="$t('webwallet_for_multisig')">
               </li> -->
 
-                <div class="upload-form" style="margin-top:35px">
+                <div class="upload-form" style="margin-top:35px; width:90%;">
                   <b-row>
                     <b-col cols="3">
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
@@ -50,7 +50,7 @@
                   </b-row>
                 </div>
                 <li v-if="this.multisign.signature!=''" class="token">
-                  <label>{{$t("webwallet_sign_signature")}}</label>
+                  <label style="margin-top: 10px;">{{$t("webwallet_sign_signature")}}</label>
                   <textarea class="" v-model="this.multisign.signature" rows="3" disabled />
                 </li>
                 <a v-if="this.multisign.signature==''" class="btn  btn-primary" @click="msignTxFile">{{$t("signtx")}}</a>
@@ -58,9 +58,9 @@
               </div>
             </form>
             <form v-else>
-              <div class="basic-form">
+              <!-- <div class="basic-form"> -->
                 <div class="upload-form">
-                  <b-row align-v="center">
+                  <!-- <b-row align-v="center"> -->
                     <b-col cols="4"/>
                     <b-col>
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
@@ -69,9 +69,9 @@
                       </div>
                     </b-col>
                     <b-col cols="4" />
-                  </b-row>
+                  <!-- </b-row> -->
                 </div>
-              </div>
+              <!-- </div> -->
             </form>
           </div>
 </template>

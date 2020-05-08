@@ -1,5 +1,5 @@
 <template>
-  <div id="sign-form" class="transfer tab-pane">
+  <div id="sign-form" class="d-flex w-100 h-100 flex-column px-3">
     <form v-if="sign.file_valid" class="basic-form">
       <li class="token">
         <label>{{ $t('webwallet_signing_file_label') }}</label>
@@ -72,9 +72,9 @@
       }}</a>
     </form>
     <form v-else>
-      <div class="basic-form">
+      <!-- <div class="basic-form"> -->
         <div class="upload-form">
-          <b-row align-v="center">
+          <!-- <b-row align-v="center"> -->
             <b-col cols="4" />
             <b-col>
               <div
@@ -96,9 +96,9 @@
               </div>
             </b-col>
             <b-col cols="4" />
-          </b-row>
+          <!-- </b-row> -->
         </div>
-      </div>
+      <!-- </div> -->
     </form>
   </div>
 </template>

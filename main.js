@@ -9,7 +9,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     // backgroundColor: '#043bea',
     width: 1200,
-    height: 800,
+    height: 950,
     minWidth: 1200,
     show: false,
     // frame:false,
@@ -23,7 +23,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadFile("index.html");
-  mainWindow.openDevTools();
+  // mainWindow.openDevTools();
   // Open all target="_blank" link in external browser
   let webContents = mainWindow.webContents;
   webContents.on("new-window", function (event, url) {
