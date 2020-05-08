@@ -97,7 +97,7 @@
           modalId="import-form"
           @onResetModal="handleResetModal"
           @onImportWallet="handleImportWallet"
-          @oImportMultiSigWallet="handleImportMultiSigWallet"
+          @onImportMultiSigWallet="handleImportMultiSigWallet"
         />
         <!-- =======================Create modal============================= -->
         <CreateWalletForm
@@ -279,9 +279,10 @@ export default {
 
     handleImportMultiSigWallet(formValue) {
       const { wallet_name, wallet_pass_tmp, ms_address } = formValue;
-
+      console.log("ok1")
       // Store Wallet
       this.storeInWalletList(wallet_name);
+      console.log("ok2")
 
       localStorage.setItem(
         wallet_name,
@@ -289,6 +290,7 @@ export default {
           ms_address +
           '"}',
       );
+      console.log("ok3")
 
       localStorage.setItem('import_success', 'true');
 

@@ -42,7 +42,7 @@
     <ImportWalletForm
       modalId="import-form-topbar"
       @onImportWallet="handleImportWallet"
-      @oImportMultiSigWallet="handleImportMultiSigWallet"
+      @onImportMultiSigWallet="handleImportMultiSigWallet"
     />
     <!-- =======================Create modal============================= -->
     <CreateWalletForm
