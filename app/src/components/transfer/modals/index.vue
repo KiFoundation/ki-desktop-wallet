@@ -55,30 +55,32 @@
             type="text"
             :placeholder="$t('webwallet_memo_pl')"
           />
-          <label>{{ $t('enter_password') }}</label>
-          <div class="buttonInside">
-            <input
-              v-model="wallet_pass_tmp"
-              :type="password"
-              :class="[wallet_pass_tmp ? '' : transfer.alert]"
-            />
-            <a
-              v-if="password == 'password'"
-              class="inside"
-              @click="password = 'text'"
-              ><img
-                src="static/img/icons/eye-on.png"
-                style="width:25px; opacity:0.2"
-            /></a>
+          <div v-if="!multisig">
+            <label>{{ $t('enter_password') }}</label>
+            <div class="buttonInside">
+              <input
+                v-model="wallet_pass_tmp"
+                :type="password"
+                :class="[wallet_pass_tmp ? '' : transfer.alert]"
+              />
+              <a
+                v-if="password == 'password'"
+                class="inside"
+                @click="password = 'text'"
+                ><img
+                  src="static/img/icons/eye-on.png"
+                  style="width:25px; opacity:0.2"
+              /></a>
 
-            <a
-              v-if="password == 'text'"
-              class="inside"
-              @click="password = 'password'"
-              ><img
-                src="static/img/icons/eye-off.png"
-                style="width:25px; opacity:0.2"
-            /></a>
+              <a
+                v-if="password == 'text'"
+                class="inside"
+                @click="password = 'password'"
+                ><img
+                  src="static/img/icons/eye-off.png"
+                  style="width:25px; opacity:0.2"
+              /></a>
+            </div>
           </div>
 
           <li v-if="transfer.output != ''" class="token">
@@ -161,7 +163,7 @@ export default {
       account: state => state.account,
     }),
     multisig() {
-      return this.$store.state.app.multisign;
+      return this.$store.state.wallets.current.multisign;
     },
     // slider stuff
     scale() {
@@ -235,7 +237,7 @@ export default {
       if (!this.transfer.amount) {
         filled = false;
       }
-      if (!this.wallet_pass_tmp) {
+      if (!this.wallet_pass_tmp && !this.multisig) {
         filled = false;
       }
       if (this.transfer.amount < Math.pow(10, -6)) {

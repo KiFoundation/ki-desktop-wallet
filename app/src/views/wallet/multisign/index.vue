@@ -95,6 +95,7 @@ export default {
         'file_content': '',
         'summary': '',
         'signature': '',
+        'signature_obj': '',
         'sigfiles': [],
         'txfile_valid': false,
         'fields': ['address', 'status'],
@@ -149,6 +150,7 @@ export default {
     },
     parseMessage(file) {
       try {
+        this.multisign.signature_obj=JSON.parse(file)
         let msg_ = JSON.parse(file).value.msg;
 
         switch (msg_[0].type) {
@@ -277,7 +279,7 @@ export default {
         for (var i = 0; i < len; i++) {
            b[i] = binary_string.charCodeAt(i);
          }
-         bsigs.push(b)
+         bsigs[index] = b
       }
 
       // create the signature prefixes
@@ -306,8 +308,11 @@ export default {
       for (var i = 0; i < len; i++) {
           binary += String.fromCharCode( bytes[ i ] );
       }
-      this.multisign.signature = window.btoa( binary );
+
+      this.multisign.signature_obj.value['sigantures'] = [{ 'pub_key':'', 'siganture': window.btoa( binary ) } ];
+      this.multisign.signature = JSON.stringify(this.multisign.signature_obj);
     },
+
     removeFile(list, file) {
       if (list == 'msf') {
         this.multisign.file = '';
@@ -318,6 +323,7 @@ export default {
         this.multisign.file_valid = false;
         this.multisign.file_content = '';
         this.pubkeys.forEach(key => (key.status = 'pending...'));
+        this.multisign.signed=[];
       }
 
       if (list == 'mssf') {

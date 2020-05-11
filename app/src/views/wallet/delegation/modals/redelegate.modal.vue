@@ -58,35 +58,37 @@
         <ul class="basic-group clearfix">
           <FeesInput v-model="fees" />
         </ul>
-
-        <label>{{ $t('enter_password') }}</label>
-        <div class="buttonInside">
-          <input
-            v-model="wallet_pass_tmp"
-            :type="password"
-            :class="[wallet_pass_tmp ? '' : redelegate.alert]"
-          />
-          <a
-            v-if="password == 'password'"
-            class="inside"
-            @click="password = 'text'"
-          >
-            <img
-              src="static/img/icons/eye-on.png"
-              style="width:25px; opacity:0.2"
+        <div v-if="!multisig">
+          <label>{{ $t('enter_password') }}</label>
+          <div class="buttonInside">
+            <input
+              v-model="wallet_pass_tmp"
+              :type="password"
+              :class="[wallet_pass_tmp ? '' : redelegate.alert]"
             />
-          </a>
-          <a
-            v-if="password == 'text'"
-            class="inside"
-            @click="password = 'password'"
-          >
-            <img
-              src="static/img/icons/eye-off.png"
-              style="width:25px; opacity:0.2"
-            />
-          </a>
+            <a
+              v-if="password == 'password'"
+              class="inside"
+              @click="password = 'text'"
+            >
+              <img
+                src="static/img/icons/eye-on.png"
+                style="width:25px; opacity:0.2"
+              />
+            </a>
+            <a
+              v-if="password == 'text'"
+              class="inside"
+              @click="password = 'password'"
+            >
+              <img
+                src="static/img/icons/eye-off.png"
+                style="width:25px; opacity:0.2"
+              />
+            </a>
+          </div>
         </div>
+
         <li v-if="redelegate.output != ''" class="token">
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="redelegate.output" class="" rows="3" disabled />
@@ -215,7 +217,7 @@ export default {
       if (this.redelegate.amount < Math.pow(10, -6)) {
         filled = false;
       }
-      if (this.wallet_pass_tmp === '') {
+      if (this.wallet_pass_tmp === '' && !this.multisig) {
         filled = false;
       }
 

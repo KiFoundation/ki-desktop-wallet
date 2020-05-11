@@ -132,6 +132,7 @@ export default {
       key: state => state.wallets.current.privatekey,
       account: state => state.account,
       wallet: state => state.wallets.current,
+      chainId : state => state.app.chainId,
     }),
   },
   methods:{
