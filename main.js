@@ -11,6 +11,7 @@ function createWindow() {
     width: 1200,
     height: 950,
     minWidth: 1200,
+    minWidth: 900,
     show: false,
     // frame:false,
     // titleBarStyle: 'hiddenInset',

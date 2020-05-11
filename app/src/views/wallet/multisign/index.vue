@@ -10,7 +10,7 @@
                   </div>
                 </li>
                 <li class="token">
-                  <label>{{$t("webwallet_sign_summary")}}</label>
+                  <label style="margin-top: 10px;">{{$t("webwallet_sign_summary")}}</label>
                   <textarea class="warning" v-model="this.multisign.summary" rows="3" disabled />
                 </li>
                 <!-- <li class="token">
@@ -18,7 +18,7 @@
                 <input type="text" :placeholder="$t('webwallet_for_multisig')">
               </li> -->
 
-                <div class="upload-form" style="margin-top:35px; width:90%;">
+                <div class="upload-form" style="margin-top:10px; width:90%;">
                   <b-row>
                     <b-col cols="3">
                       <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile">
@@ -358,27 +358,28 @@ export default {
     async broadcastTx(){
       const bcTransactionme = createBroadcastTx(this.multisign.signature_obj);
       console.log(JSON.stringify(bcTransactionme))
-      // try {
+      try {
         const responsePostTransfer = await services.tx.postTx(bcTransactionme);
-        // this.$bvToast.toast('Transaction sent with success', {
-        //   variant: 'success',
-        //   autoHideDelay: 2000,
-        //   noCloseButton: true,
-        //   solid: true,
-        //   toaster: 'b-toaster-bottom-center',
-        // });
+        this.$bvToast.toast('Transaction sent with success', {
+          variant: 'success',
+          autoHideDelay: 2000,
+          noCloseButton: true,
+          solid: true,
+          toaster: 'b-toaster-bottom-center',
+        });
+        removeFile('msf', '')
         // this.$emit('onWithdrawSuccess');
-      // } catch (error) {
-        console.log(responsePostTransfer)
-        // this.$bvToast.toast(error, {
-        //   variant: 'danger',
-        //   autoHideDelay: 2000,
-        //   solid: true,
-        //   noCloseButton: true,
-        //   toaster: 'b-toaster-bottom-center',
-        // });
+      } catch (error) {
+
+        this.$bvToast.toast("Failed to send", {
+          variant: 'danger',
+          autoHideDelay: 2000,
+          solid: true,
+          noCloseButton: true,
+          toaster: 'b-toaster-bottom-center',
+        });
         // this.$emit('onWithdrawError');
-      // }
+      }
     }
   }
 };

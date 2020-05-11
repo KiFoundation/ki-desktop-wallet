@@ -16,7 +16,7 @@
             {{ formatAmount(validator.tokens) }}
           </label> -->
           <div class="d-flex justify-content-start align-items-center">
-            <label class="m-0">From</label>
+            <label class="m-0">To</label>
             <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
               {{ delegate.validator }}
             </b-badge>

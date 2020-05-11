@@ -18,7 +18,7 @@
         </div>
       </li>
       <li class="token">
-        <label>{{ $t('webwallet_sign_summary') }}</label>
+        <label style="margin-top: 10px;">{{ $t('webwallet_sign_summary') }}</label>
         <textarea
           v-model="sign.summary"
           class="warning"
@@ -60,7 +60,7 @@
         /></a>
       </div>
       <li v-if="sign.signature != ''" class="token">
-        <label>{{ $t('webwallet_sign_signature') }}</label>
+        <label style="margin-top: 10px;">{{ $t('webwallet_sign_signature') }}</label>
         <textarea v-model="sign.signature" class="" rows="3" disabled />
       </li>
 
