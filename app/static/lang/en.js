@@ -79,6 +79,7 @@ export default {
   signtx: 'Sign',
   msigntx: 'Multisign',
   download: 'Download',
+  broadcast: 'Broadcast',
   transaction_list: 'Transactions',
   undelegation_amount: 'Amount to unbond',
   transfer: 'Transfer',

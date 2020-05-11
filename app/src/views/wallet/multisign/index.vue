@@ -53,8 +53,13 @@
                   <label style="margin-top: 10px;">{{$t("webwallet_sign_signature")}}</label>
                   <textarea class="" v-model="this.multisign.signature" rows="3" disabled />
                 </li>
-                <a v-if="this.multisign.signature==''" class="btn  btn-primary" @click="msignTxFile">{{$t("signtx")}}</a>
-                <a v-else class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
+                <div v-if="this.multisign.signature==''">
+                  <a class="btn  btn-primary" @click="msignTxFile">{{$t("signtx")}}</a>
+                </div>
+                <div v-else>
+                  <a class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
+                  <a class="btn btn-success " @click="broadcastTx">{{$t("broadcast")}}</a>
+                </div>
               </div>
             </form>
             <form v-else>
@@ -78,8 +83,10 @@
 
 <script>
 import Vue from 'vue'
+import { services } from '@services/index';
 import { mapActions, mapState } from 'vuex';
-import {  BTable } from 'bootstrap-vue'
+import { BTable } from 'bootstrap-vue';
+import { createBroadcastTx } from '@tendermint/sig';
 Vue.component('b-table', BTable);
 
 export default {
@@ -150,7 +157,7 @@ export default {
     },
     parseMessage(file) {
       try {
-        this.multisign.signature_obj=JSON.parse(file)
+        this.multisign.signature_obj=JSON.parse(file).value
         let msg_ = JSON.parse(file).value.msg;
 
         switch (msg_[0].type) {
@@ -233,7 +240,6 @@ export default {
       let sig_data = JSON.parse(file);
       let pubkey = sig_data.pub_key.value;
       let sig = sig_data.signature;
-
       this.multisign.signed[name] = [pubkey, sig];
 
       this.pubkeys.forEach(
@@ -309,7 +315,16 @@ export default {
           binary += String.fromCharCode( bytes[ i ] );
       }
 
-      this.multisign.signature_obj.value['sigantures'] = [{ 'pub_key':'', 'siganture': window.btoa( binary ) } ];
+      // TODO : get this from state
+      var pub_key_elements = []
+      this.pubkeys.forEach(key =>  {
+        pub_key_elements.push({'type': 'tendermint/PubKeySecp256k1', 'value': key.address})
+      })
+
+      var pub_key_final = {"type": "tendermint/PubKeyMultisigThreshold",
+      "value": {'threshold': this.threshold, 'pubkeys': pub_key_elements}}
+
+      this.multisign.signature_obj['signatures'] = [{ 'pub_key': pub_key_final, 'signature': window.btoa( binary ) } ];
       this.multisign.signature = JSON.stringify(this.multisign.signature_obj);
     },
 
@@ -339,6 +354,32 @@ export default {
         });
       }
     },
+
+    async broadcastTx(){
+      const bcTransactionme = createBroadcastTx(this.multisign.signature_obj);
+      console.log(JSON.stringify(bcTransactionme))
+      // try {
+        const responsePostTransfer = await services.tx.postTx(bcTransactionme);
+        // this.$bvToast.toast('Transaction sent with success', {
+        //   variant: 'success',
+        //   autoHideDelay: 2000,
+        //   noCloseButton: true,
+        //   solid: true,
+        //   toaster: 'b-toaster-bottom-center',
+        // });
+        // this.$emit('onWithdrawSuccess');
+      // } catch (error) {
+        console.log(responsePostTransfer)
+        // this.$bvToast.toast(error, {
+        //   variant: 'danger',
+        //   autoHideDelay: 2000,
+        //   solid: true,
+        //   noCloseButton: true,
+        //   toaster: 'b-toaster-bottom-center',
+        // });
+        // this.$emit('onWithdrawError');
+      // }
+    }
   }
 };
 </script>
