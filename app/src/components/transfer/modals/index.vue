@@ -308,6 +308,7 @@ export default {
           solid: true,
           toaster: 'b-toaster-bottom-center',
         });
+        this.handleTransferSuccess()
         this.$emit('onTransferSuccess');
       } catch (error) {
         this.$bvToast.toast(error, {
@@ -323,6 +324,10 @@ export default {
     },
     setToggle(val) {
       this.selectedSet = val;
+    },
+
+    async handleTransferSuccess() {
+        this.$bvModal.hide('transfer-modal');
     },
   },
 };
