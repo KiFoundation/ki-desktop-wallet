@@ -4,7 +4,7 @@
 
 # Ki Desktop Wallet
 
-This repository hosts `ki-desktop-wallet`, a desktop wallet for the KiChain.
+This repository hosts `ki-desktop-wallet`, a desktop wallet for the KiChain. This wallet is still in beta stage.
 
 ## Functionalities
 
@@ -13,14 +13,14 @@ The wallet allows:
 -   Importing and creating KiChain accounts (addresses).
 -   Maintaining multiple accounts.
 -   Issuing transfer transactions: send.
--   Issuing staking transactions: delegate/undelegate/redelegate transactions.
+-   Issuing staking transactions: delegate/undelegate/redelegate.
 -   Issuing distribution transactions: withdraw rewards and/or commissions.
--   Viewing send and delegation transactions (mini-explorer)
+-   Viewing transactions (mini-explorer)
 -   Generate, sign and broadcast transaction files
 -   Perform the multi signature workflow (Generate, sign, collect, multisign)
 
 ## How to run The  Ki desktop Wallet
-To run the Ki desktop wallet you need first to build the it and then to run it or package it in electron. 
+To run the Ki desktop wallet you need first to build the it and then to run it or package it in electron.
 ### Build the wallet
 
 ```bash
@@ -50,10 +50,9 @@ npm start
 npm run package-mac
 ```
 
-## Disclaimer
-
-The Ki desktop Wallet is based on the [math-cosmos-web-wallet](https://github.com/mathwallet/math-cosmos-web-wallet) project by [MathWallet](https://github.com/mathwallet).
-
 ## Security
 
 If you discover a security vulnerability in this project, please report it to security@foundation.ki. We will promptly address all security vulnerabilities.
+
+**Disclaimer**
+The Ki desktop Wallet uses code parts from the [math-cosmos-web-wallet](https://github.com/mathwallet/math-cosmos-web-wallet) project by [MathWallet](https://github.com/mathwallet).
