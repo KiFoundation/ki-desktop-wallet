@@ -56,15 +56,18 @@
             </a>
             <a
               v-b-modal="'undelegate-modal'"
-              class="link ml-3"
-              @click="selectedValidator = validator"
+              :class="{'link':my_v_list.includes(validator.operator_address) ,'ml-3':true}"
+              @click="selectedValidator = validator; "
+              :disabled="!my_v_list.includes(validator.operator_address)"
             >
               Undelegate
             </a>
             <a
               v-b-modal="'redelegate-modal'"
-              class="link ml-3"
+              :class="{'link':my_v_list.includes(validator.operator_address) ,
+                        'ml-3':true}"
               @click="selectedValidator = validator"
+              :disabled="!my_v_list.includes(validator.operator_address)"
             >
               Redelegate
             </a>
@@ -148,6 +151,7 @@ export default {
     return {
       selectedValidator: null,
       text: '',
+      my_v_list: [],
       currentPage: 1,
       perPage: 10,
       buttons: [
@@ -178,6 +182,7 @@ export default {
   },
   created() {
     this.filter = 'all';
+    this.myValidators.forEach(key => this.my_v_list.push(key.operator_address))
   },
   mounted() {},
   methods: {

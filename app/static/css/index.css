@@ -1001,3 +1001,6 @@ a.custom-card:hover {
   font-weight: bold;
   padding-bottom: 12px;
 }
+.not-link{
+  color: #8a8a8f;
+}

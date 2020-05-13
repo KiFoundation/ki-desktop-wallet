@@ -1,7 +1,9 @@
 <template>
-  <section >
-      <div v-if="transactions && transactions.length">
-        <b-row class="header align-items-center mx-0">
+  <!-- <section > -->
+  <div class="d-flex w-100 h-100 flex-column px-3">
+
+
+      <b-row class="header align-items-center mx-0">
           <b-col>
             <b-row class="w-100 align-items-center">
               <b-col cols="2"><span class="ml-4">Tx</span></b-col>
@@ -13,13 +15,24 @@
             </b-row>
           </b-col>
         </b-row>
+
+        <div
+            v-if="transactions && transactions.length"
+            class="mt-2 d-flex flex-column justify-content-between h-100"
+            >
+        <div>
+
         <TransactionCard v-for="(item, index) in transactions
                 .slice(perPage * currentPage - perPage, perPage * currentPage)"
                  v-bind:key="index"
                  :transaction="item"
                  class="mb-2" />
+        </div>
 
-        <div class="mt-5">
+        <div
+          class="mt-5"
+          v-if="transactions && transactions.length && transactions.length > perPage"
+        >
           <b-pagination
             v-model="currentPage"
             :total-rows="
@@ -30,20 +43,21 @@
           />
         </div>
       </div>
-      <div
-        v-else
-        class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
-      >
-        <div>
+
+        <div
+          v-if="transactions && !transactions.length"
+          class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
+          >
+          <div>
           <p style="font-size:60px">
             🤔
           </p>
           {{ $t('webwallet_no_transactions') }}
         </div>
       </div>
+    </div>
 
-
-    </section>
+    <!-- </section> -->
 </template>
 
 <script>
