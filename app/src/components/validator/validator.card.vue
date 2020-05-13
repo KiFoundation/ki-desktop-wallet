@@ -1,0 +1,124 @@
+<template>
+  <b-row v-if="validator" class="validator-card align-items-center mx-0">
+    <b-col>
+      <b-row class="w-100 align-items-center">
+        <b-col cols="4" class="flex-row d-flex align-items-center">
+          <div :style="{ position: 'relative' }">
+            <b-avatar
+              class="d-flex justify-content-center align-items-center"
+              size="2rem"
+              :variant="avatarRandomVariant"
+              :text="
+                validator.description.moniker
+                  .toUpperCase()
+                  .match(new RegExp(/[A-Za-z]/))[0]
+              "
+              :style="{ backgroundImage: avatarGradient, color: 'white' }"
+            />
+          </div>
+          <h6 class="ml-4">{{ validator.description.moniker }}</h6>
+        </b-col>
+        <b-col cols="4">
+          <h6
+            :style="{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }"
+          >
+            {{
+              currentWallet.delegation.find(
+                d => d.validator_address === validator.operator_address,
+              ) &&
+                formatAmount(
+                  currentWallet.delegation.find(
+                    d => d.validator_address === validator.operator_address,
+                  ).shares,
+                ) + ' / '
+            }}
+            {{ formatAmount(validator.delegator_shares) }}
+          </h6>
+        </b-col>
+        <b-col cols="4" class="d-flex justify-content-end">
+          <slot />
+        </b-col>
+      </b-row>
+    </b-col>
+  </b-row>
+</template>
+
+<script>
+import { BRow, BCol, BAvatar, BButton } from 'bootstrap-vue';
+import * as numeral from 'numeral';
+import { mapState } from 'vuex';
+import { tokenUtil } from '@static/js/token';
+import util from '@static/js/util';
+
+export default {
+  components: {
+    BRow,
+    BCol,
+    BAvatar,
+  },
+  props: {
+    validator: {
+      type: Object,
+      default: null,
+    },
+  },
+  computed: {
+    ...mapState({
+      currentWallet: state => state.wallets.current,
+    }),
+    avatarRandomVariant() {
+      const variants = [
+        'secondary',
+        'primary',
+        'dark',
+        'light',
+        'success',
+        'danger',
+        'warning',
+        'info',
+      ];
+      return variants[Math.floor(Math.random() * variants.length)];
+    },
+    avatarGradient() {
+      return util.generateWalletGradient(this.validator.operator_address);
+    },
+  },
+  methods: {
+    onSelectValidator() {
+      this.$emit('onSelectValidator', this.validator);
+    },
+    formatAmount(amount) {
+      return tokenUtil.format(amount);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.validator-card {
+  /* cursor: pointer; */
+  width: 100%;
+  color: black;
+  /* min-height: 50px; */
+  min-height: 75px;
+  border: 1px solid #efefef;
+  border-radius: 10px;
+  background-color: white;
+  transition: box-shadow 240ms, transform 200ms;
+}
+.validator-card:hover {
+  box-shadow: 0px 3px 3px rgba(154, 160, 185, 0.04);
+}
+.link {
+  color: var(--primary);
+  font-weight: 600;
+}
+.link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+</style>
