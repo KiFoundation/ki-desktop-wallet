@@ -10,8 +10,8 @@ export const actions = {
     { commit, state, getters, dispatch },
     { transaction, password },
   ) => {
-    console.log('POST_TRANSFER :: ', state);
-    // Loading init
+    // console.log('POST_TRANSFER :: ', state);
+    try {
     commit(INIT_TRANSFER);
     //
     const response = await services.auth.fetchAccount(
@@ -35,22 +35,14 @@ export const actions = {
       };
 
       let key;
-      try {
-        // Decrypt privateKey
-        var bytes = CryptoJS.AES.decrypt(
-          state.wallets.current.privatekey,
-          password,
-        );
-        key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
-      } catch (error) {
-        // console.log(error);
-        commit(TRANSFER_ERROR, error);
-      }
+      var bytes = CryptoJS.AES.decrypt(
+        state.wallets.current.privatekey,
+        password,
+      );
+      key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
 
       // Read publicKey
       const publickey = Buffer.from(state.wallets.current.publickey, 'hex');
-
-      console.log('Sign Meta :: ', signMeta);
 
       // Sign TxObject
       let signedTransactionme = signTx(transaction, signMeta, {
@@ -58,17 +50,21 @@ export const actions = {
         publicKey: publickey,
       });
 
-      // console.log('signedTransactionme :: ', JSON.stringify(signedTransactionme));
-
       const bcTransactionme = createBroadcastTx(signedTransactionme);
-
-      // console.log('bcTransactionme :: ', JSON.stringify(bcTransactionme));
-
 
       const responsePostTransfer = await services.transfer.postTransfer(
         bcTransactionme,
       );
-      // console.log('responsePostTransfer :: ', responsePostTransfer);
+      commit(TRANSFER_SUCCESS, responsePostTransfer);
+      return responsePostTransfer;
+    }
+  }catch(error){
+      let humanizedError;
+      if (RegExp(`^RangeError: private key length is invalid`).test(error)) {
+        humanizedError = 'Wrong Password';
+      }
+      commit(TRANSFER_ERROR, humanizedError);
+      throw new Error(humanizedError).message;
     }
   },
 };
