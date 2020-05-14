@@ -2,11 +2,13 @@
   "productName": "Ki Desktop Wallet",
   "name": "ki-desktop-wallet",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "The KiCahin wallet",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app"
+      "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app",
+      "package-linux": "electron-packager . ki-desktop-wallet --overwrite --platform=linux --asar=true --arch=x64 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app --executableName=ki-desktop-wallet ",
+      "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app"
   },
   "repository": "https://github.com/KiFoundation/ki-desktop-wallet",
   "author": "KiFoundation",
