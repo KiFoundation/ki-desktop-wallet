@@ -26,7 +26,7 @@
         </p>
 
         <!-- =======================Modal tabs============================= -->
-        <div class="deck">
+        <div class="deck d-flex justify-content-center">
           <a
             role="button"
             data-toggle="modal"
@@ -34,15 +34,17 @@
             class="custom-card"
           >
             <div
-              class="card"
+              class="card h-100"
               :style="{ width: '15rem', display: 'inline-block' }"
             >
-              <img
-                src="static/img/chain/kichain_banner_import.png"
-                class="card-img-top"
-                style="width:60%"
-              />
-              <div class="card-body">
+              <div
+                class="card-body d-flex align-items-center flex-column justify-content-center h-100"
+              >
+                <img
+                  src="static/img/chain/kichain_banner_import.png"
+                  class="card-img-top"
+                  style="width:60%"
+                />
                 <p class="card-text">
                   Import an existing Wallet
                 </p>
@@ -56,15 +58,17 @@
             class="custom-card"
           >
             <div
-              class="card"
+              class="card h-100"
               :style="{ width: '15rem', display: 'inline-block' }"
             >
-              <img
-                src="static/img/chain/kichain_banner_add.png"
-                class="card-img-top"
-                style="width:60%"
-              />
-              <div class="card-body">
+              <div
+                class="card-body d-flex align-items-center flex-column justify-content-center h-100"
+              >
+                <img
+                  src="static/img/chain/kichain_banner_add.png"
+                  class="card-img-top"
+                  style="width:60%"
+                />
                 <p class="card-text">Generate a new Wallet</p>
               </div>
             </div>
@@ -77,13 +81,15 @@
             class="custom-card"
             @click="selected_wallet = wallets[0][0]"
           >
-            <div class="card" style="width: 15rem; display: inline-block">
-              <img
-                src="static/img/chain/kichain_banner_use.png"
-                class="card-img-top"
-                style="width:60%"
-              />
-              <div class="card-body">
+            <div class="card h-100" style="width: 15rem; display: inline-block">
+              <div
+                class="card-body d-flex align-items-center flex-column justify-content-center h-100"
+              >
+                <img
+                  src="static/img/chain/kichain_banner_use.png"
+                  class="card-img-top"
+                  style="width:60%"
+                />
                 <p class="card-text">
                   Use your imported Wallets
                 </p>
@@ -176,6 +182,7 @@
         <div
           v-if="wallets_found"
           style="width: 31.75rem; display: inline-block"
+          class="mt-4"
         >
           <p>
             <span class="stealth-link">
@@ -318,7 +325,9 @@ export default {
 
       localStorage.setItem('import_success', 'true');
 
-      window.location.reload();
+      this.selected_wallet = wallet_name;
+
+      this.login();
     },
 
     storeInWalletList(wallet_name) {
@@ -396,14 +405,14 @@ export default {
           privatekey: id.privatekey,
           publickey: id.publickey,
         });
-
-        router.push({
+        window.location.replace('/');
+        /* router.push({
           name: 'wallets_tx',
           params: {
             wallet_id: JSON.parse(localStorage.getItem(this.selected_wallet))
               .address,
           },
-        });
+        }); */
       }
     },
 
