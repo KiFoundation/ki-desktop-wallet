@@ -216,7 +216,7 @@ import ImportWalletForm from '@cmp/wallets/modals/import-wallet';
 import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import { mapMutations } from 'vuex';
 import { SET_ACCOUNT } from '@store/account';
-import { SET_CURRENT_WALLET } from '@store/wallets';
+import { SET_CURRENT_WALLET, SET_WALLETS_LIST } from '@store/wallets';
 
 export default {
   components: {
@@ -272,6 +272,7 @@ export default {
     ...mapMutations({
       setAccount: SET_ACCOUNT,
       setCurrentWallet: SET_CURRENT_WALLET,
+      setWalletsList: SET_WALLETS_LIST,
     }),
     getChain() {
       if (this.blockchain) {
@@ -299,7 +300,10 @@ export default {
 
       localStorage.setItem('import_success', 'true');
 
-      window.location.reload();
+      // window.location.reload();
+      this.selected_wallet = wallet_name;
+
+      this.login();
     },
 
     handleImportWallet(formValue) {
@@ -384,14 +388,7 @@ export default {
           ).toString('hex')}"
         }`;
 
-        localStorage.setItem(
-          'identity_' + this.blockchain_lowercase,
-          identity,
-          {
-            expires: 30,
-            path: '/',
-          },
-        );
+        localStorage.setItem('identity_' + this.blockchain_lowercase, identity);
         const id = JSON.parse(identity);
         this.setAccount({
           name: id.accountName,
@@ -403,14 +400,25 @@ export default {
           privatekey: id.privatekey,
           publickey: id.publickey,
         });
-        window.location.replace('/');
-        /* router.push({
-          name: 'wallets_tx',
-          params: {
-            wallet_id: JSON.parse(localStorage.getItem(this.selected_wallet))
-              .address,
-          },
-        }); */
+
+        const wallets = [];
+        let wallet_list = localStorage.getItem('wallet_list').split(',');
+        for (var w in wallet_list) {
+          wallets.push({
+            account: wallet_list[w],
+            address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
+            privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
+              .privateKey,
+            publickey: Buffer.from(
+              JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
+            ).toString('hex'),
+          });
+        }
+        this.setWalletsList(wallets);
+
+        router.push({
+          name: 'home',
+        });
       }
     },
 
