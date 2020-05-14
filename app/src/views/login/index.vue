@@ -216,7 +216,7 @@ import ImportWalletForm from '@cmp/wallets/modals/import-wallet';
 import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import { mapMutations } from 'vuex';
 import { SET_ACCOUNT } from '@store/account';
-import { SET_CURRENT_WALLET, SET_WALLETS_LIST } from '@store/wallets';
+import { SET_CURRENT_WALLET, SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
 
 export default {
   components: {
@@ -273,6 +273,7 @@ export default {
       setAccount: SET_ACCOUNT,
       setCurrentWallet: SET_CURRENT_WALLET,
       setWalletsList: SET_WALLETS_LIST,
+      setWalletsDict: SET_WALLETS_DICT,
     }),
     getChain() {
       if (this.blockchain) {
@@ -404,6 +405,8 @@ export default {
         });
 
         const wallets = [];
+        const wallets_dict = {};
+
         let wallet_list = localStorage.getItem('wallet_list').split(',');
         for (var w in wallet_list) {
           wallets.push({
@@ -415,8 +418,11 @@ export default {
               JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
             ).toString('hex'),
           });
+          wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+
         }
         this.setWalletsList(wallets);
+        this.setWalletsDict(wallets_dict);
 
         router.push({
           name: 'home',
