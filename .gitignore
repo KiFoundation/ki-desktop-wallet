@@ -13,3 +13,6 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+release-builds/*
+Wallet.app/Contents/Frameworks/Electron Framework.framework/Electron Framework
+index.html
