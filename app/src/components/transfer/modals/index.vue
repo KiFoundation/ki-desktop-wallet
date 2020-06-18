@@ -133,6 +133,7 @@ export default {
     return {
       selectedSet: 1,
       explorer: this.globalData.explorer,
+      udenom: this.globalData.kichain.udenom,
       unit: this.webCoin.unit,
       slider: null,
       thunk: null,
@@ -269,7 +270,7 @@ export default {
               to_address: this.transfer.account,
               amount: [
                 {
-                  denom: 'tki',
+                  denom: this.udenom,
                   amount: (this.transfer.amount * Math.pow(10, 6)).toString(),
                 },
               ],
@@ -279,7 +280,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: this.udenom,
               amount: fee.toString(),
             },
           ],

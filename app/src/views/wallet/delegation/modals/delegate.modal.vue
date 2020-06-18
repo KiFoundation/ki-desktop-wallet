@@ -132,6 +132,7 @@ export default {
   data() {
     return {
       context: 'Broadcast',
+      udenom: this.globalData.kichain.udenom,
       token: this.globalData.kichain.token,
       delegate: {
         alert: '',
@@ -229,7 +230,7 @@ export default {
               delegator_address: this.account.id,
               validator_address: this.delegate.validator,
               amount: {
-                denom: 'tki',
+                denom: this.udenom,
                 amount: (this.delegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -238,7 +239,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: this.udenom,
               amount: fee.toString(),
             },
           ],

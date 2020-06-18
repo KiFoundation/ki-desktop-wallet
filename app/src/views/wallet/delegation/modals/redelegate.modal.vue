@@ -145,6 +145,7 @@ export default {
   },
   data() {
     return {
+      udenom: this.globalData.kichain.udenom,
       redelegate: {
         alert: '',
         to_validator: '',
@@ -244,7 +245,7 @@ export default {
               validator_src_address: this.redelegate.from_validator,
               validator_dst_address: this.redelegate.to_validator,
               amount: {
-                denom: 'tki',
+                denom: this.udenom,
                 amount: (this.redelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -253,7 +254,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: this.udenom,
               amount: fee.toString(),
             },
           ],

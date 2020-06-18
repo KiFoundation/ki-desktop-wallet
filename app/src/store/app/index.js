@@ -10,6 +10,8 @@ export const moduleApp = {
     advanced: false,
     // multisign: false,
     chainId: config.kichain.network.chainId,
+    denom: config.kichain.denom,
+    udenom: config.kichain.udenom,
   },
   mutations,
 };

@@ -1,19 +1,17 @@
 export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   kichain: {
-    // nodeUrl: "https://api-devnet.blockchain.ki",
-    nodeUrl: 'https://api-testnet.blockchain.ki',
-    token: 'tҟ',
-    prefix: 'tki',
+    nodeUrl: "https://api-mainnet.blockchain.ki",
+    token: 'ҟ',
+    prefix: 'ki',
+    denom: 'xki',
+    udenom: 'uxki',
     network: {
-      // network: 'Devnet',
-      network: 'Testnet',
+      network: 'Mainnet',
       blockchain: 'cosmos',
-      // chainId: "KiChain-t"
-      chainId: 'KiChain-t-1',
+      chainId: 'kichain-1',
     },
   },
   domain: 'http://localhost/',
-  // explorer: 'https://devnet.blockchain.ki/'
-  explorer: 'https://testnet.blockchain.ki/',
+  explorer: 'https://mainnet.blockchain.ki/'
 };

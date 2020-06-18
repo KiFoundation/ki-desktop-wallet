@@ -47,7 +47,7 @@ export default {
 
       account_number: 0,
       sequence: 0,
-      values: ['TKI'],
+      values: ['XKI'],
       coin: {
         cny: 0,
         usd: 0,

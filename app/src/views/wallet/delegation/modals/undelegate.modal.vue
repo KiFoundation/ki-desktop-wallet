@@ -72,7 +72,7 @@
             </a>
           </div>
         </div>
-          
+
         <li v-if="undelegate.output != ''" class="token">
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="undelegate.output" class="" rows="3" disabled />
@@ -130,6 +130,7 @@ export default {
   },
   data() {
     return {
+      udenom: this.globalData.kichain.udenom,
       undelegate: {
         alert: '',
         validator: this.validator.operator_address,
@@ -243,7 +244,7 @@ export default {
               delegator_address: this.account.id,
               validator_address: this.undelegate.validator,
               amount: {
-                denom: 'tki',
+                denom: this.udenom,
                 amount: (this.undelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -252,7 +253,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: this.udenom,
               amount: fee.toString(),
             },
           ],

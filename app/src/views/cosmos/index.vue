@@ -175,13 +175,13 @@
                     </div>
                   </li>
                   <li class="token">
-                    <div class="input">{{ transfer.fee.toFixed(6) }} TKI</div>
+                    <div class="input">{{ transfer.fee.toFixed(6) }} XKI</div>
                   </li>
                 </ul>
 
                 <ul v-show="selectedSet == 2" class="basic-group clearfix">
                   <li class="gas-price">
-                    <span>Gas Price (TKI)</span>
+                    <span>Gas Price (XKI)</span>
                     <input
                       v-model="transfer.gasPrice"
                       type="text"
@@ -197,7 +197,7 @@
                     />
                   </li>
                   <li class="token">
-                    <div class="input">{{ feeCompute.toFixed(6) }} TKI</div>
+                    <div class="input">{{ feeCompute.toFixed(6) }} XKI</div>
                   </li>
                 </ul>
               </div>
@@ -1154,7 +1154,7 @@ export default {
         alert: '',
         account: '',
         amount: 0,
-        token: 'tki',
+        token: 'xki',
         memo: '',
         fee: 0.00125,
         gasPrice: '0.0000005',
@@ -1165,7 +1165,7 @@ export default {
         alert: '',
         validator: '',
         amount: 0,
-        token: 'tki',
+        token: 'xki',
         fee: 0.00125,
         gasPrice: '0.0000005',
         gasLimit: 300000,
@@ -1175,7 +1175,7 @@ export default {
         alert: '',
         validator: '',
         amount: 0,
-        token: 'tki',
+        token: 'xki',
         fee: 0.00125,
         gasPrice: '0.0000005',
         gasLimit: 300000,
@@ -1186,7 +1186,7 @@ export default {
         to_validator: '',
         from_validator: '',
         amount: 0,
-        token: 'tki',
+        token: 'xki',
         fee: 0.00125,
         gasPrice: '0.0000005',
         gasLimit: 300000,
@@ -1221,15 +1221,6 @@ export default {
         threshold: 0,
         signed: {},
         pubkeys: [
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
-          // {'address': 'ta3ta3ta3ta3ta3ta3ta3ta3ta3ta3', 'status': 'pending...'},
         ],
       },
 
@@ -1241,7 +1232,7 @@ export default {
 
       account_number: 0,
       sequence: 0,
-      values: ['TKI'],
+      values: ['XKI'],
       coin: {
         cny: 0,
         usd: 0,
@@ -1534,7 +1525,7 @@ export default {
 
                   if (coins) {
                     coins.forEach(coin => {
-                      if (coin.denom == 'tki') {
+                      if (coin.denom == 'xki') {
                         this.balances.list.available =
                           parseFloat(coin.amount) / Math.pow(10, 6) -
                           locked +
@@ -1566,7 +1557,7 @@ export default {
                   let coins = res.coins;
                   if (coins) {
                     coins.forEach(coin => {
-                      if (coin.denom == 'tki') {
+                      if (coin.denom == 'xki') {
                         this.balances.list.available =
                           parseFloat(coin.amount) / Math.pow(10, 6);
                         available_real = this.balances.list.available;
@@ -1717,7 +1708,7 @@ export default {
               to_address: this.transfer.account,
               amount: [
                 {
-                  denom: 'tki',
+                  denom: 'xki',
                   amount: (this.transfer.amount * Math.pow(10, 6)).toString(),
                 },
               ],
@@ -1727,7 +1718,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: 'xki',
               amount: fee.toString(),
             },
           ],
@@ -1802,7 +1793,7 @@ export default {
               $('#sent_alert').html(
                 '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Transfer ' +
                   this.transfer.amount +
-                  'tki to ' +
+                  'xki to ' +
                   this.transfer.account +
                   '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
                   result.txhash +
@@ -1859,7 +1850,7 @@ export default {
               delegator_address: account,
               validator_address: this.delegate.validator,
               amount: {
-                denom: 'tki',
+                denom: 'xki',
                 amount: (this.delegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -1868,7 +1859,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: 'xki',
               amount: '7500',
             },
           ],
@@ -1943,7 +1934,7 @@ export default {
               $('#sent_alert').html(
                 '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Delegate ' +
                   this.delegate.amount +
-                  'tki to ' +
+                  'xki to ' +
                   this.validators[this.delegate.validator] +
                   '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
                   result.txhash +
@@ -1999,7 +1990,7 @@ export default {
               delegator_address: account,
               validator_address: this.undelegate.validator,
               amount: {
-                denom: 'tki',
+                denom: 'xki',
                 amount: (this.undelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -2008,7 +1999,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: 'xki',
               amount: '7500',
             },
           ],
@@ -2090,7 +2081,7 @@ export default {
                 $('#sent_alert').html(
                   '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Undelegate ' +
                     this.undelegate.amount +
-                    'tki from ' +
+                    'xki from ' +
                     this.delegations[this.undelegate.validator][0] +
                     '. Check it <a target="_blank" href=https://blockchain.ki/transactions/' +
                     result.txhash +
@@ -2153,7 +2144,7 @@ export default {
               validator_src_address: this.redelegate.from_validator,
               validator_dst_address: this.redelegate.to_validator,
               amount: {
-                denom: 'tki',
+                denom: 'xki',
                 amount: (this.redelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
@@ -2162,7 +2153,7 @@ export default {
         fee: {
           amount: [
             {
-              denom: 'tki',
+              denom: 'xki',
               amount: '7500',
             },
           ],
@@ -2246,7 +2237,7 @@ export default {
                 $('#sent_alert').html(
                   '<div class="alert alert-success alert-dismissible fade show" role="alert"> Transaction sent: Redelegate ' +
                     this.redelegate.amount +
-                    'tki from ' +
+                    'xki from ' +
                     this.delegations[this.redelegate.from_validator][0] +
                     ' to ' +
                     this.validators[this.redelegate.to_validator] +
@@ -2539,7 +2530,7 @@ export default {
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              ' xki \nfrom:\t ' +
               msg.value.from_address +
               ' \nto:\t\t ' +
               msg.value.to_address
@@ -2551,7 +2542,7 @@ export default {
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nto:\t\t\t ' +
+              ' xki \nto:\t\t\t ' +
               msg.value.validator_address
             );
             break;
@@ -2561,7 +2552,7 @@ export default {
             return (
               'Unbond:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              ' xki \nfrom:\t ' +
               msg.value.validator_address
             );
             break;
@@ -2571,7 +2562,7 @@ export default {
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t\t ' +
+              ' xki \nfrom:\t\t ' +
               msg.value.validator_src_address +
               ' \nto:\t\t\t ' +
               msg.value.validator_dst_address

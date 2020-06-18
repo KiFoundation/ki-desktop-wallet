@@ -41,7 +41,7 @@ export const actions = {
         wallet.address,
       );
       const responseUnbondingDelegation = await services.wallet.fetchDelegatorsUnbondingDelegationsList(
-        wallet.address /* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
+        wallet.address,
       );
 
       // Fetch the sent transactions
@@ -81,7 +81,7 @@ export const actions = {
 
       // Fetch the recieved transactions
       const responseWalletTransactionsReceivePage = await services.tx.fetchTxsList(
-        {"transfer.recipient" : wallet.address, "message.action": "send" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
+        {"transfer.recipient" : wallet.address, "message.action": "send" },
       );
 
       pages = responseWalletTransactionsReceivePage.data.page_total
@@ -114,7 +114,7 @@ export const actions = {
 
         // Fetch the delegate transactions
       const responseWalletTransactionsDelegatePage = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "delegate" }/* 'tki1857lr2tn33q9usmlka0n5wppnxqnuyw0muavx3' */,
+        {"message.sender" : wallet.address, "message.action": "delegate" },
       );
 
       pages = responseWalletTransactionsDelegatePage.data.page_total
@@ -228,7 +228,7 @@ export const actions = {
 
         if (coins) {
           coins.forEach((coin) => {
-            if (coin.denom == 'tki') {
+            if (coin.denom == state.app.denom) {
               available = parseFloat(coin.amount) - locked_ + delegated;
               available_real = parseFloat(coin.amount);
             }
@@ -239,7 +239,7 @@ export const actions = {
         let coins = res.coins;
         if (coins) {
           coins.forEach((coin) => {
-            if (coin.denom == 'tki') {
+            if (coin.denom == state.app.denom) {
               available = parseFloat(coin.amount);
               available_real = available
             }
@@ -267,7 +267,7 @@ export const actions = {
         }
       }
 
-      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "denom":"tki" }
+      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "denom":state.app.denom }
 
       if (responseBalances.data.result) {
         walletTmp = {
