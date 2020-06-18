@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d-flex content rounded w-100 h-100 pt-4 pl-3 pb-5"
+    class="d-flex content rounded w-100 h-100 pt-4 pl-3 pr-3 pb-5"
     :style="{
       backgroundColor: 'transparent',
     }"

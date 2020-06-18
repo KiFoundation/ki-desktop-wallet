@@ -1,5 +1,5 @@
 <template>
-  <div id="sign-form" class="d-flex w-100 h-100 flex-column px-3">
+  <div id="sign-form" class="d-flex w-100 h-100 flex-column px-3" style="background-color:white">
     <form v-if="sign.file_valid" class="basic-form">
       <li class="token">
         <label>{{ $t('webwallet_signing_file_label') }}</label>
@@ -64,12 +64,15 @@
         <textarea v-model="sign.signature" class="" rows="3" disabled />
       </li>
 
+    <div style="text-align:center">
       <a v-if="sign.signature == ''" class="btn  btn-primary" @click="signTxFile">{{
         $t('signtx')
       }}</a>
       <a v-else class="btn btn-download " @click="downloadSig">{{
         $t('download')
       }}</a>
+    </div>
+
     </form>
     <form v-else>
       <!-- <div class="basic-form"> -->
@@ -84,6 +87,7 @@
                 @drop.prevent="upload"
                 @dragover.prevent
               >
+
                 <p>
                   <img
                     src="static/img/icons/add.png"
@@ -111,6 +115,7 @@ import { signTx, createBroadcastTx } from '@tendermint/sig';
 export default {
   data() {
     return {
+      denom: this.globalData.kichain.denom,
       password: 'password',
       wallet_pass_tmp: '',
       isLoading: true,
@@ -162,7 +167,7 @@ export default {
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.from_address +
               ' \nto:\t\t ' +
               msg.value.to_address
@@ -174,7 +179,7 @@ export default {
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nto:\t\t\t ' +
+              this.denom + '\nto:\t\t\t ' +
               msg.value.validator_address
             );
             break;
@@ -184,7 +189,7 @@ export default {
             return (
               'Unbond:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.validator_address
             );
             break;
@@ -194,7 +199,7 @@ export default {
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t\t ' +
+              this.denom + '\nfrom:\t\t ' +
               msg.value.validator_src_address +
               ' \nto:\t\t\t ' +
               msg.value.validator_dst_address

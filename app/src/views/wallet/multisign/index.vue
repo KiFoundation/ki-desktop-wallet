@@ -1,5 +1,5 @@
 <template>
-  <div id="msign-form" class="transfer tab-pane">
+  <div id="msign-form" class="d-flex w-100 h-100 flex-column px-3" style="background-color:white">
             <form v-if="multisign.file_valid">
               <div class="basic-form">
                 <li class="token">
@@ -53,6 +53,8 @@
                   <label style="margin-top: 10px;">{{$t("webwallet_sign_signature")}}</label>
                   <textarea class="" v-model="this.multisign.signature" rows="3" disabled />
                 </li>
+                <div style="text-align:center">
+
                 <div v-if="this.multisign.signature==''">
                   <a class="btn  btn-primary" @click="msignTxFile">{{$t("signtx")}}</a>
                 </div>
@@ -60,6 +62,7 @@
                   <a class="btn btn-download " @click="downloadSig">{{$t("download")}}</a>
                   <a class="btn btn-success " @click="broadcastTx">{{$t("broadcast")}}</a>
                 </div>
+              </div>
               </div>
             </form>
             <form v-else>
@@ -92,6 +95,7 @@ Vue.component('b-table', BTable);
 export default {
   data() {
     return {
+      denom: this.globalData.kichain.denom,
       password: 'password',
       wallet_pass_tmp: '',
       isLoading: true,
@@ -166,7 +170,7 @@ export default {
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.from_address +
               ' \nto:\t\t ' +
               msg.value.to_address
@@ -178,7 +182,7 @@ export default {
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nto:\t\t\t ' +
+              this.denom + '\nto:\t\t\t ' +
               msg.value.validator_address
             );
             break;
@@ -188,7 +192,7 @@ export default {
             return (
               'Unbond:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.validator_address
             );
             break;
@@ -198,7 +202,7 @@ export default {
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              ' tki \nfrom:\t\t ' +
+              this.denom + '\nfrom:\t\t ' +
               msg.value.validator_src_address +
               ' \nto:\t\t\t ' +
               msg.value.validator_dst_address

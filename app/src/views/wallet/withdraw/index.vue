@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex w-100 h-100 flex-column px-3">
     <div
-      class="d-flex justify-content-between align-items-end mt-3"
+      class="d-flex justify-content-between align-items-end mt-1"
       :style="{ position: 'relative', height: '47px' }"
     >
       <div class="h-100">
@@ -22,7 +22,7 @@
     </div>
     <div
       v-if="validators && validators.length"
-      class="mt-5 d-flex flex-column justify-content-between h-100"
+      class="mt-3 d-flex flex-column justify-content-between h-100"
     >
       <div>
         <ValidatorCard
@@ -33,7 +33,7 @@
             .slice(perPage * currentPage - perPage, perPage * currentPage)"
           :key="`validator-${idx}`"
           :validator="validator"
-          class="mb-3"
+          class="mb-2"
         >
           <a
             v-b-modal="'withdraw-modal'"
@@ -45,7 +45,8 @@
         </ValidatorCard>
       </div>
       <div
-        class="mt-5"
+        class="mt-2 mb-2"
+        style="align-self:center;"
         v-if="validators && validators.length && validators.length > perPage"
       >
         <b-pagination

@@ -30,7 +30,8 @@
         </div>
 
         <div
-          class="mt-5"
+          class="mt-2 mb-2"
+          style="align-self:center;"
           v-if="transactions && transactions.length && transactions.length > perPage"
         >
           <b-pagination

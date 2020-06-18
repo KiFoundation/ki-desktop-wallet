@@ -9,7 +9,7 @@
       </b-col>
     </b-row>
     <b-row :style="{ marginTop: '5px', height: 'calc(100% - 80px)' }">
-      <b-col class="pr-0" cols="1" :style="{ marginRight: '20px' }">
+      <b-col class="pr-0" cols="1" :style="{ marginRight: '5px' }">
         <SideMenu />
       </b-col>
       <b-col class="pl-0 h-100">

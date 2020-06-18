@@ -19,7 +19,7 @@
           <h6 class="ml-4">{{ validator.description.moniker }}</h6>
         </b-col>
         <b-col cols="4">
-          <h6
+          <span
             :style="{
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -37,7 +37,7 @@
                 ) + ' / '
             }}
             {{ formatAmount(validator.delegator_shares) }}
-          </h6>
+          </span>
         </b-col>
         <b-col cols="4" class="d-flex justify-content-end">
           <slot />
@@ -104,7 +104,7 @@ export default {
   width: 100%;
   color: black;
   /* min-height: 50px; */
-  min-height: 75px;
+  min-height: 50px;
   border: 1px solid #efefef;
   border-radius: 10px;
   background-color: white;
