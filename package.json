@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
+    "electron-installer-debian": "^3.0.0",
     "electron-packager": "^14.2.1",
     "minimist": ">=0.2.1"
   }
