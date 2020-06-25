@@ -1,12 +1,9 @@
-# dependencies
-#   - wine
-#   - Mono
-#   - dmgbuild
-
 # Build the application
-$(cd app/ ; sh build.sh)
+$(cd app/ ; npm install; sh build.sh)
 
 # Package the application in electron
+npm install
+
 # macos
 npm run package-mac
 
