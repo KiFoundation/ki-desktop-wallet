@@ -41,7 +41,7 @@ npm run dev
 ```
 
 ### Run and package in electron
-Now that the wallet app is built you can package it for the various operating systems.
+Now that the wallet app is built, you can package it for the various operating systems.
 
 ```bash
 # Install dependencies
@@ -102,16 +102,47 @@ npm run package-linux
 ```
 
 ### Create installers
-Packaging
+Packaging the wallet will produce executables which must directly run on their relative OS. They can be shared in compressed archives or, more conveniently, through installer files. The creation of the latter on each OS is shown hereafter.
+
 #### Create installers separately
-1 - Create Windows installer `.msi`:
+
+**1 - Create Windows installer `.msi`:**
+
+MSI (Microsoft System Installer) installers have been lately the most common type of windows installers. It allows a high degree of configurability through the use of `XML` configuration scheme.
+
+To generate the MSI installer, start by downloading and installing the `Wix Toolset` from their Github [repo](https://github.com/wixtoolset/wix3/releases). After installinf the toolset, make sure to add its bin to the environment variable path (A full tutorial on how to configure the installer using the `Wix Toolset`can be found [here](https://ourcodeworld.com/articles/read/927/how-to-create-a-msi-installer-in-windows-for-an-electron-framework-application).
+);
+
+```bash
+npm run build-installer-win
+```
+This command uses the `electron-wix-msi` library which is present in the `package.json` file and is automatically installed when the app is built and packaged. The installer can be further configured in the `msiCreator` constant in `/installers/config/windows/createinstaller.js` 
+
+**2 - Create MacOS installer `.dmg`:**
+
+The most convenient way to build a custom disk image installer is to use the terminal as it allows a high degree of configurability while being free. To create a `.dmg` file from terminal, we will use a python tool called `dmgbuil`:
+
+```bash
+npm run build-installer-mac
+```
+
+_Note: this only works on a MacOS system as it requires the apple proprietary `hdutil` library._
+
+Building a disk image can also be done:
+- Directly from the finder as shown in [this tutorial](https://gist.github.com/jadeatucker/5382343).
+- Or using a dedicated tool with a UI such as [DMG Canvas](https://www.araelium.com/dmgcanvas).
 
 
-2 - Create MacOS installer `.dmg`:
+**3 - Create Debian installer `.deb`:**
 
-2 - Create Debian installer `.deb`:
+To create the `.deb` package for Debian platforms, you can use the provided script which in turn uses the `electron-installer-debian` library:
 
-#### Create all installers on MacOS [Not optimal]
+```bash
+npm run build-installer-linux
+```
+
+The process might take a couple of minutes to finish generating the installer.
+
 
 ## Security
 

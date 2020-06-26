@@ -1,25 +1,35 @@
-const createWindowsInstaller = require('electron-winstaller').createWindowsInstaller
-const path = require('path')
+// 1. Import Modules
+const { MSICreator } = require('electron-wix-msi');
+const path = require('path');
 
-getInstallerConfig()
-  .then(createWindowsInstaller)
-  .catch((error) => {
-    console.error(error.message || error)
-    process.exit(1)
-  })
+// 2. Define input and output directory.
+const APP_DIR = path.resolve(__dirname, '../../../release-builds/Ki Desktop Wallet-win32-ia32');
+const OUT_DIR = path.resolve(__dirname, '../output/windows');
 
-function getInstallerConfig () {
-  console.log('creating windows installer')
-  const rootPath = path.join('./')
-  const outPath = path.join(rootPath, 'release-builds')
+// 3. Instantiate the MSICreator
+const msiCreator = new MSICreator({
+    appDirectory: APP_DIR,
+    outputDirectory: OUT_DIR,
 
-  return Promise.resolve({
-    appDirectory: path.join(outPath, 'Ki Desktop Wallet-win32-ia32'),
-    authors: 'Ki Foundation',
-    noMsi: true,
-    outputDirectory: path.join(outPath, 'windows-installer'),
-    exe: 'Ki Desktop Wallet.exe',
-    setupExe: 'KiDesktopWalletInstaller.exe',
-    setupIcon: 'assets/icons/win/icon.ico'
-  })
-}
+    // Configure metadata
+    description: 'The KiChain Desktop Wallet',
+    exe: 'Ki Desktop Wallet',
+    name: 'Ki Desktop Wallet',
+    manufacturer: 'Ki Foundation',
+    version: '0.1.0',
+
+    // Configure installer User Interface
+    ui: {
+        chooseDirectory: true,
+        images:{
+          background : path.resolve(__dirname, "./banner.png")
+        }
+    },
+});
+
+// 4. Create a .wxs template file
+msiCreator.create().then(function(){
+
+    // Step 5: Compile the template to a .msi file
+    msiCreator.compile();
+});
