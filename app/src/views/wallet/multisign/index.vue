@@ -128,6 +128,7 @@ export default {
   },
   methods:{
     upload(e) {
+
       let file = e.dataTransfer.files[0];
 
         if (this.multisign.file_content == '') {
@@ -280,6 +281,7 @@ export default {
         })
 
         prefix_signer_byte += Math.pow(2, 7-index)
+        
 
         // encode each signature (base 64)
         var binary_string = window.atob(this.multisign.signed[sig][1]);
@@ -293,7 +295,7 @@ export default {
       }
 
       // create the signature prefixes
-      var prefix_struct = [10, 5, 8, 3, 18, 1]
+      var prefix_struct = [10, 5, 8, this.pubkeys.length, 18, 1]
       var prefix_signer = [prefix_signer_byte]
       var prefix_separator = [18, 64]
       var prefix =[]
@@ -361,7 +363,7 @@ export default {
 
     async broadcastTx(){
       const bcTransactionme = createBroadcastTx(this.multisign.signature_obj);
-      console.log(JSON.stringify(bcTransactionme))
+
       try {
         const responsePostTransfer = await services.tx.postTx(bcTransactionme);
         this.$bvToast.toast('Transaction sent with success', {

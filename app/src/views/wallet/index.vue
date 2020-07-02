@@ -55,7 +55,7 @@
           params: { wallet_id: $route.params.wallet_id },
         }"
       >
-        Multisign
+        Multisign <span style="font-size:9px;vertical-align:super">Beta</span>
       </router-link>
     </div>
     <div
