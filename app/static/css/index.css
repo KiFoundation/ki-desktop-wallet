@@ -780,7 +780,7 @@ a.custom-card:hover {
 }
 
 .mnemonic-group {
-  padding: 40px;
+  padding: 20px 50px 10px 50px;
   text-align: center;
 }
 
@@ -790,7 +790,7 @@ a.custom-card:hover {
 }
 
 .modal-dialog {
-  width: 500px;
+  width: 620px;
   border: 0px;
 }
 
