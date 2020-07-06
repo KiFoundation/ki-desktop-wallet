@@ -56,99 +56,102 @@
                   </b-row>
                   <b-row style="margin-bottom:20px;">
                     <b-col v-if="step==1">Write down this mnemonic before you proceed</b-col>
-                    <b-col v-if="step==2">Fill in the missing words to verify</b-col>
+                    <b-col v-if="step==2">Fill in the missing words to complete the verification <a @click="switchVerficatioMode">
+                        <span v-if="easy">
+                          <img id="easy-target" src="static/img/icons/lightning-easy.png" style="width:20px; opacity:0.7" />
+                          <b-tooltip target="easy-target" triggers="hover">
+                            Switch to hard mode.
+                          </b-tooltip>
+                        </span>
+                        <span v-else>
+                          <img id="hard-target" src="static/img/icons/lightning.png" style="width:20px; opacity:0.8" />
+                          <b-tooltip target="hard-target" triggers="hover">
+                            Switch to easy mode.
+                          </b-tooltip>
+                        </span>
+
+                      </a></b-col>
+
                   </b-row>
 
                   <div class="contents">
                     <!-- Generated mnemonic array -->
                     <div v-if="step==1" class="phrases">
-                <ul>
-                  <li v-for="(item, idx) in mnemonic_array" v-bind:key="'w'+idx">
-                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                      <label style="margin:0px;" :for="'w'+idx">{{idx+1}}.</label> <input :id="'w'+idx" type="text" v-model="mnemonic_array[idx]"/>
+                      <ul>
+                        <li v-for="(item, idx) in mnemonic_array" v-bind:key="'w'+idx">
+                          <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                            <label style="margin:0px;" :for="'w'+idx">{{idx+1}}.</label> <input :id="'w'+idx" type="text" v-model="mnemonic_array[idx]" />
+                          </div>
+                        </li>
+                      </ul>
                     </div>
-                  </li>
-                </ul>
-              </div>
-              <!-- Generated mnemonic array - verify -->
-              <div v-if="step==2" class="phrases">
-                <ul>
-                  <li v-for="(item, idx) in mnemonic_array_sub" :ref="'ws'+idx" v-bind:key="'ws'+idx">
-                    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                      <label style="margin:0px;" :for="'ws'+idx">{{idx+1}}.</label> <input :id="'ws'+idx" type="text" v-model="mnemonic_array_sub[idx]"/>
+                    <!-- Generated mnemonic array - verify -->
+                    <div v-if="step==2" class="phrases">
+                      <ul>
+                        <li v-for="(item, idx) in mnemonic_array_sub" :ref="'ws'+idx" v-bind:key="'ws'+idx">
+                          <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+                            <label style="margin:0px;" :for="'ws'+idx">{{idx+1}}.</label> <input :id="'ws'+idx" type="text" v-model="mnemonic_array_sub[idx]" />
+                          </div>
+                        </li>
+                      </ul>
                     </div>
-                  </li>
-                </ul>
-              </div>
                   </div>
                 </b-col>
-            <!-- Account data view -->
-            <b-col v-if="step==4">
-              <b-row style="margin-bottom:10px;">
-                <b-col cols="6">
-                  <h5>Wallet password</h5>
-                </b-col>
-                <b-col />
-              </b-row>
-              <b-row style="margin-bottom:20px;">
-                <b-col>Give a password to protect your wallet keys</b-col>
-              </b-row>
-              <div class="buttonInside">
-                <input
-                  v-model="wallet_pass_tmp"
-                  :type="password_visible ? 'text' : 'password'"
-                  @input="validatePassword"
-                />
-                <span v-if="!password_correct" class="mnemonic-error">{{
+                <!-- Account data view -->
+                <b-col v-if="step==4">
+                  <b-row style="margin-bottom:10px;">
+                    <b-col cols="6">
+                      <h5>Wallet password</h5>
+                    </b-col>
+                    <b-col />
+                  </b-row>
+                  <b-row style="margin-bottom:20px;">
+                    <b-col>Give a password to protect your wallet keys</b-col>
+                  </b-row>
+                  <div class="buttonInside">
+                    <input v-model="wallet_pass_tmp" :type="password_visible ? 'text' : 'password'" @input="validatePassword" />
+                    <span v-if="!password_correct" class="mnemonic-error">{{
                   $t('error_password')
                 }}</span>
-                <a class="inside" @click="toggletPasswordVisible">
-                  <img
-                    v-if="password_visible"
-                    src="static/img/icons/eye-off.png"
-                    style="width:25px; opacity:0.2"
-                  />
-                  <img
-                    v-else
-                    src="static/img/icons/eye-on.png"
-                    style="width:25px; opacity:0.2"
-                  />
-                </a>
-              </div>
-            </b-col>
+                    <a class="inside" @click="toggletPasswordVisible">
+                      <img v-if="password_visible" src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2" />
+                      <img v-else src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2" />
+                    </a>
+                  </div>
+                </b-col>
 
-          </b-row>
+              </b-row>
 
-          <!-- Main button section -->
-          <b-row>
-            <!-- Main button warning section -->
-            <b-col>
-              <!-- Main button -->
-              <div class="d-flex justify-content-center">
+              <!-- Main button section -->
+              <b-row>
+                <!-- Main button warning section -->
+                <b-col>
+                  <!-- Main button -->
+                  <div class="d-flex justify-content-center">
 
-              <button class="btn btn-primary" @click="proceed" :disabled="!disabled">
-                <span>{{$t(workflow[step])}}</span>
-              </button>
+                    <button class="btn btn-primary" @click="proceed" :disabled="!disabled">
+                      <span>{{$t(workflow[step])}}</span>
+                    </button>
+                  </div>
+                </b-col>
+                <!-- <b-col cols="2" /> -->
+              </b-row>
+              <!-- Main button reset section -->
+              <b-row v-if="step==1 || step==2" style="margin-top:4px">
+                <!-- <b-col cols="2" /> -->
+                <b-col style="text-align:center">
+                  <a class="stealth-link" @click="onResetModal; step=0">
+                    <span>reset all and restart from beginning</span>
+                  </a>
+                </b-col>
+              </b-row>
             </div>
-            </b-col>
-            <!-- <b-col cols="2" /> -->
-          </b-row>
-          <!-- Main button reset section -->
-          <b-row v-if="step==1 || step==2" style="margin-top:4px">
-            <!-- <b-col cols="2" /> -->
-            <b-col style="text-align:center">
-              <a class="stealth-link" @click="onResetModal; step=0">
-                <span>reset all and restart from beginning</span>
-              </a>
-            </b-col>
-          </b-row>
-        </div>
-      </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -159,9 +162,17 @@ import {
   createWalletFromMnemonic,
   createBroadcastTx,
 } from '@tendermint/sig';
+
+import {
+  BTooltip
+} from 'bootstrap-vue';
+
 import * as bip39 from 'bip39';
 
 export default {
+  components: {
+    BTooltip
+  },
   props: {
     modalId: {
       type: String,
@@ -170,12 +181,12 @@ export default {
   },
   data() {
     return {
+      easy: false,
       workflow: ['generate', 'proceed', 'verify', 'end', 'save'],
       step: 0,
       mnemonic_create: '',
       mnemonic_array: [],
       mnemonic_array_sub: [],
-
       wallet_name: '',
       name_exists: false,
       name_correct: true,
@@ -199,7 +210,7 @@ export default {
       this.name_exists = false;
       this.name_correct = true;
       this.password_correct = true;
-      this.$emit('onResetModal');
+      // this.$emit('onResetModal');
     },
 
     importWallet() {
@@ -234,10 +245,17 @@ export default {
     generateWallet() {
       this.mnemonic_create = bip39.generateMnemonic(256);
       this.mnemonic_array = this.mnemonic_create.split(" ")
-      this.mnemonic_array_sub = [...this.mnemonic_array]
-      var subed = [];
+      this.switchVerficatioMode();
+    },
 
-      while (subed.length < 6) {
+    switchVerficatioMode() {
+      this.easy = !this.easy
+      var subed = [];
+      var words_to_remove = this.easy ? 6 : 24;
+
+      this.mnemonic_array_sub = [...this.mnemonic_array]
+
+      while (subed.length < words_to_remove) {
         var r = Math.floor(Math.random() * 24);
         if (subed.indexOf(r) === -1) {
           this.mnemonic_array_sub[r] = "";
