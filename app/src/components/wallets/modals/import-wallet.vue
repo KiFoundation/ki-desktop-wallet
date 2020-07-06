@@ -96,7 +96,7 @@
                 </b-col>
                 <b-col v-if="step==1 && multisig">
                   <label>{{ $t('enter_public_address') }}</label>
-                  <textarea v-model="ms_address" rows="2" />
+                  <textarea v-model="ms_address" rows="2" @input="validateAddress"/>
                 </b-col>
                 <!-- Account data view -->
                 <b-col v-if="step==2 && !multisig" >
@@ -215,11 +215,13 @@ export default {
       this.wallet_name = '';
       this.wallet_pass_tmp = '';
       this.disabled = false;
+      this.multisig = false;
       this.name_exists = false;
       this.name_correct = true;
       this.mnemonic_correct = false;
       this.password_correct = true;
       this.resetMnemonic()
+      // this.$emit('onResetModal');
     },
     importWallet() {
       const formValue = {
@@ -285,7 +287,21 @@ export default {
 
       this.disabled = this.name_correct && !this.name_exists;
     },
+    validateAddress(){
+      if (!this.ms_address){
+        this.ms_address_correct = false;
+      }else {
+        if (this.ms_address.substring(0, 3) !="ki1" || this.ms_address.length != 41) {
+          this.name_correct = false;
+        }
+        else{
+          this.name_correct = true;
+        }
+      }
 
+      this.disabled = this.name_correct;
+
+    },
     validateMnemonic(type) {
       let input = '';
       this.mnemonic = this.mnemonic_array.join(" ")
@@ -317,8 +333,13 @@ export default {
           break;
 
         case 1:
-          this.step++;
-          this.disabled = false;
+          if(this.multisig){
+            this.importMultiSigWallet()
+          }
+          else{
+            this.step++;
+            this.disabled = false;
+          }
           break;
 
         case 2:
