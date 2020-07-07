@@ -14,7 +14,7 @@
   "author": "KiFoundation",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^8.1.1"
+    "electron": "^8.2.4"
   },
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
