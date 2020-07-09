@@ -1,23 +1,29 @@
 {
   "productName": "Ki Desktop Wallet",
   "name": "ki-desktop-wallet",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "The KiCahin wallet",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app",
     "package-linux": "electron-packager . ki-desktop-wallet --overwrite --platform=linux --asar=true --arch=x64 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app --executableName=ki-desktop-wallet ",
-    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app"
+    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.png --prune=true --out=release-builds --ignore=^/app --asar",
+    "build-installer-mac": "dmgbuild -s installers/config/macos/settings.py 'Ki Wallet Installer' release-builds/ki-desktop-wallet-macos-0.1.0.dmg",
+    "build-installer-linux": "electron-installer-debian --src ./release-builds/ki-desktop-wallet-linux-x64/ --arch amd64 --config installers/config/debian/debian.json --dest installers/output/debian/",
+    "build-installer-win": "node installers/config/windows/createinstaller.js"
   },
   "repository": "https://github.com/KiFoundation/ki-desktop-wallet",
   "author": "KiFoundation",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^8.1.1"
+    "electron": "^8.2.4",
+    "electron-winstaller": "^4.0.0",
+    "electron-wix-msi": "^2.2.0"
   },
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
+    "electron-installer-debian": "^3.0.0",
     "electron-packager": "^14.2.1",
     "minimist": ">=0.2.1"
   }

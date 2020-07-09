@@ -9,7 +9,7 @@ export default {
   webwallet_home_des2: 'directly from your Blockchain Wallet.',
   webwallet_create: 'Create',
   webwallet_import: 'Import',
-  webwallet_import_title: 'Import wallet by mnemonic phrase',
+  webwallet_import_title: 'Import a Ki wallet',
   webwallet_create_title: 'Generate a Ki wallet',
   transfer_modal_title: 'Make a Transfer',
   webwallet_use_title: 'Login',
@@ -20,7 +20,7 @@ export default {
   enter_public_address: 'Enter your account address',
   save_mnemonic: 'Save the following secret in a secure manner',
   enter_wallet_name: 'Give a name to your wallet',
-  multisig_wallet_true: 'Multi signature account',
+  multisig_wallet_true: 'Are you importing a multisignature account ?',
   error_mnemonic: 'Mnemonic phrase should be 24 words',
   error_password:
     'At least 8 characters, 1 uppercase, 1 lowercase and 1 number',
@@ -108,4 +108,16 @@ export default {
   check_account: 'The current account is not the account selected by extension',
   gas_price_min: 'Gas Price cannot be lower than 1Gwei',
   gas_limit_min: 'Gas Limit cannot be lower than ',
+
+
+  webwallet_your: 'Your',
+  webwallet_generator: 'address generator',
+  generate: 'Generate',
+  proceed: 'Proceed',
+  verify: 'Verify',
+  written: 'I wrote down all of the above',
+  end: 'I wrote down all of the above, erase this page and proceed',
+  save : 'Save',
+  warning_details:'Carefully read all the details of the process of wallet creation',
+
 };

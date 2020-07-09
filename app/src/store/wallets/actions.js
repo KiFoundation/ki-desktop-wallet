@@ -177,7 +177,7 @@ export const actions = {
           ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
         }
         else{
-          ms_data = account.data.data.result.value
+          ms_data = account.data.result.value.public_key.value
         }
 
         threshold = ms_data.threshold
@@ -187,6 +187,7 @@ export const actions = {
             'status': 'pending...'
           })
         }
+
           description = 'At least ' + threshold + ' out of ' + signerList.length + ' signatures are required'
 
           multisig_data['threshold']= threshold;
@@ -280,6 +281,7 @@ export const actions = {
           unbondingDelegation: responseUnbondingDelegation.data.result,
           transactions: transactions,
           vesting:vesting,
+          // multisign: false,
           multisign: wallet.privatekey == "",
           multisign_data: multisig_data,
         };
