@@ -167,6 +167,8 @@ import {
   BButton,
   BButtonGroup,
 } from 'bootstrap-vue';
+import { services } from '@services/index';
+
 export default {
   components: {
     BRow,
@@ -245,7 +247,8 @@ export default {
       this.$emit('onImportWallet', formValue);
     },
     importMultiSigWallet() {
-      if (this.checkAddressStatus()){
+
+      if (!this.require_ms_data){
       const formValue = {
         wallet_name: this.wallet_name,
         ms_address: this.ms_address,
@@ -258,7 +261,6 @@ export default {
     }
     else{
       this.disabled = false;
-      this.require_ms_data = true;
     }
     },
     validatePassword() {
@@ -322,10 +324,11 @@ export default {
       this.disabled = this.name_correct;
     },
     // Query the blockchain to check whether the address is already known
-    checkAddressStatus(){
-        // TODO: Add live API verification call
-        return false
+    async checkAddressStatus(){
+        const account = await services.auth.fetchAccount(this.ms_address)
+        return account.data.result.value.public_key == null
     },
+
     validateMnemonic(type) {
       let input = '';
       this.mnemonic = this.mnemonic_array.join(" ")
@@ -348,7 +351,7 @@ export default {
 
       this.disabled = this.mnemonic_correct
     },
-    proceed(e) {
+    async proceed(e) {
       switch (this.step) {
 
         case 0:
@@ -358,6 +361,7 @@ export default {
 
         case 1:
           if(this.multisig){
+            this.require_ms_data = await this.checkAddressStatus()
             this.importMultiSigWallet()
           }
           else{
