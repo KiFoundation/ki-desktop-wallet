@@ -96,7 +96,15 @@
                 </b-col>
                 <b-col v-if="step==1 && multisig">
                   <label>{{ $t('enter_public_address') }}</label>
-                  <textarea v-model="ms_address" rows="2" @input="validateAddress"/>
+                  <textarea v-model="ms_address" rows="1" @input="validateAddress"/>
+                  <div v-if="require_ms_data" class="optional-area">
+                    <p>{{ $t('ms_address_unknown') }}</p>
+                    <label >{{ $t('enter_ms_address_threshold') }}</label>
+                    <input type='number' min="1" v-model="ms_address_threshold"/>
+                    <label>{{ $t('enter_ms_address_pubkeys') }}</label>
+                    <textarea v-model="ms_address_pubkeys" rows="2"/>
+                  </div>
+
                 </b-col>
                 <!-- Account data view -->
                 <b-col v-if="step==2 && !multisig" >
@@ -111,9 +119,7 @@
                   </b-row>
                   <div class="buttonInside">
                     <input v-model="wallet_pass_tmp" :type="password_visible ? 'text' : 'password'" @input="validatePassword" />
-                    <span v-if="!password_correct" class="mnemonic-error">{{
-                  $t('error_password')
-                }}</span>
+                    <span v-if="!password_correct" class="mnemonic-error">{{$t('error_password')}}</span>
                     <a class="inside" @click="toggletPasswordVisible">
                       <img v-if="password_visible" src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2" />
                       <img v-else src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2" />
@@ -185,6 +191,9 @@ export default {
       mnemonic_correct: true,
       ms_address: '',
       ms_address_correct: false,
+      require_ms_data: false,
+      ms_address_threshold:'',
+      ms_address_pubkeys:'',
       wallet_name: '',
       wallet_pass_tmp: '',
       name_exists: false,
@@ -218,8 +227,11 @@ export default {
       this.multisig = false;
       this.name_exists = false;
       this.name_correct = true;
+      this.require_ms_data = false;
       this.mnemonic_correct = false;
       this.password_correct = true;
+      this.ms_address_pubkeys='';
+      this.ms_address_threshold='';
       this.resetMnemonic()
       // this.$emit('onResetModal');
     },
@@ -233,13 +245,21 @@ export default {
       this.$emit('onImportWallet', formValue);
     },
     importMultiSigWallet() {
+      if (this.checkAddressStatus()){
       const formValue = {
         wallet_name: this.wallet_name,
         ms_address: this.ms_address,
         wallet_pass_tmp: this.wallet_pass_tmp,
         multisig: true,
+        threshold: this.ms_address_threshold,
+        pubkeys: this.ms_address_pubkeys.split("\n").sort(),
       };
       this.$emit('onImportMultiSigWallet', formValue);
+    }
+    else{
+      this.disabled = false;
+      this.require_ms_data = true;
+    }
     },
     validatePassword() {
       if (!this.wallet_pass_tmp) {
@@ -300,7 +320,11 @@ export default {
       }
 
       this.disabled = this.name_correct;
-
+    },
+    // Query the blockchain to check whether the address is already known
+    checkAddressStatus(){
+        // TODO: Add live API verification call
+        return false
     },
     validateMnemonic(type) {
       let input = '';
@@ -459,4 +483,12 @@ input:focus{
   margin-bottom: 50px;
   margin-top: 50px;
 
-}</style>
+}
+
+.optional-area{
+  padding: 10px;
+  margin-top: 20px;
+  background-color: rgba(0, 0, 150, 0.1) !important;
+  border: 1px solid rgb(224, 224, 224);
+}
+</style>
