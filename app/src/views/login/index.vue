@@ -287,19 +287,18 @@ export default {
     },
 
     handleImportMultiSigWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, ms_address } = formValue;
-      console.log("ok1")
+      const { wallet_name, wallet_pass_tmp, ms_address, threshold, pubkeys } = formValue;
+      
       // Store Wallet
       this.storeInWalletList(wallet_name);
-      console.log("ok2")
 
       localStorage.setItem(
         wallet_name,
-        '{"privateKey":"","publicKey":{"type":"Buffer","data":[]},"address":"' +
-          ms_address +
-          '"}',
+        '{"privateKey":"","publicKey":{"type":"Buffer","data":[]},\
+        "address":"' + ms_address + '",\
+        "threshold":"'+ threshold + '",\
+        "pubkeys":' + JSON.stringify(pubkeys) + '}',
       );
-      console.log("ok3")
 
       localStorage.setItem('import_success', 'true');
 

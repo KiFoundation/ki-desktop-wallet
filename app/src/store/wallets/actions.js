@@ -173,11 +173,27 @@ export const actions = {
 
       if (wallet.privatekey == ""){
         let ms_data ;
-        if (vesting){
-          ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
+        if (account.data.result.value.public_key == null){
+          var pubkeys_temp = []
+          for (key of wallet.pubkeys){
+            pubkeys_temp.push({
+              "type": "tendermint/PubKeySecp256k1",
+              "value": key
+            })
+          }
+          ms_data = {
+                  "threshold": wallet.threshold,
+                  "pubkeys": pubkeys_temp
+          }
         }
+
         else{
-          ms_data = account.data.result.value.public_key.value
+          if (vesting){
+            ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
+          }
+          else{
+            ms_data = account.data.result.value.public_key.value
+          }
         }
 
         threshold = ms_data.threshold

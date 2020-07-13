@@ -132,7 +132,8 @@ export default {
           const wallets_dict = {};
           let wallet_list = localStorage.getItem('wallet_list').split(',');
           for (var w in wallet_list) {
-            wallets.push({
+
+            var wallet_tmp= {
               account: wallet_list[w],
               address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
               privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
@@ -140,7 +141,14 @@ export default {
               publickey: Buffer.from(
                 JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
               ).toString('hex'),
-            });
+            }
+
+            if (wallet_tmp.privatekey == ""){
+              wallet_tmp["threshold"] =  JSON.parse(localStorage.getItem(wallet_list[w])).threshold
+              wallet_tmp["pubkeys"] =  JSON.parse(localStorage.getItem(wallet_list[w])).pubkeys
+            }
+
+            wallets.push(wallet_tmp);
             wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
 
           }

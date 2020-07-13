@@ -125,8 +125,6 @@ export default {
       this.loading = false;
       this.multisigv = this.multisig
     }
-    console.log(this.multisig)
-
   },
   methods: {
     ...mapActions({
