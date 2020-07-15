@@ -96,13 +96,16 @@
                 </b-col>
                 <b-col v-if="step==1 && multisig">
                   <label>{{ $t('enter_public_address') }}</label>
-                  <textarea v-model="ms_address" rows="1" @input="validateAddress"/>
+                  <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data"/>
                   <div v-if="require_ms_data" class="optional-area">
                     <p>{{ $t('ms_address_unknown') }}</p>
                     <label >{{ $t('enter_ms_address_threshold') }}</label>
-                    <input type='number' min="1" v-model="ms_address_threshold"/>
+                    <input type='number' min="1" v-model="ms_address_threshold" @input="validateMsData();"/>
                     <label>{{ $t('enter_ms_address_pubkeys') }}</label>
-                    <textarea v-model="ms_address_pubkeys" rows="2"/>
+                    <textarea v-model="ms_address_pubkeys" rows="2" @input="validateMsData();"/>
+                    <span v-if="!ms_data_correct" class="mnemonic-error">{{
+                        $t('error_wallet_name')
+                      }}</span>
                   </div>
 
                 </b-col>
@@ -196,6 +199,9 @@ export default {
       require_ms_data: false,
       ms_address_threshold:'',
       ms_address_pubkeys:'',
+      ms_data_correct: true,
+      ms_data_pk_correct:false,
+      ms_data_th_correct:false,
       wallet_name: '',
       wallet_pass_tmp: '',
       name_exists: false,
@@ -232,6 +238,8 @@ export default {
       this.require_ms_data = false;
       this.mnemonic_correct = false;
       this.password_correct = true;
+      this.ms_data_pk_correct=false;
+      this.ms_data_th_correct=false;
       this.ms_address_pubkeys='';
       this.ms_address_threshold='';
       this.resetMnemonic()
@@ -247,6 +255,7 @@ export default {
       this.$emit('onImportWallet', formValue);
     },
     importMultiSigWallet() {
+      this.require_ms_data = !(this.ms_data_pk_correct && this.ms_data_th_correct);
 
       if (!this.require_ms_data){
       const formValue = {
@@ -306,7 +315,6 @@ export default {
           this.name_exists = false;
         }
       }
-
       this.disabled = this.name_correct && !this.name_exists;
     },
     validateAddress(){
@@ -314,15 +322,50 @@ export default {
         this.ms_address_correct = false;
       }else {
         if (this.ms_address.substring(0, 3) !="ki1" || this.ms_address.length != 41) {
-          this.name_correct = false;
+          this.ms_address_correct = false;
         }
         else{
-          this.name_correct = true;
+          this.ms_address_correct = true;
+        }
+      }
+      this.disabled = this.ms_address_correct;
+    },
+    validateMsData(){
+      // TODO: optimize
+
+      if (!this.ms_address_threshold){
+        this.ms_data_th_correct = false
+      }
+      else {
+        if (/^\+?[1-9]\d*$/.test(this.ms_address_threshold)) {
+          this.ms_data_th_correct = true
+        }
+        else{
+          this.ms_data_th_correct = false;
         }
       }
 
-      this.disabled = this.name_correct;
+      if (!this.ms_address_pubkeys){
+        this.ms_data_pk_correct = false
+      }
+      else {
+
+
+        var ms_address_pubkey_array  = this.ms_address_pubkeys.split('\n')
+        if (ms_address_pubkey_array[ms_address_pubkey_array.length-1] == ''){
+          ms_address_pubkey_array.pop();
+        }
+
+        if (ms_address_pubkey_array.length >= parseInt(this.ms_address_threshold)) {
+          this.ms_data_pk_correct = true
+        }
+        else{
+          this.ms_data_pk_correct = false;
+        }
+      }
+      this.disabled = this.ms_data_pk_correct && this.ms_data_th_correct;
     },
+
     // Query the blockchain to check whether the address is already known
     async checkAddressStatus(){
         const account = await services.auth.fetchAccount(this.ms_address)
