@@ -2,6 +2,10 @@
   <div class="d-flex w-100 h-100 justify-content-between align-items-center">
     <div class="d-flex flex-row">
       <div class="d-flex justify-content-center align-items-center">
+        <a
+          v-b-modal="'info-modal'"
+          class="d-flex flex-column align-items-center justify-content-center"
+        >
         <b-avatar
           class="d-flex justify-content-center align-items-center"
           size="3.5rem"
@@ -12,6 +16,8 @@
           }"
           :text="currentWallet.account[0].toUpperCase()"
         />
+      </a>
+
       </div>
       <div class="d-flex justify-content-center flex-column ml-3">
         <h5>{{ currentWallet.account }}</h5>
@@ -58,11 +64,13 @@
       </div>
     </div>
     <TransferModal />
+    <InfoModal />
   </div>
 </template>
 
 <script>
 import TransferModal from '@cmp/transfer/modals/index';
+import InfoModal from '@cmp/info/modals/index';
 import { BAvatar, BTooltip } from 'bootstrap-vue';
 import { mapGetters, mapState, mapActions } from 'vuex';
 import {
@@ -76,6 +84,7 @@ export default {
   components: {
     TransferModal,
     BAvatar,
+    InfoModal,
   },
   data() {
     return {

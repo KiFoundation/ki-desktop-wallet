@@ -359,12 +359,13 @@ i {
   border-bottom: 1px solid var(--pale-grey);
 }
 
-.user-info .token-list {
+.token-list {
   margin-top: 32px;
   padding-left: 0;
 }
 
-.user-info .token-list li {
+.token-list li {
+  font-size: 12px;
   display: flex;
   justify-content: space-between;
   padding: 4px 0;
