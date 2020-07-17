@@ -2,9 +2,9 @@
 <b-modal :id="modalId" hide-footer hide-header>
   <div class="basic-form modal-body d-flex w-100">
     <!-- ========================Transfer form============================ -->
-    <b-col>
+    <b-col cols="7">
 
-      <b-row class="text-center" style="margin-bottom:20px">
+      <b-row class="text-center" style="margin-bottom:20px; margin-top:10px">
         <b-col>
 
           <b-avatar size="7rem" variant="light" :style="{
@@ -20,7 +20,7 @@
         </b-col>
       </b-row>
 
-      <b-row class="text-center">
+      <b-row class="text-center" style="margin-bottom:20px;">
         <b-col>
           <span>
             <b-badge v-if="!vesting" class="badge">Vesting</b-badge>
@@ -28,72 +28,106 @@
           </span>
         </b-col>
       </b-row>
-      <b-row style="margin-bottom:20px;" class="text-center">
+      <b-row style="margin-bottom:10px;" class="text-center">
         <b-col>
           <div class="final-form">
             <ul>
-              <li style="font-size: 11px; margin-top:8px">
+              <li style="font-size: 12px; margin-top:8px">
+                <p :style="{
+                  color: 'var(--secondary)',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                }">
+                  Address
+                </p>
                 <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                  <label style="margin:0;" for="address-save"> &#128204;</label>
-                  <span style="border: none ;color: var(--darkbg);margin-left: 10px;">
-                    ki14xfag9l002llq8zgqv2az8x8cn9efp08n5z2q6
+                  <span style="border: none ;color: var(--darkbg);display:block;width: 180px;  word-wrap:break-word;">
+                    {{ currentWallet.address }}
                   </span>
-                  <span style="padding:15px" />
                 </div>
               </li>
-              <li style="font-size: 11px; margin-top:8px ">
-                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;">
-                  <label style="margin:0;" for="address-save">&#128477;</label>
-                  <span style="border: none ;color: var(--darkbg);margin-left: 10px; display:block;width:250px;word-wrap:break-word;">
-                    kipub1addwnpepq02h2frzn8aqprkw5cmtpjmetjldx0atav5fwmlxeduffu4smh2ashquy4r
+              <li style="font-size: 12px; margin-top:8px ">
+                <p :style="{
+                  color: 'var(--secondary)',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                }">
+                  Public Key
+                </p>
+                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;" @click="ba3">
+                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;">
+                    {{ publickeyBech32 }}
                   </span>
-                  <span style="padding:15px" />
                 </div>
               </li>
             </ul>
           </div>
         </b-col>
       </b-row>
-      <b-row class="text-center">
-        <b-col>
-          <h6>Balances</h6>
-        </b-col>
-      </b-row>
-      <b-row class="text-center">
-        <b-col cols="3"/>
-        <b-col>
-          <div class="final-form">
-            <ul class="token-list">
-              <li>
-                <div>Available</div>
-                <div>
-                  {{ globalData.kichain.token }}
-                  {{ currentWalletBalancesAmount.available }}</div>
-              </li>
-              <li>
-                <div>Delegated</div>
-                <div>
-                  {{ globalData.kichain.token }}
-                  {{ currentWalletBalancesAmount.delegated }}</div>
-              </li>
-              <li>
-                <div>Unbonding</div>
-                <div>
-                  {{ globalData.kichain.token }}
-                  {{ currentWalletBalancesAmount.unbonding }}</div>
-              </li>
-              <li>
-                <div>Locked</div>
-                <div>
-                  {{ globalData.kichain.token }}
-                  {{ currentWalletBalancesAmount.locked }}</div>
-              </li>
-            </ul>
+    </b-col>
 
+    <b-col cols="5" style="margin-top:20px">
+      <b-row class="text-center">
+        <b-col cols="12" class="pl-1 pr-1">
+          <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ globalData.kichain.token }}
+              {{ currentWalletBalancesAmount.available }}
+            </h6>
+            <p :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+            }">
+              Available
+            </p>
           </div>
         </b-col>
-        <b-col cols="3"/>
-
+        <b-col cols="12" class="pl-1 pr-1">
+          <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ globalData.kichain.token }}
+              {{ currentWalletBalancesAmount.delegated }}
+            </h6>
+            <p :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+            }">
+              Delegated
+            </p>
+          </div>
+        </b-col>
+        <b-col cols="12" class="pl-1 pr-1">
+          <div class="d-flex justify-content-center flex-column" style="height:80px;border-bottom: 1px solid var(--pale-grey);">
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ globalData.kichain.token }}
+              {{ currentWalletBalancesAmount.unbonding }}
+            </h6>
+            <p :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+            }">
+              Unbonding
+            </p>
+          </div>
+        </b-col>
+        <b-col cols="12" class="pl-1 pr-1">
+          <div class="d-flex justify-content-center flex-column" style="height:80px;">
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ globalData.kichain.token }}
+              {{ currentWalletBalancesAmount.locked }}
+            </h6>
+            <p :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+            }">
+              Locked
+            </p>
+          </div>
+        </b-col>
       </b-row>
     </b-col>
   </div>
@@ -161,11 +195,23 @@ export default {
     vesting() {
       return this.$store.state.wallets.current.vesting;
     },
+
+    publickeyBech32() {
+      const bech32 = require('bech32')
+      let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
+      let buffer = Buffer.alloc(38)
+      pubkeyAminoPrefix.copy(buffer, 0)
+      Buffer.from(this.currentWallet.publickey, 'hex').copy(buffer, pubkeyAminoPrefix.length)
+      return bech32.encode('kipub', bech32.toWords(buffer))
+    },
+
   },
-  mounted() {
-    console.log(this.vesting, this.multisig);
-  },
-  methods: {},
+  methods: {
+    ba3(){
+      tata.select()
+      document.execCommand("copy");
+  }
+},
 };
 </script>
 
