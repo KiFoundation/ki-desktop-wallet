@@ -255,16 +255,27 @@ export default {
       this.$emit('onImportWallet', formValue);
     },
     importMultiSigWallet() {
+      const bech32 = require('bech32')
+
       this.require_ms_data = !(this.ms_data_pk_correct && this.ms_data_th_correct);
 
       if (!this.require_ms_data){
+      var pubkeys_base64_tmp = []
+
+      // bech32 to base64
+      for (var key of this.ms_address_pubkeys.split("\n")){
+        let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
+        let buffer = Buffer.from(bech32.fromWords(bech32.decode(key).words));
+        pubkeys_base64_tmp.push(buffer.slice(pubkeyAminoPrefix.length).toString('base64'));
+      }
+
       const formValue = {
         wallet_name: this.wallet_name,
         ms_address: this.ms_address,
         wallet_pass_tmp: this.wallet_pass_tmp,
         multisig: true,
         threshold: this.ms_address_threshold,
-        pubkeys: this.ms_address_pubkeys.split("\n").sort(),
+        pubkeys: pubkeys_base64_tmp.sort(),
       };
       this.$emit('onImportMultiSigWallet', formValue);
     }

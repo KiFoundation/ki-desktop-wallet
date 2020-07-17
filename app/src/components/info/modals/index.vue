@@ -23,8 +23,8 @@
       <b-row class="text-center" style="margin-bottom:20px;">
         <b-col>
           <span>
-            <b-badge v-if="!vesting" class="badge">Vesting</b-badge>
-            <b-badge v-if="!multisig" class="badge">Multisig</b-badge>
+            <b-badge v-if="vesting" class="badge">Vesting</b-badge>
+            <b-badge v-if="multisig" class="badge">Multisig</b-badge>
           </span>
         </b-col>
       </b-row>
@@ -34,7 +34,7 @@
             <ul>
               <li style="font-size: 12px; margin-top:8px">
                 <p :style="{
-                  color: 'var(--secondary)',
+                  /* color: 'var(--secondary)', */
                   fontSize: '0.85rem',
                   fontWeight: '600',
                 }">
@@ -48,15 +48,29 @@
               </li>
               <li style="font-size: 12px; margin-top:8px ">
                 <p :style="{
-                  color: 'var(--secondary)',
+                  /* color: 'var(--secondary)', */
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                }">
-                  Public Key
+                }"
+                 v-if="!multisig">
+                 Public Key
                 </p>
-                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;" @click="ba3">
-                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;">
+                <p :style="{
+                  /* color: 'var(--secondary)', */
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                }"
+                 v-if="multisig">
+                 Description
+                </p>
+                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;" >
+                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;"
+                    v-if="!multisig">
                     {{ publickeyBech32 }}
+                  </span>
+                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;"
+                    v-else>
+                    {{ currentWallet.multisign_data.description }}
                   </span>
                 </div>
               </li>
@@ -114,7 +128,7 @@
           </div>
         </b-col>
         <b-col cols="12" class="pl-1 pr-1">
-          <div class="d-flex justify-content-center flex-column" style="height:80px;">
+          <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
             <h6 :style="{ fontWeight: 'bolder' }">
               {{ globalData.kichain.token }}
               {{ currentWalletBalancesAmount.locked }}
@@ -207,11 +221,7 @@ export default {
 
   },
   methods: {
-    ba3(){
-      tata.select()
-      document.execCommand("copy");
-  }
-},
+  },
 };
 </script>
 
