@@ -24,7 +24,7 @@
                 <b-col />
               </b-row>
               <b-row style="margin-bottom:20px;">
-                <b-col>Give a name to your wallet to distinguish it in the wallet list</b-col>
+                <b-col>Give a name to your wallet to distinguish it in the wallet list </b-col>
               </b-row>
               <input v-model="wallet_name" type="text" @input="
                     validateWalltName();
@@ -67,7 +67,7 @@
                       <h5>Your mnemonic</h5>
                     </b-col>
                     <b-col />
-                    <b-col style="text-align:right" cols="4" >
+                    <b-col style="text-align:right" cols="4">
                       <a class="stealth-link" @click="resetMnemonic()">Erase mnemonic</a>
                     </b-col>
                   </b-row>
@@ -82,12 +82,12 @@
                       <ul>
                         <li>
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w0'">1.</label> <input :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic"/>
+                            <label style="margin:0px;" :for="'w0'">1.</label> <input :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic" />
                           </div>
                         </li>
                         <li v-for="(item, idx) in new Array(23)" v-bind:key="'w'+(idx+2)">
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)"/>
+                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)" />
                           </div>
                         </li>
                       </ul>
@@ -96,15 +96,15 @@
                 </b-col>
                 <b-col v-if="step==1 && multisig">
                   <label>{{ $t('enter_public_address') }}</label>
-                  <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data"/>
+                  <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data" />
                   <div v-if="require_ms_data" class="optional-area">
                     <p>{{ $t('ms_address_unknown') }}</p>
                     <label >{{ $t('enter_ms_address_threshold') }}</label>
                     <input type='number' min="1" v-model="ms_address_threshold" @input="validateMsData();"/>
                     <label>{{ $t('enter_ms_address_pubkeys') }}</label>
                     <textarea v-model="ms_address_pubkeys" rows="2" @input="validateMsData();"/>
-                    <span v-if="!ms_data_correct" class="mnemonic-error">{{
-                        $t('error_wallet_name')
+                    <span v-if="!ms_data_pk_correct" class="warning">{{
+                        $t('enter_ms_address_pubkeys_error')
                       }}</span>
                   </div>
 
@@ -170,7 +170,12 @@ import {
   BButton,
   BButtonGroup,
 } from 'bootstrap-vue';
-import { services } from '@services/index';
+import {
+  services
+} from '@services/index';
+import {
+  createAddress
+} from '@tendermint/sig';
 
 export default {
   components: {
@@ -192,16 +197,16 @@ export default {
       filter: 'no',
       multisig: false,
       mnemonic: '',
-      mnemonic_array : [],
+      mnemonic_array: [],
       mnemonic_correct: true,
       ms_address: '',
       ms_address_correct: false,
       require_ms_data: false,
-      ms_address_threshold:'',
-      ms_address_pubkeys:'',
+      ms_address_threshold: '',
+      ms_address_pubkeys: '',
       ms_data_correct: true,
-      ms_data_pk_correct:false,
-      ms_data_th_correct:false,
+      ms_data_pk_correct: false,
+      ms_data_th_correct: false,
       wallet_name: '',
       wallet_pass_tmp: '',
       name_exists: false,
@@ -238,10 +243,10 @@ export default {
       this.require_ms_data = false;
       this.mnemonic_correct = false;
       this.password_correct = true;
-      this.ms_data_pk_correct=false;
-      this.ms_data_th_correct=false;
-      this.ms_address_pubkeys='';
-      this.ms_address_threshold='';
+      this.ms_data_pk_correct = false;
+      this.ms_data_th_correct = false;
+      this.ms_address_pubkeys = '';
+      this.ms_address_threshold = '';
       this.resetMnemonic()
       // this.$emit('onResetModal');
     },
@@ -254,34 +259,54 @@ export default {
       };
       this.$emit('onImportWallet', formValue);
     },
-    importMultiSigWallet() {
+
+    bech32ToPubkey(key) {
       const bech32 = require('bech32')
+      let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
+      let buffer = Buffer.from(bech32.fromWords(bech32.decode(key).words));
+      return buffer.slice(pubkeyAminoPrefix.length)
+    },
 
-      this.require_ms_data = !(this.ms_data_pk_correct && this.ms_data_th_correct);
+    bech32ToAdd(publickeyBech32) {
+      const bech32 = require('bech32')
+      return Buffer.from(bech32.fromWords(bech32.decode(createAddress(publickeyBech32, "ki")).words)).toString('hex');
+    },
 
-      if (!this.require_ms_data){
-      var pubkeys_base64_tmp = []
+    importMultiSigWallet() {
+      var ms_data_filled = this.ms_data_pk_correct && this.ms_data_th_correct;
 
-      // bech32 to base64
-      for (var key of this.ms_address_pubkeys.split("\n")){
-        let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
-        let buffer = Buffer.from(bech32.fromWords(bech32.decode(key).words));
-        pubkeys_base64_tmp.push(buffer.slice(pubkeyAminoPrefix.length).toString('base64'));
+      if (!this.require_ms_data || ms_data_filled) {
+        var pubkeys_base64_sorted = []
+
+        if (ms_data_filled) {
+          var pubkeys_base64_tmp = []
+
+          // bech32 to base64
+          for (var key of this.ms_address_pubkeys.split("\n")) {
+            var k = this.bech32ToPubkey(key);
+            var a = this.bech32ToAdd(k)
+            pubkeys_base64_tmp.push([k.toString('base64'), a]);
+          }
+
+          // Sort pubkeys by their addresses
+          pubkeys_base64_tmp.sort((a, b) => a[1].localeCompare(b[1]));
+          pubkeys_base64_sorted = pubkeys_base64_tmp.map(function(x) {
+            return x[0];
+          });
+        }
+
+        const formValue = {
+          wallet_name: this.wallet_name,
+          ms_address: this.ms_address,
+          wallet_pass_tmp: this.wallet_pass_tmp,
+          multisig: true,
+          threshold: this.ms_address_threshold,
+          pubkeys: pubkeys_base64_sorted,
+        };
+        this.$emit('onImportMultiSigWallet', formValue);
+      } else {
+        this.disabled = false;
       }
-
-      const formValue = {
-        wallet_name: this.wallet_name,
-        ms_address: this.ms_address,
-        wallet_pass_tmp: this.wallet_pass_tmp,
-        multisig: true,
-        threshold: this.ms_address_threshold,
-        pubkeys: pubkeys_base64_tmp.sort(),
-      };
-      this.$emit('onImportMultiSigWallet', formValue);
-    }
-    else{
-      this.disabled = false;
-    }
     },
     validatePassword() {
       if (!this.wallet_pass_tmp) {
@@ -328,49 +353,44 @@ export default {
       }
       this.disabled = this.name_correct && !this.name_exists;
     },
-    validateAddress(){
-      if (!this.ms_address){
+    validateAddress() {
+      if (!this.ms_address) {
         this.ms_address_correct = false;
-      }else {
-        if (this.ms_address.substring(0, 3) !="ki1" || this.ms_address.length != 41) {
+      } else {
+        if (this.ms_address.substring(0, 3) != "ki1" || this.ms_address.length != 41) {
           this.ms_address_correct = false;
-        }
-        else{
+        } else {
           this.ms_address_correct = true;
         }
       }
       this.disabled = this.ms_address_correct;
     },
-    validateMsData(){
+    validateMsData() {
       // TODO: optimize
 
-      if (!this.ms_address_threshold){
+      if (!this.ms_address_threshold) {
         this.ms_data_th_correct = false
-      }
-      else {
+      } else {
         if (/^\+?[1-9]\d*$/.test(this.ms_address_threshold)) {
           this.ms_data_th_correct = true
-        }
-        else{
+        } else {
           this.ms_data_th_correct = false;
         }
       }
 
-      if (!this.ms_address_pubkeys){
+      if (!this.ms_address_pubkeys) {
         this.ms_data_pk_correct = false
-      }
-      else {
+      } else {
 
 
-        var ms_address_pubkey_array  = this.ms_address_pubkeys.split('\n')
-        if (ms_address_pubkey_array[ms_address_pubkey_array.length-1] == ''){
+        var ms_address_pubkey_array = this.ms_address_pubkeys.split('\n')
+        if (ms_address_pubkey_array[ms_address_pubkey_array.length - 1] == '') {
           ms_address_pubkey_array.pop();
         }
 
         if (ms_address_pubkey_array.length >= parseInt(this.ms_address_threshold)) {
           this.ms_data_pk_correct = true
-        }
-        else{
+        } else {
           this.ms_data_pk_correct = false;
         }
       }
@@ -378,9 +398,19 @@ export default {
     },
 
     // Query the blockchain to check whether the address is already known
-    async checkAddressStatus(){
-        const account = await services.auth.fetchAccount(this.ms_address)
-        return account.data.result.value.public_key == null
+    async checkAddressStatus() {
+      const account = await services.auth.fetchAccount(this.ms_address)
+      if (account.data.result.value.public_key == null){
+        return true
+      }
+      else{
+        if (account.data.result.value.public_key.type !="tendermint/PubKeyMultisigThreshold") {
+          this.not_ms_address = true;
+          return true
+        }
+      }
+
+      return false
     },
 
     validateMnemonic(type) {
@@ -414,11 +444,10 @@ export default {
           break;
 
         case 1:
-          if(this.multisig){
+          if (this.multisig) {
             this.require_ms_data = await this.checkAddressStatus()
             this.importMultiSigWallet()
-          }
-          else{
+          } else {
             this.step++;
             this.disabled = false;
           }
@@ -437,20 +466,20 @@ export default {
       this.multisig = false;
       this.filter = 'no';
     },
-    parseMnemonic(){
+    parseMnemonic() {
       // simple message olive sheriff runway abstract fish twelve cause office claw debate edit window ancient mixture farm fury shell hard cruel abandon travel achieve
       this.mnemonic_array = this.mnemonic_array[0].split(" ")
       this.validateMnemonic(0);
     },
-    resetMnemonic(){
-      this.mnemonic_array =[]
+    resetMnemonic() {
+      this.mnemonic_array = []
     }
   },
 };
 </script>
 
 <style scoped>
-.mnemonic-description{
+.mnemonic-description {
   font-size: 14px;
   margin: 0px 0 8px;
   font-weight: bold;
@@ -465,66 +494,66 @@ export default {
   font-weight: 400;
 }
 
-.warning-msg{
+.warning-msg {
   margin: 0px 0 8px;
   color: var(--greyColor)
 }
 
-.contents input{
+.contents input {
   display: block;
   font-size: 14px;
-  border: none ;
+  border: none;
   width: 100%;
   padding: 2px;
 }
 
-input:focus{
-        outline: none;
-    }
+input:focus {
+  outline: none;
+}
 
 .contents .save ul {
-    display: grid;
-    grid-template-columns: 1fr;
-    /* margin-bottom: 20px; */
-    grid-column-gap: 20px;
-    grid-row-gap: 30px;
+  display: grid;
+  grid-template-columns: 1fr;
+  /* margin-bottom: 20px; */
+  grid-column-gap: 20px;
+  grid-row-gap: 30px;
 }
 
 .contents .phrases ul {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    /* margin-bottom: 20px; */
-    grid-column-gap: 25px;
-    grid-row-gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  /* margin-bottom: 20px; */
+  grid-column-gap: 25px;
+  grid-row-gap: 12px;
 }
 
-.contents .save ul li{
-    color: var(--blueColor);
-    font-size: 14px;
-    border-bottom: 1px solid rgb(224, 224, 224);
-    padding: 5px 0px;
-  }
-
-
-.contents .phrases ul li{
-    color: var(--blueColor);
-    font-size: 14px;
-    border-bottom: 1px solid rgb(224, 224, 224);
-    padding: 5px 0px;
-  }
-
-
-.contents .save ul li input{
-    color: var(--darkbg);
-    margin-left: 10px;
+.contents .save ul li {
+  color: var(--blueColor);
+  font-size: 14px;
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 5px 0px;
 }
 
-.contents .phrases ul li input{
-    color: var(--darkbg);
-    margin-left: 10px;
+
+.contents .phrases ul li {
+  color: var(--blueColor);
+  font-size: 14px;
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 5px 0px;
 }
 
-.stealth-link{
+
+.contents .save ul li input {
+  color: var(--darkbg);
+  margin-left: 10px;
+}
+
+.contents .phrases ul li input {
+  color: var(--darkbg);
+  margin-left: 10px;
+}
+
+.stealth-link {
   /* margin: 25px; */
   font-size: 11px;
   color: var(--blueColor);
@@ -534,16 +563,16 @@ input:focus{
   color: var(--blueColor);
 }
 
-.success-msg{
-  text-align:center;
-  font-size:20px;
+.success-msg {
+  text-align: center;
+  font-size: 20px;
   color: var(--greenColor);
   margin-bottom: 50px;
   margin-top: 50px;
 
 }
 
-.optional-area{
+.optional-area {
   padding: 10px;
   margin-top: 20px;
   background-color: rgba(0, 0, 150, 0.1) !important;
