@@ -25,6 +25,7 @@
           <span>
             <b-badge v-if="vesting" class="badge">Vesting</b-badge>
             <b-badge v-if="multisig" class="badge">Multisig</b-badge>
+            <b-badge v-if="offline" class="badge badge-delegate">Offline</b-badge>
           </span>
         </b-col>
       </b-row>
@@ -209,7 +210,9 @@ export default {
     vesting() {
       return this.$store.state.wallets.current.vesting;
     },
-
+    offline() {
+      return this.$store.state.wallets.current.offline;
+    },
     publickeyBech32() {
       const bech32 = require('bech32')
       let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')

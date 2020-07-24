@@ -44,7 +44,18 @@
                 <b-col />
 
               </b-row>
-              <b-row style="margin-bottom:20px;" align-v="center">
+              <b-row style="margin-bottom:15px;" align-v="center">
+                <b-col cols="7">{{ $t('offline_wallet') }}</b-col>
+                <b-col style="text-align: right;">
+                  <b-button-group size="sm">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter_offline === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('offline')">
+                      {{ btn.caption }}
+                    </b-button>
+                  </b-button-group>
+                </b-col>
+              </b-row>
+
+              <b-row style="margin-bottom:15px;" align-v="center" v-if="!offline_wallet">
                 <b-col cols="7">{{ $t('multisig_wallet_true') }}</b-col>
                 <b-col style="text-align: right;">
                   <b-button-group size="sm">
@@ -61,7 +72,7 @@
             <div class="mnemonic-form">
               <b-row v-if="step!=0" style="margin-bottom:10px">
                 <!-- Mnemonic views -->
-                <b-col v-if="step==1 && !multisig">
+                <b-col v-if="step==1 && !multisig && !offline_wallet">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
                       <h5>Your mnemonic</h5>
@@ -94,7 +105,7 @@
                     </div>
                   </div>
                 </b-col>
-                <b-col v-if="step==1 && multisig">
+                <b-col v-if="step==1 && multisig && !offline_wallet">
                   <label>{{ $t('enter_public_address') }}</label>
                   <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data" />
                   <div v-if="require_ms_data" class="optional-area">
@@ -118,6 +129,10 @@
                     </b-row>
                   </div>
 
+                </b-col>
+                <b-col v-if="offline_wallet">
+                  <label>{{ $t('enter_public_address') }}</label>
+                  <textarea v-model="offline_address" rows="1" @input="validateAddress"/>
                 </b-col>
                 <!-- Account data view -->
                 <b-col v-if="step==2 && !multisig" >
@@ -206,6 +221,10 @@ export default {
       step: 0,
       filter: 'no',
       filter_sort: 'yes',
+      filter_offline: 'no',
+      offline_wallet: false,
+      offline_address:'',
+      offline_address_correct:true,
       multisig: false,
       mnemonic: '',
       mnemonic_array: [],
@@ -247,6 +266,7 @@ export default {
       this.mnemonic = '';
       this.ms_address = '';
       this.wallet_name = '';
+      this.offline_address ='';
       this.wallet_pass_tmp = '';
       this.disabled = false;
       this.multisig = false;
@@ -265,10 +285,13 @@ export default {
     importWallet() {
       const formValue = {
         wallet_name: this.wallet_name,
+        address: this.offline_address,
         mnemonic: this.mnemonic,
         wallet_pass_tmp: this.wallet_pass_tmp,
         multisig: false,
+        offline: this.offline_wallet,
       };
+
       this.$emit('onImportWallet', formValue);
     },
 
@@ -370,16 +393,31 @@ export default {
       this.disabled = this.name_correct && !this.name_exists;
     },
     validateAddress() {
-      if (!this.ms_address) {
-        this.ms_address_correct = false;
-      } else {
-        if (this.ms_address.substring(0, 3) != "ki1" || this.ms_address.length != 41) {
+      if (!this.offline_wallet){
+        if (!this.ms_address) {
           this.ms_address_correct = false;
         } else {
-          this.ms_address_correct = true;
+          if (this.ms_address.substring(0, 3) != "ki1" || this.ms_address.length != 41) {
+            this.ms_address_correct = false;
+          } else {
+            this.ms_address_correct = true;
+          }
         }
+        this.disabled = this.ms_address_correct;
       }
-      this.disabled = this.ms_address_correct;
+      else{
+        if (!this.offline_address) {
+          this.offline_address_correct = false;
+        } else {
+          if (this.offline_address.substring(0, 3) != "ki1" || this.offline_address.length != 41) {
+            this.offline_address_correct = false;
+          } else {
+            this.offline_address_correct = true;
+          }
+        }
+        this.disabled = this.offline_address_correct;
+      }
+
     },
     validateMsData() {
       // TODO: optimize
@@ -460,12 +498,17 @@ export default {
           break;
 
         case 1:
-          if (this.multisig) {
-            this.require_ms_data = await this.checkAddressStatus()
-            this.importMultiSigWallet()
-          } else {
-            this.step++;
-            this.disabled = false;
+          if (this.offline_wallet){
+            this.importWallet();
+          }
+          else{
+            if (this.multisig) {
+              this.require_ms_data = await this.checkAddressStatus()
+              this.importMultiSigWallet()
+            } else {
+              this.step++;
+              this.disabled = false;
+            }
           }
           break;
 
@@ -483,6 +526,10 @@ export default {
         this.ms_address_pubkeys_sort = true;
         this.filter_sort = 'yes';
       }
+      if (type === "offline"){
+        this.offline_wallet = true;
+        this.filter_offline = 'yes';
+      }
     },
     handleNo(type) {
       if (type === "ms"){
@@ -492,6 +539,12 @@ export default {
       if (type === "sort"){
         this.ms_address_pubkeys_sort = false;
         this.filter_sort = 'no';
+      }
+      if (type === "offline"){
+        this.offline_wallet = false;
+        this.filter_offline = 'no';
+        this.multisig = false;
+        this.filter = 'no';
       }
     },
     parseMnemonic() {

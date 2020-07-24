@@ -171,7 +171,7 @@ export const actions = {
       let description = ''
       let multisig_data = {}
 
-      if (wallet.privatekey == ""){
+      if (wallet.ms){
         let ms_data ;
         if (account.data.result.value.public_key == null){
           var pubkeys_temp = []
@@ -298,8 +298,9 @@ export const actions = {
           transactions: transactions,
           vesting:vesting,
           // multisign: false,
-          multisign: wallet.privatekey == "",
+          multisign: wallet.ms,
           multisign_data: multisig_data,
+          offline: wallet.offline,
         };
       }
       commit(END_HYDRATE);

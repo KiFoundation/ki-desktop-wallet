@@ -26,6 +26,7 @@ export default {
   save_mnemonic: 'Save the following secret in a secure manner',
   enter_wallet_name: 'Give a name to your wallet',
   multisig_wallet_true: 'Are you importing a multisignature account ?',
+  offline_wallet:"Are you importing a watch only account ?",
   error_mnemonic: 'Mnemonic phrase should be 24 words',
   error_password:
     'At least 8 characters, 1 uppercase, 1 lowercase and 1 number',
