@@ -48,7 +48,7 @@
                 <b-col cols="7">{{ $t('multisig_wallet_true') }}</b-col>
                 <b-col style="text-align: right;">
                   <b-button-group size="sm">
-                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress()">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('ms')">
                       {{ btn.caption }}
                     </b-button>
                   </b-button-group>
@@ -106,6 +106,16 @@
                     <span v-if="!ms_data_pk_correct" class="warning">{{
                         $t('enter_ms_address_pubkeys_error')
                       }}</span>
+                    <b-row style="margin-bottom:20px;" align-v="center">
+                      <b-col cols="7"><label>{{ $t('enter_ms_address_pubkeys_sorted') }}</label></b-col>
+                      <b-col style="text-align: right;">
+                        <b-button-group size="sm" style="margin-top:32px">
+                          <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter_sort === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('sort')">
+                            {{ btn.caption }}
+                          </b-button>
+                        </b-button-group>
+                      </b-col>
+                    </b-row>
                   </div>
 
                 </b-col>
@@ -195,6 +205,7 @@ export default {
       workflow: ['proceed', 'import', 'save'],
       step: 0,
       filter: 'no',
+      filter_sort: 'yes',
       multisig: false,
       mnemonic: '',
       mnemonic_array: [],
@@ -204,6 +215,7 @@ export default {
       require_ms_data: false,
       ms_address_threshold: '',
       ms_address_pubkeys: '',
+      ms_address_pubkeys_sort: true,
       ms_data_correct: true,
       ms_data_pk_correct: false,
       ms_data_th_correct: false,
@@ -276,24 +288,28 @@ export default {
       var ms_data_filled = this.ms_data_pk_correct && this.ms_data_th_correct;
 
       if (!this.require_ms_data || ms_data_filled) {
-        var pubkeys_base64_sorted = []
 
+        var pubkeys_base64_final = []
         if (ms_data_filled) {
-          var pubkeys_base64_tmp = []
+            var pubkeys_base64_tmp = []
 
-          // bech32 to base64
-          for (var key of this.ms_address_pubkeys.split("\n")) {
-            var k = this.bech32ToPubkey(key);
-            var a = this.bech32ToAdd(k)
-            pubkeys_base64_tmp.push([k.toString('base64'), a]);
+            // bech32 to base64
+            for (var key of this.ms_address_pubkeys.split("\n")) {
+              var k = this.bech32ToPubkey(key);
+              var a = this.bech32ToAdd(k)
+              pubkeys_base64_tmp.push([k.toString('base64'), a]);
+            }
+
+            // Sort pubkeys by their addresses
+            if (this.ms_address_pubkeys_sort){
+              pubkeys_base64_tmp.sort((a, b) => a[1].localeCompare(b[1]));
+            }
+
+            pubkeys_base64_final = pubkeys_base64_tmp.map(function(x) {
+              return x[0];
+            });
           }
 
-          // Sort pubkeys by their addresses
-          pubkeys_base64_tmp.sort((a, b) => a[1].localeCompare(b[1]));
-          pubkeys_base64_sorted = pubkeys_base64_tmp.map(function(x) {
-            return x[0];
-          });
-        }
 
         const formValue = {
           wallet_name: this.wallet_name,
@@ -301,7 +317,7 @@ export default {
           wallet_pass_tmp: this.wallet_pass_tmp,
           multisig: true,
           threshold: this.ms_address_threshold,
-          pubkeys: pubkeys_base64_sorted,
+          pubkeys: pubkeys_base64_final,
         };
         this.$emit('onImportMultiSigWallet', formValue);
       } else {
@@ -458,13 +474,25 @@ export default {
           break;
       }
     },
-    handleYes() {
-      this.multisig = true;
-      this.filter = 'yes';
+    handleYes(type) {
+      if (type === "ms"){
+        this.multisig = true;
+        this.filter = 'yes';
+      }
+      if (type === "sort"){
+        this.ms_address_pubkeys_sort = true;
+        this.filter_sort = 'yes';
+      }
     },
-    handleNo() {
-      this.multisig = false;
-      this.filter = 'no';
+    handleNo(type) {
+      if (type === "ms"){
+        this.multisig = false;
+        this.filter = 'no';
+      }
+      if (type === "sort"){
+        this.ms_address_pubkeys_sort = false;
+        this.filter_sort = 'no';
+      }
     },
     parseMnemonic() {
       // simple message olive sheriff runway abstract fish twelve cause office claw debate edit window ancient mixture farm fury shell hard cruel abandon travel achieve

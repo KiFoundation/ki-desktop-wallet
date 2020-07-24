@@ -20,6 +20,7 @@ export default {
   enter_public_address: 'Enter your account address',
   enter_ms_address_threshold:'Enter the multisig threshold',
   enter_ms_address_pubkeys:'Enter the participant public keys (one per line)',
+  enter_ms_address_pubkeys_sorted:'Sort pubkey list?',
   enter_ms_address_pubkeys_error:'The number of participants needs to be equal to or greater than the threshold',
   ms_address_unknown:'This address is not yet known by the blockchain. Please fill in the following data to import it.',
   save_mnemonic: 'Save the following secret in a secure manner',
