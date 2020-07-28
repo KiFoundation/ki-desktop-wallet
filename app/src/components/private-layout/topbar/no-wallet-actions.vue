@@ -108,7 +108,7 @@ export default {
 
       localStorage.setItem(
         wallet_name,
-        '{ "offline:"' + false + '"ms":' + multisig + ',\
+        '{ "offline":' + false + ',"ms":' + multisig + ',\
         "privateKey":"","publicKey":{"type":"Buffer","data":[]},\
         "address":"' + ms_address + '",\
         "threshold":"'+ threshold + '",\

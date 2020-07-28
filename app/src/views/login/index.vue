@@ -112,7 +112,7 @@
           @onImportCreatedWallet="handleImportWallet"
         />
         <!-- =======================Login modal============================= -->
-        <div
+        <!-- <div
           id="login-form"
           class="modal fade"
           tabindex="-1"
@@ -176,7 +176,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- =======================Clear storage============================= -->
         <div
@@ -294,7 +294,7 @@ export default {
 
       localStorage.setItem(
         wallet_name,
-        '{ "offline:"' + false + '"ms":' + multisig + ',\
+        '{ "offline":' + false + ',"ms":' + multisig + ',\
         "privateKey":"","publicKey":{"type":"Buffer","data":[]},\
         "address":"' + ms_address + '",\
         "threshold":"'+ threshold + '",\
@@ -331,6 +331,9 @@ export default {
         wallet.privateKey = "";
         wallet.publicKey = "";
       }
+
+      wallet.ms = multisig;
+      wallet.offline = offline;
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
@@ -394,10 +397,13 @@ export default {
             JSON.parse(localStorage.getItem(this.selected_wallet)).privateKey
           }",
           "publickey":"${Buffer.from(
-            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey,
+            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey
           ).toString('hex')}",
           "ms":${
             JSON.parse(localStorage.getItem(this.selected_wallet)).ms
+          },
+          "offline":${
+            JSON.parse(localStorage.getItem(this.selected_wallet)).offline
           }
         }`;
 

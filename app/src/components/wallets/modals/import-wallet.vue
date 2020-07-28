@@ -162,7 +162,7 @@
                   <!-- Main button -->
                   <div class="d-flex justify-content-center">
 
-                    <button class="btn btn-primary" @click="proceed" :disabled="!disabled">
+                    <button data-dismiss="modal" class="btn btn-primary" @click="proceed" :disabled="!disabled">
                       <span>{{$t(workflow[step])}}</span>
                     </button>
                   </div>
