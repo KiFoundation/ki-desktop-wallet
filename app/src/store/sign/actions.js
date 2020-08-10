@@ -18,18 +18,21 @@ export const actions = {
       );
 
       let sequence;
+      let account_number ;
+
       if (account.data.result.value) {
         let res = '';
-        if (account.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+        if (account.data.result.type == 'cosmos-sdk/ContinuousVestingAccount'  || account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
           res = account.data.result.value.BaseVestingAccount.BaseAccount;
         } else {
           res = account.data.result.value;
         }
         sequence = res.sequence;
+        account_number = res.account_number;
 
         const signMeta = {
           chain_id: state.app.chainId,
-          account_number: state.account.value.account_number.toString(),
+          account_number: account_number.toString(),
           sequence: sequence.toString(),
         };
 

@@ -28,7 +28,9 @@ export const actions = {
         wallet.address,
       );
 
-      let vesting =  account.data.result.type == "cosmos-sdk/ContinuousVestingAccount"? true : false;
+      let vesting =  account.data.result.type == "cosmos-sdk/ContinuousVestingAccount" ||   account.data.result.type == "cosmos-sdk/DelayedVestingAccount";
+      let vesting_delayed = account.data.result.type == "cosmos-sdk/DelayedVestingAccount";
+
 
       // Start to fetch data
       const responseBalances = await services.wallet.fetchBalancesList(
@@ -231,10 +233,19 @@ export const actions = {
 
         // get vested amount
         let total_duration = end - start
-        let elapsed_suration = (Math.floor(Date.now() / 1000) - start > 0) ? Math.floor(Date.now() / 1000) - start : 0
-        let vested_ratio = elapsed_suration / total_duration
+        let elapsed_duration = (Math.floor(Date.now() / 1000) - start > 0) ? Math.floor(Date.now() / 1000) - start : 0
+        let vested_ratio = elapsed_duration / total_duration
         let locked_ = original * (1 - vested_ratio)
         let vested = original - locked_
+
+        if (vesting_delayed){
+         if (Math.floor(Date.now() / 1000) < end){
+            locked_ = original;
+        }
+        else{
+          locked_ = 0;
+        }
+      }
 
         let delegated = res.BaseVestingAccount.delegated_vesting.length > 0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) : 0;
 

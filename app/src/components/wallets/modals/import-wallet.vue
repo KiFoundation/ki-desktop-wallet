@@ -162,7 +162,7 @@
                   <!-- Main button -->
                   <div class="d-flex justify-content-center">
 
-                    <button data-dismiss="modal" class="btn btn-primary" @click="proceed" :disabled="!disabled">
+                    <button class="btn btn-primary" @click="proceed" :disabled="!disabled">
                       <span>{{$t(workflow[step])}}</span>
                     </button>
                   </div>
@@ -294,19 +294,16 @@ export default {
 
       this.$emit('onImportWallet', formValue);
     },
-
     bech32ToPubkey(key) {
       const bech32 = require('bech32')
       let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
       let buffer = Buffer.from(bech32.fromWords(bech32.decode(key).words));
       return buffer.slice(pubkeyAminoPrefix.length)
     },
-
     bech32ToAdd(publickeyBech32) {
       const bech32 = require('bech32')
       return Buffer.from(bech32.fromWords(bech32.decode(createAddress(publickeyBech32, "ki")).words)).toString('hex');
     },
-
     importMultiSigWallet() {
       var ms_data_filled = this.ms_data_pk_correct && this.ms_data_th_correct;
 
@@ -450,7 +447,6 @@ export default {
       }
       this.disabled = this.ms_data_pk_correct && this.ms_data_th_correct;
     },
-
     // Query the blockchain to check whether the address is already known
     async checkAddressStatus() {
       const account = await services.auth.fetchAccount(this.ms_address)
@@ -466,7 +462,6 @@ export default {
 
       return false
     },
-
     validateMnemonic(type) {
       let input = '';
       this.mnemonic = this.mnemonic_array.join(" ")

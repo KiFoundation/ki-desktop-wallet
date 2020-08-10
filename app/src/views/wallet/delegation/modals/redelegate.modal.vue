@@ -235,14 +235,14 @@ export default {
         limit = this.fees.gasLimit;
       }
       //
-
+      
       const transaction = {
         msg: [
           {
             type: 'cosmos-sdk/MsgBeginRedelegate',
             value: {
               delegator_address: this.account.id,
-              validator_src_address: this.redelegate.from_validator,
+              validator_src_address: this.redelegate.validator,
               validator_dst_address: this.redelegate.to_validator,
               amount: {
                 denom: this.udenom,
@@ -262,7 +262,7 @@ export default {
         },
         memo: '',
       };
-
+      console.log(transaction)
       if (this.multisig) {
         this.delegate.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +

@@ -272,7 +272,7 @@ export default {
 
       if (response.data.result.value) {
         let res = '';
-        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
           res = response.data.result.value.BaseVestingAccount.BaseAccount;
         } else {
           res = response.data.result.value;

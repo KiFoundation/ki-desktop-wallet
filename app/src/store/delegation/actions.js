@@ -22,7 +22,7 @@ export const actions = {
       let sequence;
       if (account.data.result.value) {
         let res = '';
-        if (account.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+        if (account.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
           res = account.data.result.value.BaseVestingAccount.BaseAccount;
         } else {
           res = account.data.result.value;
