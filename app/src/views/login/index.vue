@@ -111,73 +111,6 @@
           @onResetModal="handleResetModal"
           @onImportCreatedWallet="handleImportWallet"
         />
-        <!-- =======================Login modal============================= -->
-        <!-- <div
-          id="login-form"
-          class="modal fade"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="importLongTitle"
-          aria-hidden="true"
-          data-backdrop="static"
-          data-keyboard="false"
-        >
-          <div
-            class="modal-dialog modal-md modal-dialog-centered"
-            role="document"
-          >
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 id="importTitle" class="modal-title">
-                  {{ $t('webwallet_use_title') }}
-                </h5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  @click="handleResetModal"
-                >
-                  <span aria-hidden="true" style="color:white;">&times;</span>
-                </button>
-              </div>
-
-              <div class="basic-form modal-body">
-                <div class="mnemonic-group">
-                  <li>
-                    <div>
-                      <label>{{ $t('select_wallet') }}</label>
-                      <select
-                        v-model="selected_wallet"
-                        class="transactions wallet-select"
-                      >
-                        <option value="" disabled selected>
-                          Select a wallet to use
-                        </option>
-                        <option
-                          v-for="item in wallets"
-                          :key="item[0]"
-                          :value="item[0]"
-                        >
-                          {{ item[0] }}
-                        </option>
-                      </select>
-                    </div>
-                  </li>
-                </div>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  data-dismiss="modal"
-                  @click="login"
-                >
-                  Login
-                </button>
-              </div>
-            </div>
-          </div>
-        </div> -->
-
         <!-- =======================Clear storage============================= -->
         <div
           v-if="wallets_found"
@@ -305,6 +238,7 @@ export default {
 
       // window.location.reload();
       this.selected_wallet = wallet_name;
+      $("#import-form").modal("hide");
 
       this.login();
     },
@@ -341,7 +275,7 @@ export default {
       localStorage.setItem('import_success', 'true');
 
       this.selected_wallet = wallet_name;
-
+      $("#import-form").modal("hide");
       this.login();
     },
 

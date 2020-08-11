@@ -153,13 +153,14 @@ export default {
           _this.progress.per = Math.ceil((max - min) * scale + min);
           _this.progress.per = Math.max(_this.progress.per, min);
           _this.progress.per = Math.min(_this.progress.per, max);
-          _this.value.fee = 0.015 * (_this.progress.per / max).toFixed(6);
+          _this.value.fee = Math.round(0.015 * (_this.progress.per / max).toFixed(6)*10000)/10000;
         };
         document.onmouseup = function(e) {
           document.onmousemove = document.onmouseup = null;
         };
         return false;
       };
+
     },
   },
 };

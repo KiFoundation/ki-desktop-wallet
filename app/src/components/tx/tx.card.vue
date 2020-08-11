@@ -12,9 +12,9 @@
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2"><a :href="explorer+ '/account/' + transaction[6]" target="_blank"><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
+        <b-col cols="2"><a :href="explorer+ '/account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
         <b-col cols="2" v-if="transaction[1]=='delegate'"><a :href="explorer+ '/validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]]? validators_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
-        <b-col cols="2" v-else  class="text"><a :href="explorer+ '/account/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
+        <b-col cols="2" v-else  class="text"><a :href="explorer+ '/account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
         <b-col cols="3">
           <span>
             {{ globalData.kichain.token }} {{transaction[3]}}

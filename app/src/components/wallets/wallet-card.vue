@@ -2,7 +2,6 @@
   <b-row
     v-if="wallet"
     class="wallet-card align-items-center mx-0"
-    @click="selectWallet"
   >
     <b-col cols="3" class="pr-0">
       <b-avatar
@@ -12,8 +11,14 @@
         :style="{ backgroundImage: avatarGradient, color: 'white' }"
       />
     </b-col>
-    <b-col cols="9">
-      <h5>{{ wallet.account }}</h5>
+    <b-col cols="7" class="pr-0" @click="selectWallet">
+      <h5
+      :style="{
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }"
+      >{{ wallet.account }}</h5>
       <h6
         :style="{
           whiteSpace: 'nowrap',
@@ -24,6 +29,9 @@
       >
         {{ wallet.address }}
       </h6>
+    </b-col>
+    <b-col cols="2">
+      <img src="static/img/icons/delete.png" width="20px" class="delete" @click="deleteWallet"/>
     </b-col>
   </b-row>
 </template>
@@ -67,6 +75,21 @@ export default {
     selectWallet() {
       this.$emit('onSelectWallet', this.wallet);
     },
+
+    deleteWallet(){
+      if(confirm("Do you really want to delete " + this.wallet.account+ " ?") ) {
+        localStorage.removeItem(this.wallet.account)
+        var wallet_list_tmp = localStorage.getItem("wallet_list").split(',')
+        var index = wallet_list_tmp.indexOf(this.wallet.account);
+
+        if (index > -1) {
+           wallet_list_tmp.splice(index, 1);
+        }
+        localStorage.setItem("wallet_list", wallet_list_tmp.join(","))
+        window.location.reload();
+      }
+    }
+
   },
 };
 </script>
@@ -85,5 +108,13 @@ export default {
 .wallet-card:hover {
   box-shadow: 0px 8px 8px rgba(154, 160, 185, 0.09);
   transform: scale(1.01);
+}
+
+.delete{
+  opacity:0.2
+}
+
+.delete:hover{
+  opacity:0.5
 }
 </style>
