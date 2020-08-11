@@ -16,6 +16,7 @@
         Transactions
       </router-link>
       <router-link
+        v-if ="!offlinev"
         class="tab"
         active-class="active"
         :to="{
@@ -26,6 +27,7 @@
         Delegation
       </router-link>
       <router-link
+        v-if ="!offlinev"
         class="tab"
         active-class="active"
         :to="{
@@ -36,7 +38,7 @@
         Withdraw
       </router-link>
       <router-link
-      v-if="!multisigv && !loading"
+      v-if="!multisigv && !loading && !offlinev"
         class="tab"
         active-class="active"
         :to="{
@@ -47,7 +49,7 @@
         Sign
       </router-link>
       <router-link
-      v-if="multisigv && !loading"
+      v-if="multisigv && !loading && !offlinev"
         class="tab"
         active-class="active"
         :to="{
@@ -98,6 +100,7 @@ export default {
   data() {
     return {
       multisigv : false,
+      offlinev: false,
       loading: false,
       prevHeight: 0,
     };
@@ -105,10 +108,12 @@ export default {
   computed: {
     ...mapState({
       currentWallet: state => state.wallets.current,
-      multisig: state => state.wallets.current.multisign
+      multisig: state => state.wallets.current.multisign,
+      offline: state => state.wallets.current.offline
     }),
   },
   async created() {
+
     const walletFromLocalStorage =
       localStorage.getItem('current_wallet') &&
       JSON.parse(localStorage.getItem('current_wallet'));
@@ -123,10 +128,11 @@ export default {
       await this.hydrateAccount(walletFromLocalStorage.address);
       await this.hydrateCurrentWallet(walletFromLocalStorage);
       this.loading = false;
-      this.multisigv = this.multisig
+      this.multisigv = this.multisig;
+      this.offlinev = this.offline;
     }
-    console.log(this.multisig)
 
+    console.log(this.offlinev);
   },
   methods: {
     ...mapActions({

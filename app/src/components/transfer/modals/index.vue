@@ -295,7 +295,6 @@ export default {
           JSON.stringify(transaction) +
           '}';
       }
-
       else {
         try {
         this.postTx({

@@ -112,11 +112,11 @@ export default {
           this.account = identity_j.account;
           this.accountName = identity_j.accountName;
           this.key = identity_j.privatekey;
-          // console.log(new Buffer(this.key, 'hex').toString('utf8'))
+          this.ms = identity_j.ms;
 
           this.publickey = identity_j.publickey;
           this.chainId = identity_j.chainId;
-          if (this.key == '') {
+          if (this.ms) {
             this.multisig = true;
             this.context = 'Generate';
             this.advanced = false;
@@ -132,7 +132,8 @@ export default {
           const wallets_dict = {};
           let wallet_list = localStorage.getItem('wallet_list').split(',');
           for (var w in wallet_list) {
-            wallets.push({
+
+            var wallet_tmp= {
               account: wallet_list[w],
               address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
               privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
@@ -140,9 +141,17 @@ export default {
               publickey: Buffer.from(
                 JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
               ).toString('hex'),
-            });
-            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+              ms:  JSON.parse(localStorage.getItem(wallet_list[w])).ms,
+              offline:  JSON.parse(localStorage.getItem(wallet_list[w])).offline,
+            }
 
+            if (wallet_tmp.ms){
+              wallet_tmp["threshold"] =  JSON.parse(localStorage.getItem(wallet_list[w])).threshold
+              wallet_tmp["pubkeys"] =  JSON.parse(localStorage.getItem(wallet_list[w])).pubkeys
+            }
+
+            wallets.push(wallet_tmp);
+            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
           }
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);

@@ -179,7 +179,9 @@ export default {
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nto:\t\t\t ' +
+              this.denom + '\nfrom:\t\t ' +
+              msg.value.delegator_address +
+              '\nto:\t\t\t ' +
               msg.value.validator_address
             );
             break;
@@ -265,12 +267,12 @@ export default {
 
       const response = await services.auth.fetchAccount(account);
 
-      let sequence_ = '';
+      let sequence_ = 0;
       let account_number_ = '';
 
       if (response.data.result.value) {
         let res = '';
-        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
           res = response.data.result.value.BaseVestingAccount.BaseAccount;
         } else {
           res = response.data.result.value;

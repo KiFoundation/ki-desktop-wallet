@@ -18,21 +18,25 @@ export const actions = {
       state.wallets.current.address,
     );
 
+
     let sequence;
+    let account_number ;
     if (response.data.result.value) {
       let res = '';
-      if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount') {
+      if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount'  || account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
         res = response.data.result.value.BaseVestingAccount.BaseAccount;
       } else {
         res = response.data.result.value;
       }
       sequence = res.sequence;
+      account_number = res.account_number;
 
       const signMeta = {
         chain_id: state.app.chainId,
-        account_number: state.account.value.account_number.toString(),
+        account_number: account_number.toString(),
         sequence: sequence.toString(),
       };
+
 
       let key;
       var bytes = CryptoJS.AES.decrypt(

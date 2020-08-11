@@ -101,16 +101,18 @@ export default {
       }
     },
     handleImportMultiSigWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, ms_address } = formValue;
+      const { wallet_name, wallet_pass_tmp, ms_address, threshold, pubkeys, multisig } = formValue;
 
       // Store Wallet
       this.storeInWalletList(wallet_name);
 
       localStorage.setItem(
         wallet_name,
-        '{"privateKey":"","publicKey":{"type":"Buffer","data":[]},"address":"' +
-          ms_address +
-          '"}',
+        '{ "offline":' + false + ',"ms":' + multisig + ',\
+        "privateKey":"","publicKey":{"type":"Buffer","data":[]},\
+        "address":"' + ms_address + '",\
+        "threshold":"'+ threshold + '",\
+        "pubkeys":' + JSON.stringify(pubkeys) + '}',
       );
 
       localStorage.setItem('import_success', 'true');
@@ -118,7 +120,8 @@ export default {
       window.location.reload();
     },
     handleImportWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, mnemonic } = formValue;
+      const { wallet_name, wallet_pass_tmp, mnemonic, multisig, offline, address} = formValue;
+
 
       // Create the wallet
       const wallet = createWalletFromMnemonic(mnemonic, '', this.prefix);
@@ -127,17 +130,26 @@ export default {
       this.storeInWalletList(wallet_name);
 
       // Encrypt the private key
-      var encrypted_key = AES.encrypt(
-        wallet.privateKey.toString('hex'),
-        wallet_pass_tmp,
-      ).toString();
-      wallet.privateKey = encrypted_key;
+      if (!offline){
+        var encrypted_key = AES.encrypt(
+          wallet.privateKey.toString('hex'),
+          wallet_pass_tmp,
+        ).toString();
+
+        wallet.privateKey = encrypted_key;
+      }
+      else{
+        wallet.address = address;
+        wallet.privateKey = "";
+        wallet.publicKey = "";
+      }
+
+      wallet.ms = multisig;
+      wallet.offline = offline;
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
-
       localStorage.setItem('import_success', 'true');
-
       window.location.reload();
     },
 

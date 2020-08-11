@@ -111,73 +111,6 @@
           @onResetModal="handleResetModal"
           @onImportCreatedWallet="handleImportWallet"
         />
-        <!-- =======================Login modal============================= -->
-        <div
-          id="login-form"
-          class="modal fade"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="importLongTitle"
-          aria-hidden="true"
-          data-backdrop="static"
-          data-keyboard="false"
-        >
-          <div
-            class="modal-dialog modal-md modal-dialog-centered"
-            role="document"
-          >
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 id="importTitle" class="modal-title">
-                  {{ $t('webwallet_use_title') }}
-                </h5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  @click="handleResetModal"
-                >
-                  <span aria-hidden="true" style="color:white;">&times;</span>
-                </button>
-              </div>
-
-              <div class="basic-form modal-body">
-                <div class="mnemonic-group">
-                  <li>
-                    <div>
-                      <label>{{ $t('select_wallet') }}</label>
-                      <select
-                        v-model="selected_wallet"
-                        class="transactions wallet-select"
-                      >
-                        <option value="" disabled selected>
-                          Select a wallet to use
-                        </option>
-                        <option
-                          v-for="item in wallets"
-                          :key="item[0]"
-                          :value="item[0]"
-                        >
-                          {{ item[0] }}
-                        </option>
-                      </select>
-                    </div>
-                  </li>
-                </div>
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  data-dismiss="modal"
-                  @click="login"
-                >
-                  Login
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- =======================Clear storage============================= -->
         <div
           v-if="wallets_found"
@@ -287,30 +220,31 @@ export default {
     },
 
     handleImportMultiSigWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, ms_address } = formValue;
-      console.log("ok1")
+      const { wallet_name, wallet_pass_tmp, ms_address, threshold, pubkeys, multisig} = formValue;
+
       // Store Wallet
       this.storeInWalletList(wallet_name);
-      console.log("ok2")
 
       localStorage.setItem(
         wallet_name,
-        '{"privateKey":"","publicKey":{"type":"Buffer","data":[]},"address":"' +
-          ms_address +
-          '"}',
+        '{ "offline":' + false + ',"ms":' + multisig + ',\
+        "privateKey":"","publicKey":{"type":"Buffer","data":[]},\
+        "address":"' + ms_address + '",\
+        "threshold":"'+ threshold + '",\
+        "pubkeys":' + JSON.stringify(pubkeys) + '}',
       );
-      console.log("ok3")
 
       localStorage.setItem('import_success', 'true');
 
       // window.location.reload();
       this.selected_wallet = wallet_name;
+      $("#import-form").modal("hide");
 
       this.login();
     },
 
     handleImportWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, mnemonic } = formValue;
+      const { wallet_name, wallet_pass_tmp, mnemonic, multisig, offline } = formValue;
 
       // Create the wallet
       const wallet = createWalletFromMnemonic(mnemonic, '', this.prefix);
@@ -319,11 +253,21 @@ export default {
       this.storeInWalletList(wallet_name);
 
       // Encrypt the private key
-      var encrypted_key = AES.encrypt(
-        wallet.privateKey.toString('hex'),
-        wallet_pass_tmp,
-      ).toString();
-      wallet.privateKey = encrypted_key;
+      if (!offline){
+        var encrypted_key = AES.encrypt(
+          wallet.privateKey.toString('hex'),
+          wallet_pass_tmp,
+        ).toString();
+
+        wallet.privateKey = encrypted_key;
+      }
+      else{
+        wallet.privateKey = "";
+        wallet.publicKey = "";
+      }
+
+      wallet.ms = multisig;
+      wallet.offline = offline;
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
@@ -331,7 +275,7 @@ export default {
       localStorage.setItem('import_success', 'true');
 
       this.selected_wallet = wallet_name;
-
+      $("#import-form").modal("hide");
       this.login();
     },
 
@@ -387,8 +331,14 @@ export default {
             JSON.parse(localStorage.getItem(this.selected_wallet)).privateKey
           }",
           "publickey":"${Buffer.from(
-            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey,
-          ).toString('hex')}"
+            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey
+          ).toString('hex')}",
+          "ms":${
+            JSON.parse(localStorage.getItem(this.selected_wallet)).ms
+          },
+          "offline":${
+            JSON.parse(localStorage.getItem(this.selected_wallet)).offline
+          }
         }`;
 
         localStorage.setItem('identity_' + this.blockchain_lowercase, identity);

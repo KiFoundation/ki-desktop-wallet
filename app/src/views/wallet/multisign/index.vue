@@ -183,7 +183,9 @@ export default {
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nto:\t\t\t ' +
+              this.denom + '\nfrom:\t\t ' +
+              msg.value.delegator_address +
+              '\nto:\t\t\t ' +
               msg.value.validator_address
             );
             break;
@@ -281,7 +283,7 @@ export default {
         })
 
         prefix_signer_byte += Math.pow(2, 7-index)
-        
+
 
         // encode each signature (base 64)
         var binary_string = window.atob(this.multisign.signed[sig][1]);
@@ -374,7 +376,7 @@ export default {
           toaster: 'b-toaster-bottom-center',
         });
         removeFile('msf', '')
-        // this.$emit('onWithdrawSuccess');
+        this.$emit('onTransferSuccess');
       } catch (error) {
 
         this.$bvToast.toast("Failed to send", {
@@ -384,7 +386,7 @@ export default {
           noCloseButton: true,
           toaster: 'b-toaster-bottom-center',
         });
-        // this.$emit('onWithdrawError');
+        this.$emit('onTransferError');
       }
     }
   }

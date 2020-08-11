@@ -24,7 +24,7 @@
                 <b-col />
               </b-row>
               <b-row style="margin-bottom:20px;">
-                <b-col>Give a name to your wallet to distinguish it in the wallet list</b-col>
+                <b-col>Give a name to your wallet to distinguish it in the wallet list </b-col>
               </b-row>
               <input v-model="wallet_name" type="text" @input="
                     validateWalltName();
@@ -44,11 +44,22 @@
                 <b-col />
 
               </b-row>
-              <b-row style="margin-bottom:20px;" align-v="center">
+              <b-row style="margin-bottom:15px;" align-v="center">
+                <b-col cols="7">{{ $t('offline_wallet') }}</b-col>
+                <b-col style="text-align: right;">
+                  <b-button-group size="sm">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter_offline === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('offline')">
+                      {{ btn.caption }}
+                    </b-button>
+                  </b-button-group>
+                </b-col>
+              </b-row>
+
+              <b-row style="margin-bottom:15px;" align-v="center" v-if="!offline_wallet">
                 <b-col cols="7">{{ $t('multisig_wallet_true') }}</b-col>
                 <b-col style="text-align: right;">
                   <b-button-group size="sm">
-                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress()">
+                    <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('ms')">
                       {{ btn.caption }}
                     </b-button>
                   </b-button-group>
@@ -61,13 +72,13 @@
             <div class="mnemonic-form">
               <b-row v-if="step!=0" style="margin-bottom:10px">
                 <!-- Mnemonic views -->
-                <b-col v-if="step==1 && !multisig">
+                <b-col v-if="step==1 && !multisig && !offline_wallet">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
                       <h5>Your mnemonic</h5>
                     </b-col>
                     <b-col />
-                    <b-col style="text-align:right" cols="4" >
+                    <b-col style="text-align:right" cols="4">
                       <a class="stealth-link" @click="resetMnemonic()">Erase mnemonic</a>
                     </b-col>
                   </b-row>
@@ -82,21 +93,46 @@
                       <ul>
                         <li>
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w0'">1.</label> <input :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic"/>
+                            <label style="margin:0px;" :for="'w0'">1.</label> <input :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic" />
                           </div>
                         </li>
                         <li v-for="(item, idx) in new Array(23)" v-bind:key="'w'+(idx+2)">
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)"/>
+                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)" />
                           </div>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </b-col>
-                <b-col v-if="step==1 && multisig">
+                <b-col v-if="step==1 && multisig && !offline_wallet">
                   <label>{{ $t('enter_public_address') }}</label>
-                  <textarea v-model="ms_address" rows="2" @input="validateAddress"/>
+                  <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data" />
+                  <div v-if="require_ms_data" class="optional-area">
+                    <p>{{ $t('ms_address_unknown') }}</p>
+                    <label >{{ $t('enter_ms_address_threshold') }}</label>
+                    <input type='number' min="1" v-model="ms_address_threshold" @input="validateMsData();"/>
+                    <label>{{ $t('enter_ms_address_pubkeys') }}</label>
+                    <textarea v-model="ms_address_pubkeys" rows="2" @input="validateMsData();"/>
+                    <span v-if="!ms_data_pk_correct" class="warning">{{
+                        $t('enter_ms_address_pubkeys_error')
+                      }}</span>
+                    <b-row style="margin-bottom:20px;" align-v="center">
+                      <b-col cols="7"><label>{{ $t('enter_ms_address_pubkeys_sorted') }}</label></b-col>
+                      <b-col style="text-align: right;">
+                        <b-button-group size="sm" style="margin-top:32px">
+                          <b-button v-for="(btn, idx) in buttons" :key="idx" :pressed="filter_sort === btn.filter" variant="outline-primary" style="margin-top:0px;" @click="btn.onPress('sort')">
+                            {{ btn.caption }}
+                          </b-button>
+                        </b-button-group>
+                      </b-col>
+                    </b-row>
+                  </div>
+
+                </b-col>
+                <b-col v-if="offline_wallet">
+                  <label>{{ $t('enter_public_address') }}</label>
+                  <textarea v-model="offline_address" rows="1" @input="validateAddress"/>
                 </b-col>
                 <!-- Account data view -->
                 <b-col v-if="step==2 && !multisig" >
@@ -111,9 +147,7 @@
                   </b-row>
                   <div class="buttonInside">
                     <input v-model="wallet_pass_tmp" :type="password_visible ? 'text' : 'password'" @input="validatePassword" />
-                    <span v-if="!password_correct" class="mnemonic-error">{{
-                  $t('error_password')
-                }}</span>
+                    <span v-if="!password_correct" class="mnemonic-error">{{$t('error_password')}}</span>
                     <a class="inside" @click="toggletPasswordVisible">
                       <img v-if="password_visible" src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2" />
                       <img v-else src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2" />
@@ -161,6 +195,13 @@ import {
   BButton,
   BButtonGroup,
 } from 'bootstrap-vue';
+import {
+  services
+} from '@services/index';
+import {
+  createAddress
+} from '@tendermint/sig';
+
 export default {
   components: {
     BRow,
@@ -179,12 +220,24 @@ export default {
       workflow: ['proceed', 'import', 'save'],
       step: 0,
       filter: 'no',
+      filter_sort: 'yes',
+      filter_offline: 'no',
+      offline_wallet: false,
+      offline_address:'',
+      offline_address_correct:true,
       multisig: false,
       mnemonic: '',
-      mnemonic_array : [],
+      mnemonic_array: [],
       mnemonic_correct: true,
       ms_address: '',
       ms_address_correct: false,
+      require_ms_data: false,
+      ms_address_threshold: '',
+      ms_address_pubkeys: '',
+      ms_address_pubkeys_sort: true,
+      ms_data_correct: true,
+      ms_data_pk_correct: false,
+      ms_data_th_correct: false,
       wallet_name: '',
       wallet_pass_tmp: '',
       name_exists: false,
@@ -213,33 +266,83 @@ export default {
       this.mnemonic = '';
       this.ms_address = '';
       this.wallet_name = '';
+      this.offline_address ='';
       this.wallet_pass_tmp = '';
       this.disabled = false;
       this.multisig = false;
       this.name_exists = false;
       this.name_correct = true;
+      this.require_ms_data = false;
       this.mnemonic_correct = false;
       this.password_correct = true;
+      this.ms_data_pk_correct = false;
+      this.ms_data_th_correct = false;
+      this.ms_address_pubkeys = '';
+      this.ms_address_threshold = '';
       this.resetMnemonic()
       // this.$emit('onResetModal');
     },
     importWallet() {
       const formValue = {
         wallet_name: this.wallet_name,
+        address: this.offline_address,
         mnemonic: this.mnemonic,
         wallet_pass_tmp: this.wallet_pass_tmp,
         multisig: false,
+        offline: this.offline_wallet,
       };
+
       this.$emit('onImportWallet', formValue);
     },
+    bech32ToPubkey(key) {
+      const bech32 = require('bech32')
+      let pubkeyAminoPrefix = Buffer.from('eb5ae98721', 'hex')
+      let buffer = Buffer.from(bech32.fromWords(bech32.decode(key).words));
+      return buffer.slice(pubkeyAminoPrefix.length)
+    },
+    bech32ToAdd(publickeyBech32) {
+      const bech32 = require('bech32')
+      return Buffer.from(bech32.fromWords(bech32.decode(createAddress(publickeyBech32, "ki")).words)).toString('hex');
+    },
     importMultiSigWallet() {
-      const formValue = {
-        wallet_name: this.wallet_name,
-        ms_address: this.ms_address,
-        wallet_pass_tmp: this.wallet_pass_tmp,
-        multisig: true,
-      };
-      this.$emit('onImportMultiSigWallet', formValue);
+      var ms_data_filled = this.ms_data_pk_correct && this.ms_data_th_correct;
+
+      if (!this.require_ms_data || ms_data_filled) {
+
+        var pubkeys_base64_final = []
+        if (ms_data_filled) {
+            var pubkeys_base64_tmp = []
+
+            // bech32 to base64
+            for (var key of this.ms_address_pubkeys.split("\n")) {
+              var k = this.bech32ToPubkey(key);
+              var a = this.bech32ToAdd(k)
+              pubkeys_base64_tmp.push([k.toString('base64'), a]);
+            }
+
+            // Sort pubkeys by their addresses
+            if (this.ms_address_pubkeys_sort){
+              pubkeys_base64_tmp.sort((a, b) => a[1].localeCompare(b[1]));
+            }
+
+            pubkeys_base64_final = pubkeys_base64_tmp.map(function(x) {
+              return x[0];
+            });
+          }
+
+
+        const formValue = {
+          wallet_name: this.wallet_name,
+          ms_address: this.ms_address,
+          wallet_pass_tmp: this.wallet_pass_tmp,
+          multisig: true,
+          threshold: this.ms_address_threshold,
+          pubkeys: pubkeys_base64_final,
+        };
+        this.$emit('onImportMultiSigWallet', formValue);
+      } else {
+        this.disabled = false;
+      }
     },
     validatePassword() {
       if (!this.wallet_pass_tmp) {
@@ -284,23 +387,80 @@ export default {
           this.name_exists = false;
         }
       }
-
       this.disabled = this.name_correct && !this.name_exists;
     },
-    validateAddress(){
-      if (!this.ms_address){
-        this.ms_address_correct = false;
-      }else {
-        if (this.ms_address.substring(0, 3) !="ki1" || this.ms_address.length != 41) {
-          this.name_correct = false;
+    validateAddress() {
+      if (!this.offline_wallet){
+        if (!this.ms_address) {
+          this.ms_address_correct = false;
+        } else {
+          if (this.ms_address.substring(0, 3) != "ki1" || this.ms_address.length != 41) {
+            this.ms_address_correct = false;
+          } else {
+            this.ms_address_correct = true;
+          }
         }
-        else{
-          this.name_correct = true;
+        this.disabled = this.ms_address_correct;
+      }
+      else{
+        if (!this.offline_address) {
+          this.offline_address_correct = false;
+        } else {
+          if (this.offline_address.substring(0, 3) != "ki1" || this.offline_address.length != 41) {
+            this.offline_address_correct = false;
+          } else {
+            this.offline_address_correct = true;
+          }
+        }
+        this.disabled = this.offline_address_correct;
+      }
+
+    },
+    validateMsData() {
+      // TODO: optimize
+
+      if (!this.ms_address_threshold) {
+        this.ms_data_th_correct = false
+      } else {
+        if (/^\+?[1-9]\d*$/.test(this.ms_address_threshold)) {
+          this.ms_data_th_correct = true
+        } else {
+          this.ms_data_th_correct = false;
         }
       }
 
-      this.disabled = this.name_correct;
+      if (!this.ms_address_pubkeys) {
+        this.ms_data_pk_correct = false
+      } else {
 
+
+        var ms_address_pubkey_array = this.ms_address_pubkeys.split('\n')
+        if (ms_address_pubkey_array[ms_address_pubkey_array.length - 1] == '') {
+          ms_address_pubkey_array.pop();
+        }
+
+        if (ms_address_pubkey_array.length >= parseInt(this.ms_address_threshold)) {
+          this.ms_data_pk_correct = true
+        } else {
+          this.ms_data_pk_correct = false;
+        }
+      }
+      this.disabled = this.ms_data_pk_correct && this.ms_data_th_correct;
+    },
+    // Query the blockchain to check whether the address is already known
+    async checkAddressStatus() {
+      const account = await services.auth.fetchAccount(this.ms_address)
+      if (account.data.result.value.public_key == null){
+        return true
+      }
+      else{
+        if (account.data.result.value.public_key.type !="tendermint/PubKeyMultisigThreshold") {
+          this.not_ms_address = true;
+          return true
+        }
+      }
+
+      return false
     },
     validateMnemonic(type) {
       let input = '';
@@ -324,7 +484,7 @@ export default {
 
       this.disabled = this.mnemonic_correct
     },
-    proceed(e) {
+    async proceed(e) {
       switch (this.step) {
 
         case 0:
@@ -333,12 +493,17 @@ export default {
           break;
 
         case 1:
-          if(this.multisig){
-            this.importMultiSigWallet()
+          if (this.offline_wallet){
+            this.importWallet();
           }
           else{
-            this.step++;
-            this.disabled = false;
+            if (this.multisig) {
+              this.require_ms_data = await this.checkAddressStatus()
+              this.importMultiSigWallet()
+            } else {
+              this.step++;
+              this.disabled = false;
+            }
           }
           break;
 
@@ -347,28 +512,50 @@ export default {
           break;
       }
     },
-    handleYes() {
-      this.multisig = true;
-      this.filter = 'yes';
+    handleYes(type) {
+      if (type === "ms"){
+        this.multisig = true;
+        this.filter = 'yes';
+      }
+      if (type === "sort"){
+        this.ms_address_pubkeys_sort = true;
+        this.filter_sort = 'yes';
+      }
+      if (type === "offline"){
+        this.offline_wallet = true;
+        this.filter_offline = 'yes';
+      }
     },
-    handleNo() {
-      this.multisig = false;
-      this.filter = 'no';
+    handleNo(type) {
+      if (type === "ms"){
+        this.multisig = false;
+        this.filter = 'no';
+      }
+      if (type === "sort"){
+        this.ms_address_pubkeys_sort = false;
+        this.filter_sort = 'no';
+      }
+      if (type === "offline"){
+        this.offline_wallet = false;
+        this.filter_offline = 'no';
+        this.multisig = false;
+        this.filter = 'no';
+      }
     },
-    parseMnemonic(){
+    parseMnemonic() {
       // simple message olive sheriff runway abstract fish twelve cause office claw debate edit window ancient mixture farm fury shell hard cruel abandon travel achieve
       this.mnemonic_array = this.mnemonic_array[0].split(" ")
       this.validateMnemonic(0);
     },
-    resetMnemonic(){
-      this.mnemonic_array =[]
+    resetMnemonic() {
+      this.mnemonic_array = []
     }
   },
 };
 </script>
 
 <style scoped>
-.mnemonic-description{
+.mnemonic-description {
   font-size: 14px;
   margin: 0px 0 8px;
   font-weight: bold;
@@ -383,66 +570,66 @@ export default {
   font-weight: 400;
 }
 
-.warning-msg{
+.warning-msg {
   margin: 0px 0 8px;
   color: var(--greyColor)
 }
 
-.contents input{
+.contents input {
   display: block;
   font-size: 14px;
-  border: none ;
+  border: none;
   width: 100%;
   padding: 2px;
 }
 
-input:focus{
-        outline: none;
-    }
+input:focus {
+  outline: none;
+}
 
 .contents .save ul {
-    display: grid;
-    grid-template-columns: 1fr;
-    /* margin-bottom: 20px; */
-    grid-column-gap: 20px;
-    grid-row-gap: 30px;
+  display: grid;
+  grid-template-columns: 1fr;
+  /* margin-bottom: 20px; */
+  grid-column-gap: 20px;
+  grid-row-gap: 30px;
 }
 
 .contents .phrases ul {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    /* margin-bottom: 20px; */
-    grid-column-gap: 25px;
-    grid-row-gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  /* margin-bottom: 20px; */
+  grid-column-gap: 25px;
+  grid-row-gap: 12px;
 }
 
-.contents .save ul li{
-    color: var(--blueColor);
-    font-size: 14px;
-    border-bottom: 1px solid rgb(224, 224, 224);
-    padding: 5px 0px;
-  }
-
-
-.contents .phrases ul li{
-    color: var(--blueColor);
-    font-size: 14px;
-    border-bottom: 1px solid rgb(224, 224, 224);
-    padding: 5px 0px;
-  }
-
-
-.contents .save ul li input{
-    color: var(--darkbg);
-    margin-left: 10px;
+.contents .save ul li {
+  color: var(--blueColor);
+  font-size: 14px;
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 5px 0px;
 }
 
-.contents .phrases ul li input{
-    color: var(--darkbg);
-    margin-left: 10px;
+
+.contents .phrases ul li {
+  color: var(--blueColor);
+  font-size: 14px;
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 5px 0px;
 }
 
-.stealth-link{
+
+.contents .save ul li input {
+  color: var(--darkbg);
+  margin-left: 10px;
+}
+
+.contents .phrases ul li input {
+  color: var(--darkbg);
+  margin-left: 10px;
+}
+
+.stealth-link {
   /* margin: 25px; */
   font-size: 11px;
   color: var(--blueColor);
@@ -452,11 +639,19 @@ input:focus{
   color: var(--blueColor);
 }
 
-.success-msg{
-  text-align:center;
-  font-size:20px;
+.success-msg {
+  text-align: center;
+  font-size: 20px;
   color: var(--greenColor);
   margin-bottom: 50px;
   margin-top: 50px;
 
-}</style>
+}
+
+.optional-area {
+  padding: 10px;
+  margin-top: 20px;
+  background-color: rgba(0, 0, 150, 0.1) !important;
+  border: 1px solid rgb(224, 224, 224);
+}
+</style>
