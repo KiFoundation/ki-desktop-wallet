@@ -1,7 +1,7 @@
 {
   "productName": "Ki Desktop Wallet",
   "name": "ki-desktop-wallet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The KiCahin wallet",
   "main": "main.js",
   "scripts": {

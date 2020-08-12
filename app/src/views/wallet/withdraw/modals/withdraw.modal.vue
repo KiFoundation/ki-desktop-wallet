@@ -118,6 +118,7 @@ export default {
   },
   data() {
     return {
+      udenom: this.globalData.kichain.udenom,
       withdraw: {
         alert: '',
         config: 0,
@@ -172,7 +173,7 @@ export default {
         return false;
       }
 
-      const limit = 300000;
+      const limit = 200000;
 
       const msg_withdraw_reward = {
         type: 'cosmos-sdk/MsgWithdrawDelegationReward',
@@ -193,7 +194,10 @@ export default {
       const transaction = {
         msg: [],
         fee: {
-          amount: [],
+          amount: [{
+            denom: this.udenom,
+            amount: "5000",
+          }],
           gas: limit.toString(),
         },
         memo: '',

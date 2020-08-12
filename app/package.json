@@ -1,8 +1,8 @@
 {
   "name": "Ki-Wallet",
-  "version": "1.0.0",
+  "version": "0.2.1",
   "description": "ki-wallet",
-  "author": "math",
+  "author": "Ki Foundation",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
