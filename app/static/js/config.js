@@ -1,7 +1,7 @@
 export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   kichain: {
-    nodeUrl: "https://api-mainnet.blockchain.ki",
+    nodeUrl: "https://api-wallet.blockchain.ki",
     token: 'ҟ',
     prefix: 'ki',
     denom: 'xki',
@@ -13,5 +13,5 @@ export default {
     },
   },
   domain: 'http://localhost/',
-  explorer: 'https://mainnet.blockchain.ki/'
+  explorer: 'https://blockchain.ki/'
 };

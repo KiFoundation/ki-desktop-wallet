@@ -74,7 +74,7 @@ export default {
       thunk: null,
       progress: {
         per: 50,
-        min: 10,
+        min: 50,
         max: 100,
       },
       token: this.globalData.kichain.token,
