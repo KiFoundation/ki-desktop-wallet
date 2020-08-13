@@ -266,8 +266,8 @@ export default {
         wallet.publicKey = "";
       }
 
-      wallet.ms = multisig;
-      wallet.offline = offline;
+      wallet.ms = (multisig == undefined) ? false : multisig;
+      wallet.offline = (offline == undefined) ? false : offline;
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
@@ -276,6 +276,8 @@ export default {
 
       this.selected_wallet = wallet_name;
       $("#import-form").modal("hide");
+      $("#add-form").modal("hide");
+
       this.login();
     },
 
