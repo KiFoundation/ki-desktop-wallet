@@ -36,6 +36,8 @@
         </h5>
       </div>
     </div>
+
+
     <div class="d-flex flex-row">
       <div class="pr-4">
         <a
@@ -65,12 +67,14 @@
     </div>
     <TransferModal />
     <InfoModal />
+    <ErrorModal />
   </div>
 </template>
 
 <script>
 import TransferModal from '@cmp/transfer/modals/index';
 import InfoModal from '@cmp/info/modals/index';
+import ErrorModal from '@cmp/error/modals/index';
 import { BAvatar, BTooltip } from 'bootstrap-vue';
 import { mapGetters, mapState, mapActions } from 'vuex';
 import {
@@ -85,11 +89,13 @@ export default {
     TransferModal,
     BAvatar,
     InfoModal,
+    ErrorModal
   },
   data() {
     return {
       tooltipShow: false,
       refreshing: false,
+      invalidWallet: false
     };
   },
   computed: {
@@ -102,6 +108,16 @@ export default {
     }),
   },
   mounted() {
+    this.invalidWallet = this.currentWallet.account==undefined ||
+               this.currentWallet.address==undefined ||
+               this.currentWallet.ms==undefined ||
+               this.currentWallet.offline==undefined ||
+               this.currentWallet.privatekey==undefined ||
+               this.currentWallet.publickey==undefined
+    if(this.invalidWallet){
+      this.$bvModal.show("error-modal")
+    }
+
     // const clipboard = new this.clipboard('#copy-btn');
   },
   methods: {

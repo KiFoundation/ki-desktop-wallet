@@ -106,9 +106,15 @@ export default {
         }
 
         const identity = localStorage.getItem('identity_kichain');
-        if (identity) {
-          let identity_j = JSON.parse(identity);
 
+        if (identity) {
+          let identity_j
+          try {
+            identity_j = JSON.parse(identity);
+          } catch (e) {
+            // identity_j = JSON.parse(identity.replace(/undefined/g, "false"))
+            res(0)
+          }
           this.account = identity_j.account;
           this.accountName = identity_j.accountName;
           this.key = identity_j.privatekey;
@@ -133,7 +139,7 @@ export default {
           let wallet_list = localStorage.getItem('wallet_list').split(',');
           for (var w in wallet_list) {
 
-            var wallet_tmp= {
+            var wallet_tmp = {
               account: wallet_list[w],
               address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
               privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
@@ -141,13 +147,13 @@ export default {
               publickey: Buffer.from(
                 JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
               ).toString('hex'),
-              ms:  JSON.parse(localStorage.getItem(wallet_list[w])).ms,
-              offline:  JSON.parse(localStorage.getItem(wallet_list[w])).offline,
+              ms: JSON.parse(localStorage.getItem(wallet_list[w])).ms,
+              offline: JSON.parse(localStorage.getItem(wallet_list[w])).offline,
             }
 
-            if (wallet_tmp.ms){
-              wallet_tmp["threshold"] =  JSON.parse(localStorage.getItem(wallet_list[w])).threshold
-              wallet_tmp["pubkeys"] =  JSON.parse(localStorage.getItem(wallet_list[w])).pubkeys
+            if (wallet_tmp.ms) {
+              wallet_tmp["threshold"] = JSON.parse(localStorage.getItem(wallet_list[w])).threshold
+              wallet_tmp["pubkeys"] = JSON.parse(localStorage.getItem(wallet_list[w])).pubkeys
             }
 
             wallets.push(wallet_tmp);
