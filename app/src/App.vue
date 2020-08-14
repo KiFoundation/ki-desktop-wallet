@@ -112,7 +112,6 @@ export default {
           try {
             identity_j = JSON.parse(identity);
           } catch (e) {
-            // identity_j = JSON.parse(identity.replace(/undefined/g, "false"))
             res(0)
           }
           this.account = identity_j.account;
@@ -137,27 +136,36 @@ export default {
           const wallets = [];
           const wallets_dict = {};
           let wallet_list = localStorage.getItem('wallet_list').split(',');
+
           for (var w in wallet_list) {
+            let lse_temp;
+            try{
+              lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]))
+              lse_temp.invalid= false
+
+            }catch(e){
+              // Work arround to fix the corrupted local storage from previous version
+              lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]).replace(/undefined/g, false))
+              lse_temp.invalid= true
+            }
 
             var wallet_tmp = {
               account: wallet_list[w],
-              address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
-              privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
-                .privateKey,
-              publickey: Buffer.from(
-                JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
-              ).toString('hex'),
-              ms: JSON.parse(localStorage.getItem(wallet_list[w])).ms,
-              offline: JSON.parse(localStorage.getItem(wallet_list[w])).offline,
+              address: lse_temp.address,
+              privatekey: lse_temp.privateKey,
+              publickey: Buffer.from(lse_temp.publicKey,).toString('hex'),
+              ms: lse_temp.ms,
+              offline: lse_temp.offline,
+              invalid: lse_temp.invalid
             }
 
             if (wallet_tmp.ms) {
-              wallet_tmp["threshold"] = JSON.parse(localStorage.getItem(wallet_list[w])).threshold
-              wallet_tmp["pubkeys"] = JSON.parse(localStorage.getItem(wallet_list[w])).pubkeys
+              wallet_tmp["threshold"] = lse_temp.threshold
+              wallet_tmp["pubkeys"] = lse_temp.pubkeys
             }
 
             wallets.push(wallet_tmp);
-            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+            wallets_dict[lse_temp.address] = wallet_list[w]
           }
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);

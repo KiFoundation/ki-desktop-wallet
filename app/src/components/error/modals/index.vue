@@ -1,7 +1,11 @@
 <template>
 <b-modal :id="modalId" hide-footer hide-header no-close-on-esc >
-  <b-row align-v="center" >
-    <b-col >
+  <b-row align-v="center" class="text-center">
+    <b-col>
+      <div>
+        <img src="static/img/icons/warning.png" width="100px"/>
+      </div>
+
       <div class="basic-form modal-body d-flex w-100">
         {{$t("error_wallet_invalid")}}
       </div>

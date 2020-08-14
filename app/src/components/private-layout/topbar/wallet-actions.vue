@@ -108,17 +108,11 @@ export default {
     }),
   },
   mounted() {
-    this.invalidWallet = this.currentWallet.account==undefined ||
-               this.currentWallet.address==undefined ||
-               this.currentWallet.ms==undefined ||
-               this.currentWallet.offline==undefined ||
-               this.currentWallet.privatekey==undefined ||
-               this.currentWallet.publickey==undefined
-    if(this.invalidWallet){
-      this.$bvModal.show("error-modal")
-    }
+    this.invalidWallet = this.currentWallet.invalid
 
-    // const clipboard = new this.clipboard('#copy-btn');
+   if(this.invalidWallet){
+     this.$bvModal.show("error-modal")
+   }
   },
   methods: {
     ...mapActions({
