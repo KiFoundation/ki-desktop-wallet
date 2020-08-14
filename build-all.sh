@@ -17,8 +17,5 @@ npm run package-linux
 # macos
 npm run build-installer-mac
 
-# windows
-npm run build-installer-win
-
 # linux
 npm run build-installer-linux

@@ -80,7 +80,7 @@
                       <ul>
                         <li v-for="(item, idx) in mnemonic_array" v-bind:key="'w'+idx">
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w'+idx">{{idx+1}}.</label> <input :id="'w'+idx" type="text" v-model="mnemonic_array[idx]" />
+                            <label style="margin:0px;" :for="'w'+idx">{{idx+1}}.</label> <input autocomplete="off" :id="'w'+idx" type="text" v-model="mnemonic_array[idx]" />
                           </div>
                         </li>
                       </ul>
@@ -90,7 +90,7 @@
                       <ul>
                         <li v-for="(item, idx) in mnemonic_array_sub" :ref="'ws'+idx" v-bind:key="'ws'+idx">
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'ws'+idx">{{idx+1}}.</label> <input :id="'ws'+idx" type="text" v-model="mnemonic_array_sub[idx]" />
+                            <label style="margin:0px;" :for="'ws'+idx">{{idx+1}}.</label> <input autocomplete="off" :id="'ws'+idx" type="text" v-model="mnemonic_array_sub[idx]" />
                           </div>
                         </li>
                       </ul>

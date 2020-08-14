@@ -262,7 +262,7 @@ export default {
         },
         memo: '',
       };
-      console.log(transaction)
+
       if (this.multisig) {
         this.delegate.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
