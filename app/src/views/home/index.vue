@@ -1,5 +1,5 @@
 <template>
-  <div class="py-4 w-100">
+  <div class="py-4 w-100" style="overflow-y:auto; overflow-x:hidden">
     <WalletsList @onSelectWallet="handleSelectWallet" />
   </div>
 </template>
