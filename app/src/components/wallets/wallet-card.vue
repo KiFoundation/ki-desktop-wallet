@@ -2,6 +2,7 @@
   <b-row
     v-if="wallet"
     class="wallet-card align-items-center mx-0"
+    @click="selectWallet"
   >
     <b-col cols="3" class="pr-0">
       <b-avatar
@@ -79,7 +80,7 @@ export default {
     deleteWallet(){
       if(confirm("Do you really want to delete " + this.wallet.account+ " ?") ) {
         localStorage.removeItem(this.wallet.account)
-        var wallet_list_tmp = localStorage.getItem("wallet_list").split(',')
+        var wallet_list_tmp = (localStorage.getItem("wallet_list"))? localStorage.getItem("wallet_list").split(',') : '';
         var index = wallet_list_tmp.indexOf(this.wallet.account);
 
         if (index > -1) {

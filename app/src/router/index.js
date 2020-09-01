@@ -13,8 +13,7 @@ import PrivateLayout from '@cmp/private-layout';
 export const routes = [...publicRoutes, ...privateRoutes];
 
 const router = new Router({
-  routes: [
-    {
+  routes: [{
       path: '/',
       name: 'home',
       component: PublicLayout,
@@ -30,15 +29,35 @@ const router = new Router({
     },
     {
       path: '*',
-      redirect: { name: 'login' },
+      redirect: {
+        name: 'login'
+      },
     },
   ],
 });
 
 router.beforeResolve(async (to, from, next) => {
+
   const identity = await localStorage.getItem('identity_kichain');
-  if (!to.meta.public && !identity) {
-    next({ name: 'login' });
+  var account_name = false;
+  var account_ = false;
+
+  if (identity) {
+    try {
+      account_name = JSON.parse(identity).accountName
+      account_ = localStorage.getItem(account_name);
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  var proceed = account_name && account_ && identity
+  console.log(proceed)
+
+  if (!to.meta.public && !proceed) {
+    next({
+      name: 'login'
+    });
   } else {
     next();
   }

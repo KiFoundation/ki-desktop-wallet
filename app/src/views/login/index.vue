@@ -73,29 +73,6 @@
               </div>
             </div>
           </a>
-          <a
-            v-if="wallets_found"
-            role="button"
-            data-toggle="modal"
-            data-target="#login-form"
-            class="custom-card"
-            @click="selected_wallet = wallets[0][0]"
-          >
-            <div class="card h-100" style="width: 15rem; display: inline-block">
-              <div
-                class="card-body d-flex align-items-center flex-column justify-content-center h-100"
-              >
-                <img
-                  src="static/img/chain/kichain_banner_use.png"
-                  class="card-img-top"
-                  style="width:60%"
-                />
-                <p class="card-text">
-                  Use your imported Wallets
-                </p>
-              </div>
-            </div>
-          </a>
         </div>
 
         <!-- =======================Import modal============================= -->
@@ -111,19 +88,6 @@
           @onResetModal="handleResetModal"
           @onImportCreatedWallet="handleImportWallet"
         />
-        <!-- =======================Clear storage============================= -->
-        <div
-          v-if="wallets_found"
-          style="width: 31.75rem; display: inline-block"
-          class="mt-4"
-        >
-          <p>
-            <span class="stealth-link">
-              or
-              <a @click="clear">Clear Local storage</a> here</span
-            >
-          </p>
-        </div>
       </div>
     </div>
 
@@ -169,7 +133,6 @@ export default {
       mnemonic_create: '',
       wallet_name: '',
       ms_address_correct: false,
-      wallets_found: false,
       name_exists: false,
       mnemonic_correct: false,
       name_correct: true,
@@ -187,18 +150,7 @@ export default {
   },
 
   mounted() {
-    if (localStorage.getItem('wallet_list')) {
-      this.wallets_found = true;
-    }
-
     this.getwallets();
-    const imported = localStorage.getItem('import_success');
-    if (imported == 'true') {
-      $('#imported_alert').html(
-        '<div class="alert alert-success alert-dismissible fade show" role="alert"> Wallet imported <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
-      );
-    }
-    localStorage.setItem('import_success', 'false');
   },
 
   methods: {

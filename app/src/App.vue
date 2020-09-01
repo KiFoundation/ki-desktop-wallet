@@ -1,29 +1,37 @@
 <template>
-  <div id="app">
-    <div
-      v-if="isLoading"
-      class="d-flex justify-content-center align-items-center"
-      :style="{ height: '100vh' }"
-    >
-      <BSpinner
-        style="width: 3rem; height: 3rem; color: #0e41e1;"
-        label="Large Spinner"
-      />
-    </div>
-    <template v-else>
-      <transition name="fade">
-        <router-view />
-      </transition>
-    </template>
+<div id="app">
+  <div v-if="isLoading" class="d-flex justify-content-center align-items-center" :style="{ height: '100vh' }">
+    <BSpinner style="width: 3rem; height: 3rem; color: #0e41e1;" label="Large Spinner" />
   </div>
+  <template v-else>
+    <transition name="fade">
+      <router-view />
+    </transition>
+  </template>
+</div>
 </template>
 
 <script>
-import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
-import { mapMutations, mapState, mapActions } from 'vuex';
-import { SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
-import { SET_ACCOUNT } from '@store/account';
-import { FETCH_VALIDATORS_LIST } from '@/store/validators';
+import {
+  BSpinner,
+  BContainer,
+  BRow
+} from 'bootstrap-vue';
+import {
+  mapMutations,
+  mapState,
+  mapActions
+} from 'vuex';
+import {
+  SET_WALLETS_LIST,
+  SET_WALLETS_DICT
+} from '@store/wallets';
+import {
+  SET_ACCOUNT
+} from '@store/account';
+import {
+  FETCH_VALIDATORS_LIST
+} from '@/store/validators';
 
 export default {
   name: 'App',
@@ -77,6 +85,8 @@ export default {
   },
   created() {
     const bootstrap = async () => {
+      console.log("ba3")
+
       await this.getChain();
       await this.getAccounts();
       await this.fetchValidatorsList();
@@ -135,38 +145,41 @@ export default {
         if (localStorage.getItem('wallet_list')) {
           const wallets = [];
           const wallets_dict = {};
-          let wallet_list = localStorage.getItem('wallet_list').split(',');
+          let wallet_list = (localStorage.getItem('wallet_list')) ? localStorage.getItem('wallet_list').split(',') : '';
 
           for (var w in wallet_list) {
             let lse_temp;
-            try{
-              lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]))
-              lse_temp.invalid= false
+            if (localStorage.getItem(wallet_list[w])) {
+              try {
+                lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]))
+                lse_temp.invalid = false
+              } catch (e) {
+                // Work around to fix the corrupted local storage from previous version
+                lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]).replace(/undefined/g, false))
+                lse_temp.invalid = true
+              }
 
-            }catch(e){
-              // Work arround to fix the corrupted local storage from previous version
-              lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]).replace(/undefined/g, false))
-              lse_temp.invalid= true
+
+              var wallet_tmp = {
+                account: wallet_list[w],
+                address: lse_temp.address,
+                privatekey: lse_temp.privateKey,
+                publickey: Buffer.from(lse_temp.publicKey, ).toString('hex'),
+                ms: lse_temp.ms,
+                offline: lse_temp.offline,
+                invalid: lse_temp.invalid
+              }
+
+              if (wallet_tmp.ms) {
+                wallet_tmp["threshold"] = lse_temp.threshold
+                wallet_tmp["pubkeys"] = lse_temp.pubkeys
+              }
+
+              wallets.push(wallet_tmp);
+              wallets_dict[lse_temp.address] = wallet_list[w]
             }
-
-            var wallet_tmp = {
-              account: wallet_list[w],
-              address: lse_temp.address,
-              privatekey: lse_temp.privateKey,
-              publickey: Buffer.from(lse_temp.publicKey,).toString('hex'),
-              ms: lse_temp.ms,
-              offline: lse_temp.offline,
-              invalid: lse_temp.invalid
-            }
-
-            if (wallet_tmp.ms) {
-              wallet_tmp["threshold"] = lse_temp.threshold
-              wallet_tmp["pubkeys"] = lse_temp.pubkeys
-            }
-
-            wallets.push(wallet_tmp);
-            wallets_dict[lse_temp.address] = wallet_list[w]
           }
+
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);
           res(1);
