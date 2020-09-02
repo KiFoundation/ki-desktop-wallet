@@ -79,6 +79,7 @@ export default {
   undelegate: 'Undelegating',
   delegatetx: 'Delegate',
   delegation_amount: 'Amount to bond',
+  undelegation_amount : 'Amount to unbond',
   undelegatetx: 'Undelegate',
   redelegatetx: 'Redelegate',
   withdrawtx: 'Withdraw',

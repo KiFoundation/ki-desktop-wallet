@@ -24,18 +24,26 @@
         </li>
         <ul class="basic-group clearfix">
           <li class="amount">
-            <label>{{ $t('delegation_amount') }}</label>
+            <div>
+              <label>{{ $t('delegation_amount') }}</label>
+              <div class="all" >
+                <a class="all-link" @click="setTokens(1)"> Half </a>
+                <a class="all-link" @click="setTokens(0)"> All </a>
+              </div>
+            </div>
             <input
               v-model="delegate.amount"
               type="text"
               placeholder="0"
               :class="[delegate.amount ? '' : delegate.alert]"
             />
+
           </li>
           <li class="token">
             <label>Token</label>
             <input v-model="token" type="text" placeholder="0" disabled />
           </li>
+
         </ul>
 
         <ul class="basic-group clearfix">
@@ -282,6 +290,18 @@ export default {
 
     }
     },
+    setTokens(flag){
+
+        var available_tokens = parseFloat(this.currentWallet.balances.available.replace(/,/g, ""))
+
+        if (flag == 0){ //all
+          this.delegate.amount = available_tokens -1 > 0 ? available_tokens -1 : 0
+        }
+
+        if (flag == 1){ //half
+          this.delegate.amount =  available_tokens > 1 ? Number(Math.round(available_tokens / 2 + 'e6') + 'e-6') : 0 
+        }
+    }
   },
 };
 </script>

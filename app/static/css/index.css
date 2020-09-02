@@ -491,8 +491,22 @@ i {
 
 .basic-group .token {
   width: 164px;
-  margin-left: 24px;
+  margin-left: 10px;
   float: right;
+}
+
+.basic-group .all {
+  width: 120px;
+  margin-left: 10px;
+  float: right;
+  text-align: right;
+  margin: 32px 0 0px;
+}
+
+.basic-group .all-link {
+  font-size: 13px;
+  color: #ccc;
+  transition: color 250ms ease;
 }
 
 .basic-group select {
