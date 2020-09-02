@@ -135,34 +135,48 @@ export default {
 
           for (var w in wallet_list) {
             let lse_temp;
+            let valid = true;
+
             if (localStorage.getItem(wallet_list[w])) {
+
               try {
                 lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]))
                 lse_temp.invalid = false
               } catch (e) {
-                // Work around to fix the corrupted local storage from previous version
-                lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]).replace(/undefined/g, false))
-                lse_temp.invalid = true
+                valid = false
               }
 
-
-              var wallet_tmp = {
-                account: wallet_list[w],
-                address: lse_temp.address,
-                privatekey: lse_temp.privateKey,
-                publickey: Buffer.from(lse_temp.publicKey, ).toString('hex'),
-                ms: lse_temp.ms,
-                offline: lse_temp.offline,
-                invalid: lse_temp.invalid
+              try {
+                if(localStorage.getItem(wallet_list[w]).includes(undefined)){
+                  // Work around to fix the corrupted local storage from previous version
+                  lse_temp = JSON.parse(localStorage.getItem(wallet_list[w]).replace(/undefined/g, false))
+                  lse_temp.invalid = true
+                  valid = true
+                }
+              } catch (e) {
               }
 
-              if (wallet_tmp.ms) {
-                wallet_tmp["threshold"] = lse_temp.threshold
-                wallet_tmp["pubkeys"] = lse_temp.pubkeys
-              }
+              console.log(lse_temp, valid)
 
-              wallets.push(wallet_tmp);
-              wallets_dict[lse_temp.address] = wallet_list[w]
+              if (valid){
+                var wallet_tmp = {
+                  account: wallet_list[w],
+                  address: lse_temp.address,
+                  privatekey: lse_temp.privateKey,
+                  publickey: Buffer.from(lse_temp.publicKey, ).toString('hex'),
+                  ms: lse_temp.ms,
+                  offline: lse_temp.offline,
+                  invalid: lse_temp.invalid
+                }
+
+                if (wallet_tmp.ms) {
+                  wallet_tmp["threshold"] = lse_temp.threshold
+                  wallet_tmp["pubkeys"] = lse_temp.pubkeys
+                }
+
+                wallets.push(wallet_tmp);
+                wallets_dict[lse_temp.address] = wallet_list[w]
+              }
             }
           }
 

@@ -286,17 +286,18 @@ export default {
 
         let wallet_list = localStorage.getItem('wallet_list').split(',');
         for (var w in wallet_list) {
-          wallets.push({
-            account: wallet_list[w],
-            address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
-            privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
-              .privateKey,
-            publickey: Buffer.from(
-              JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
-            ).toString('hex'),
-          });
-          wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
-
+          if (localStorage.getItem(wallet_list[w])){
+            wallets.push({
+              account: wallet_list[w],
+              address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
+              privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
+                .privateKey,
+              publickey: Buffer.from(
+                JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
+              ).toString('hex'),
+            });
+            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+          }
         }
         this.setWalletsList(wallets);
         this.setWalletsDict(wallets_dict);
