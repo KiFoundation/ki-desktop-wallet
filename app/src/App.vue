@@ -85,8 +85,6 @@ export default {
   },
   created() {
     const bootstrap = async () => {
-      console.log("ba3")
-
       await this.getChain();
       await this.getAccounts();
       await this.fetchValidatorsList();
@@ -123,18 +121,6 @@ export default {
             identity_j = JSON.parse(identity);
           } catch (e) {
             res(0)
-          }
-          this.account = identity_j.account;
-          this.accountName = identity_j.accountName;
-          this.key = identity_j.privatekey;
-          this.ms = identity_j.ms;
-
-          this.publickey = identity_j.publickey;
-          this.chainId = identity_j.chainId;
-          if (this.ms) {
-            this.multisig = true;
-            this.context = 'Generate';
-            this.advanced = false;
           }
         }
         res(1);

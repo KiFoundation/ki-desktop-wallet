@@ -276,37 +276,10 @@ export default {
       if (localStorage.getItem('wallet_list')) {
         let identity = `{
           "blockchain":"cosmos",
-          "chainId":"${chainid}",
-          "accountName":"${this.selected_wallet}",
-          "account":"${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).address
-          }",
-          "privatekey":"${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).privateKey
-          }",
-          "publickey":"${Buffer.from(
-            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey
-          ).toString('hex')}",
-          "ms":${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).ms
-          },
-          "offline":${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).offline
-          }
-        }`;
+          "chainId":"${chainid}"}`;
 
         localStorage.setItem('identity_' + this.blockchain_lowercase, identity);
         const id = JSON.parse(identity);
-        this.setAccount({
-          name: id.accountName,
-          id: id.account,
-        });
-        this.setCurrentWallet({
-          account: id.accountName,
-          address: id.account,
-          privatekey: id.privatekey,
-          publickey: id.publickey,
-        });
 
         const wallets = [];
         const wallets_dict = {};

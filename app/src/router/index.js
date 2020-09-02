@@ -42,17 +42,7 @@ router.beforeResolve(async (to, from, next) => {
   var account_name = false;
   var account_ = false;
 
-  if (identity) {
-    try {
-      account_name = JSON.parse(identity).accountName
-      account_ = localStorage.getItem(account_name);
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  var proceed = account_name && account_ && identity
-  console.log(proceed)
+  var proceed = identity
 
   if (!to.meta.public && !proceed) {
     next({
