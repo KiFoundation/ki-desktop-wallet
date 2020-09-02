@@ -5,16 +5,16 @@
 
         <b-col cols="2" class="flex-row d-flex align-items-center">
           <unicon name="location-arrow" :fill="colors.secondary" />
-          <h6 class="ml-2 text-truncate"><a :href="explorer+ '/transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
+          <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
         <b-col cols="1">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2"><a :href="explorer+ '/account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
-        <b-col cols="2" v-if="transaction[1]=='delegate'"><a :href="explorer+ '/validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]]? validators_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
-        <b-col cols="2" v-else  class="text"><a :href="explorer+ '/account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
+        <b-col cols="2"><a :href="explorer+ 'account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
+        <b-col cols="2" v-if="transaction[1]=='delegate'"><a :href="explorer+ 'validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]]? validators_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
+        <b-col cols="2" v-else  class="text"><a :href="explorer+ 'account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
         <b-col cols="3">
           <span>
             {{ globalData.kichain.token }} {{transaction[3]}}
@@ -40,7 +40,7 @@ import util from '@static/js/util';
 export default {
   data() {
     return {
-      explorer:'https://blockchain.ki'
+      explorer:this.globalData.explorer
     }
   },
   components: {

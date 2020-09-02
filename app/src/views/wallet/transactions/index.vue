@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       isActive: true,
-      explorer:'https://blockchain.ki',
+      explorer:this.globalData.explorer,
       currentPage:1,
       perPage:10,
       blockchain_lowercase: '',
