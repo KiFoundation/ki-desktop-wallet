@@ -156,8 +156,6 @@ export default {
               } catch (e) {
               }
 
-              console.log(lse_temp, valid)
-
               if (valid){
                 var wallet_tmp = {
                   account: wallet_list[w],

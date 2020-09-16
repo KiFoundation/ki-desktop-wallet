@@ -162,8 +162,14 @@ export default {
           (list && wallet_name + ',' + list) || wallet_name,
         );
       }
+      else{
+        localStorage.setItem(
+          'wallet_list',
+          wallet_name
+        );
+      }
     },
-    
+
     async getTotalBalance(){
       let total = 0
 

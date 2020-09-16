@@ -86,6 +86,10 @@ export default {
         if (index > -1) {
            wallet_list_tmp.splice(index, 1);
         }
+        if (wallet_list_tmp.length == 0) {
+           localStorage.setItem("identity_kichain", "")
+           localStorage.setItem("current_wallet", "")
+        }
         localStorage.setItem("wallet_list", wallet_list_tmp.join(","))
         window.location.reload();
       }

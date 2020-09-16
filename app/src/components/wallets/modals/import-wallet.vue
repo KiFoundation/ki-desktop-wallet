@@ -217,7 +217,7 @@ export default {
   },
   data() {
     return {
-      workflow: ['proceed', 'import', 'save'],
+      workflow: ['Proceed', 'Import', 'Save'],
       step: 0,
       filter: 'no',
       filter_sort: 'yes',

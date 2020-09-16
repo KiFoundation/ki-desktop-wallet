@@ -39,8 +39,6 @@ const router = new Router({
 router.beforeResolve(async (to, from, next) => {
 
   const identity = await localStorage.getItem('identity_kichain');
-  var account_name = false;
-  var account_ = false;
 
   var proceed = identity
 
