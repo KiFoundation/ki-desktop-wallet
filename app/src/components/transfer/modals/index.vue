@@ -31,7 +31,7 @@
               <div>
                 <label>{{ $t('transfer_amount') }}</label>
                 <div class="all" >
-                  <a class="all-link" @click="setTokens(1)"> Half </a>
+                  <a class="all-link" @click="setTokens(1)"> Half </a> ·
                   <a class="all-link" @click="setTokens(0)"> All </a>
                 </div>
               </div>

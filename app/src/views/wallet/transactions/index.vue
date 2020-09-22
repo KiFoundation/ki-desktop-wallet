@@ -3,7 +3,7 @@
   <div class="d-flex w-100 h-100 flex-column px-3">
 
 
-      <b-row class="header align-items-center mx-0">
+      <b-row class="header align-items-center mx-0" style="min-height:40px">
           <b-col>
             <b-row class="w-100 align-items-center">
               <b-col cols="2"><span class="ml-4">Tx</span></b-col>
@@ -18,7 +18,7 @@
 
         <div
             v-if="transactions && transactions.length"
-            class="mt-2 d-flex flex-column justify-content-between h-100"
+            class="d-flex flex-column justify-content-between h-100"
             >
         <div>
 
