@@ -81,6 +81,7 @@ import {
   GET_CURRENT_WALLET_BALANCES_AMOUNT,
   GET_CURRENT_WALLET_BALANCES_DENOM,
   HYDRATE_CURRENT_WALLET,
+  FETCH_WALLET_REWARDS
 } from '@store/wallets';
 import { FETCH_VALIDATORS_LIST } from '@store/validators';
 
@@ -118,11 +119,13 @@ export default {
     ...mapActions({
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
       fetchAllValidators: FETCH_VALIDATORS_LIST,
+      fetchWalletRewards: FETCH_WALLET_REWARDS,
     }),
     async handleRefresh() {
       this.refreshing = true;
       await this.hydrateCurrentWallet(this.currentWallet);
       await this.fetchAllValidators();
+      await this.fetchWalletRewards();
       this.refreshing = false;
     },
     toggleCopiedTooltip() {},

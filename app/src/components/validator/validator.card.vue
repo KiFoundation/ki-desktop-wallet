@@ -19,7 +19,7 @@
           <h6 class="ml-4">{{ validator.description.moniker }}</h6>
         </b-col>
         <b-col cols="4">
-          <span
+          <span v-if="!reward"
             :style="{
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -37,6 +37,16 @@
                 ) + ' / '
             }}
             {{ formatAmount(validator.delegator_shares) }}
+          </span>
+          <span v-else
+            :style="{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }"
+          >
+          {{reward}} {{ globalData.kichain.token }}
+
           </span>
         </b-col>
         <b-col cols="4" class="d-flex justify-content-end">
@@ -63,6 +73,10 @@ export default {
   props: {
     validator: {
       type: Object,
+      default: null,
+    },
+    reward: {
+      type: String,
       default: null,
     },
   },

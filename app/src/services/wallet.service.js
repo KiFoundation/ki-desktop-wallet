@@ -13,4 +13,7 @@ export class WalletService extends ApiService {
   async fetchDelegatorsUnbondingDelegationsList(walletId) {
     return this.get(`/staking/delegators/${walletId}/unbonding_delegations`);
   }
+  async fetchDelegatorsRewards(walletId) {
+    return this.get(`/distribution/delegators/${walletId}/rewards`);
+  }
 }
