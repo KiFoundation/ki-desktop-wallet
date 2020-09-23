@@ -16,3 +16,5 @@ yarn-error.log*
 release-builds/*
 Wallet.app/Contents/Frameworks/Electron Framework.framework/Electron Framework
 index.html
+installers/output/*
+app/static/js/config_priv.js
