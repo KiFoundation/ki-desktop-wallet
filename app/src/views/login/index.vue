@@ -73,29 +73,6 @@
               </div>
             </div>
           </a>
-          <a
-            v-if="wallets_found"
-            role="button"
-            data-toggle="modal"
-            data-target="#login-form"
-            class="custom-card"
-            @click="selected_wallet = wallets[0][0]"
-          >
-            <div class="card h-100" style="width: 15rem; display: inline-block">
-              <div
-                class="card-body d-flex align-items-center flex-column justify-content-center h-100"
-              >
-                <img
-                  src="static/img/chain/kichain_banner_use.png"
-                  class="card-img-top"
-                  style="width:60%"
-                />
-                <p class="card-text">
-                  Use your imported Wallets
-                </p>
-              </div>
-            </div>
-          </a>
         </div>
 
         <!-- =======================Import modal============================= -->
@@ -111,19 +88,6 @@
           @onResetModal="handleResetModal"
           @onImportCreatedWallet="handleImportWallet"
         />
-        <!-- =======================Clear storage============================= -->
-        <div
-          v-if="wallets_found"
-          style="width: 31.75rem; display: inline-block"
-          class="mt-4"
-        >
-          <p>
-            <span class="stealth-link">
-              or
-              <a @click="clear">Clear Local storage</a> here</span
-            >
-          </p>
-        </div>
       </div>
     </div>
 
@@ -169,7 +133,6 @@ export default {
       mnemonic_create: '',
       wallet_name: '',
       ms_address_correct: false,
-      wallets_found: false,
       name_exists: false,
       mnemonic_correct: false,
       name_correct: true,
@@ -187,18 +150,7 @@ export default {
   },
 
   mounted() {
-    if (localStorage.getItem('wallet_list')) {
-      this.wallets_found = true;
-    }
-
     this.getwallets();
-    const imported = localStorage.getItem('import_success');
-    if (imported == 'true') {
-      $('#imported_alert').html(
-        '<div class="alert alert-success alert-dismissible fade show" role="alert"> Wallet imported <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>',
-      );
-    }
-    localStorage.setItem('import_success', 'false');
   },
 
   methods: {
@@ -266,8 +218,8 @@ export default {
         wallet.publicKey = "";
       }
 
-      wallet.ms = multisig;
-      wallet.offline = offline;
+      wallet.ms = (multisig == undefined) ? false : multisig;
+      wallet.offline = (offline == undefined) ? false : offline;
 
       // Save the encrypted wallet in the local storage
       localStorage.setItem(wallet_name, JSON.stringify(wallet));
@@ -276,16 +228,27 @@ export default {
 
       this.selected_wallet = wallet_name;
       $("#import-form").modal("hide");
+      $("#add-form").modal("hide");
+
       this.login();
     },
 
     storeInWalletList(wallet_name) {
       // Store the wallet name in the wallet name list if it doesnot already exist
-      const list = localStorage.getItem('wallet_list');
-      localStorage.setItem(
-        'wallet_list',
-        (list && wallet_name + ',' + list) || wallet_name,
-      );
+      if (localStorage.getItem('wallet_list')){
+        console.log("ok")
+        const list = localStorage.getItem('wallet_list');
+        localStorage.setItem(
+          'wallet_list',
+          (list && wallet_name + ',' + list) || wallet_name,
+        );
+      }
+      else{
+        localStorage.setItem(
+          'wallet_list',
+          wallet_name
+        );
+      }
     },
 
     handleResetModal() {
@@ -322,54 +285,28 @@ export default {
       if (localStorage.getItem('wallet_list')) {
         let identity = `{
           "blockchain":"cosmos",
-          "chainId":"${chainid}",
-          "accountName":"${this.selected_wallet}",
-          "account":"${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).address
-          }",
-          "privatekey":"${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).privateKey
-          }",
-          "publickey":"${Buffer.from(
-            JSON.parse(localStorage.getItem(this.selected_wallet)).publicKey
-          ).toString('hex')}",
-          "ms":${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).ms
-          },
-          "offline":${
-            JSON.parse(localStorage.getItem(this.selected_wallet)).offline
-          }
-        }`;
+          "chainId":"${chainid}"}`;
 
         localStorage.setItem('identity_' + this.blockchain_lowercase, identity);
         const id = JSON.parse(identity);
-        this.setAccount({
-          name: id.accountName,
-          id: id.account,
-        });
-        this.setCurrentWallet({
-          account: id.accountName,
-          address: id.account,
-          privatekey: id.privatekey,
-          publickey: id.publickey,
-        });
 
         const wallets = [];
         const wallets_dict = {};
 
         let wallet_list = localStorage.getItem('wallet_list').split(',');
         for (var w in wallet_list) {
-          wallets.push({
-            account: wallet_list[w],
-            address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
-            privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
-              .privateKey,
-            publickey: Buffer.from(
-              JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
-            ).toString('hex'),
-          });
-          wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
-
+          if (localStorage.getItem(wallet_list[w])){
+            wallets.push({
+              account: wallet_list[w],
+              address: JSON.parse(localStorage.getItem(wallet_list[w])).address,
+              privatekey: JSON.parse(localStorage.getItem(wallet_list[w]))
+                .privateKey,
+              publickey: Buffer.from(
+                JSON.parse(localStorage.getItem(wallet_list[w])).publicKey,
+              ).toString('hex'),
+            });
+            wallets_dict[JSON.parse(localStorage.getItem(wallet_list[w])).address] = wallet_list[w]
+          }
         }
         this.setWalletsList(wallets);
         this.setWalletsDict(wallets_dict);

@@ -3,6 +3,7 @@ import {
   SET_CURRENT_WALLET_BALANCES,
   SET_CURRENT_WALLET,
   SET_CURRENT_WALLET_VALIDATORS,
+  SET_CURRENT_WALLET_REWARDS,
   START_HYDRATE,
   END_HYDRATE,
 } from './mutations';
@@ -10,6 +11,7 @@ import {
 export const HYDRATE_CURRENT_WALLET = 'HYDRATE_CURRENT_WALLET';
 export const FETCH_WALLET_BALANCES = 'FETCH_WALLET_BALANCES';
 export const FETCH_WALLET_VALIDATORS = 'FETCH_WALLET_VALIDATORS';
+export const FETCH_WALLET_REWARDS = 'FETCH_WALLET_REWARDS';
 
 import util from '@static/js/util';
 import { tokenUtil } from '@static/js/token';
@@ -325,12 +327,30 @@ export const actions = {
       state.wallets.current.address,
     );
 
+
     commit(
       SET_CURRENT_WALLET_VALIDATORS,
       (responseValidators.data && responseValidators.data.result) || [],
     );
   },
+  [FETCH_WALLET_REWARDS]: async ({ commit, state, getters, dispatch }) => {
+    const responseRewards = await services.wallet.fetchDelegatorsRewards(
+      state.wallets.current.address,
+    );
 
+    let rewards_dict = {}
+    if (responseRewards.data.result.rewards){
+      for (var val in responseRewards.data.result.rewards){
+        var val_ = responseRewards.data.result.rewards[val]
+        rewards_dict[val_.validator_address] = (val_.reward != null) ? tokenUtil.format(val_.reward[0].amount) : "0.0"
+      }
+    }
+
+    commit(
+      SET_CURRENT_WALLET_REWARDS,
+      rewards_dict,
+    );
+  },
   [FETCH_WALLET_BALANCES]: async (
     { commit, state, getters, dispatch },
     walletId,
@@ -339,4 +359,5 @@ export const actions = {
 
     commit(SET_CURRENT_WALLET_BALANCES, "");
   },
+
 };

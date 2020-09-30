@@ -154,13 +154,22 @@ export default {
     },
 
     storeInWalletList(wallet_name) {
-      // Store the wallet name in the wallet name list if it doesnot already exist
-      const list = localStorage.getItem('wallet_list');
-      localStorage.setItem(
-        'wallet_list',
-        (list && wallet_name + ',' + list) || wallet_name,
-      );
+      // Store the wallet name in the wallet name list if it does not already exist
+      if (localStorage.getItem('wallet_list')){
+        const list = localStorage.getItem('wallet_list');
+        localStorage.setItem(
+          'wallet_list',
+          (list && wallet_name + ',' + list) || wallet_name,
+        );
+      }
+      else{
+        localStorage.setItem(
+          'wallet_list',
+          wallet_name
+        );
+      }
     },
+
     async getTotalBalance(){
       let total = 0
 

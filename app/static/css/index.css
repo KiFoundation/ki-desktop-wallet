@@ -491,8 +491,22 @@ i {
 
 .basic-group .token {
   width: 164px;
-  margin-left: 24px;
+  margin-left: 10px;
   float: right;
+}
+
+.basic-group .all {
+  width: 120px;
+  margin-left: 10px;
+  float: right;
+  text-align: right;
+  margin: 32px 0 0px;
+}
+
+.basic-group .all-link {
+  font-size: 13px;
+  color: var(--blueColor);
+  transition: color 250ms ease;
 }
 
 .basic-group select {
@@ -993,14 +1007,20 @@ a.custom-card:hover {
   box-shadow: 0 0 0 0.2rem rgba(188, 181, 216, 0.25);
 }
 
-.header{
+.header {
+  /* cursor: pointer; */
+  width: 100%;
   font-family: Roboto, -apple-system, BlinkMacSystemFont, Segoe UI,
     Helvetica Neue, Arial, sans-serif;
   color: #2d1d67;
   text-transform: uppercase;
-  border-top: 0px;
-  font-weight: bold;
-  padding-bottom: 12px;
+  /* min-height: 50px; */
+  min-height: 50px;
+  border: 1px solid #efefef;
+  border-radius: 10px;
+  background-color: white;
+  transition: box-shadow 240ms, transform 200ms;
+  margin-bottom: 5px;
 }
 .not-link{
   color: #8a8a8f;

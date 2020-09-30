@@ -28,7 +28,13 @@
           </datalist>
           <ul class="basic-group clearfix">
             <li class="amount">
-              <label>{{ $t('transfer_amount') }}</label>
+              <div>
+                <label>{{ $t('transfer_amount') }}</label>
+                <div class="all" >
+                  <a class="all-link" @click="setTokens(1)"> Half </a> ·
+                  <a class="all-link" @click="setTokens(0)"> All </a>
+                </div>
+              </div>
               <input
                 v-model="transfer.amount"
                 type="text"
@@ -163,6 +169,11 @@ export default {
       wallets: state => state.wallets.list,
       account: state => state.account,
     }),
+
+    currentWallet() {
+      return this.$store.state.wallets.current;
+    },
+
     multisig() {
       return this.$store.state.wallets.current.multisign;
     },
@@ -329,6 +340,19 @@ export default {
     async handleTransferSuccess() {
         this.$bvModal.hide('transfer-modal');
     },
+
+    setTokens(flag){
+
+        var available_tokens = parseFloat(this.currentWallet.balances.available.replace(/,/g, ""))
+
+        if (flag == 0){ //all
+          this.transfer.amount = available_tokens -1 > 0 ? available_tokens -1 : 0
+        }
+
+        if (flag == 1){ //half
+          this.transfer.amount = available_tokens > 1 ? Number(Math.round(available_tokens / 2 + 'e6') + 'e-6') : 0
+        }
+    }
   },
 };
 </script>

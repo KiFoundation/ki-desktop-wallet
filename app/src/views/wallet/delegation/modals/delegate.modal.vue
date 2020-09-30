@@ -24,18 +24,30 @@
         </li>
         <ul class="basic-group clearfix">
           <li class="amount">
-            <label>{{ $t('delegation_amount') }}</label>
+            <div>
+              <label>{{ $t('delegation_amount') }}</label>
+              <div class="all" >
+                <a class="all-link" @click="setTokens(1)"> Half </a> ·
+                <a class="all-link" @click="setTokens(0)"> All </a>
+              </div>
+            </div>
             <input
               v-model="delegate.amount"
               type="text"
               placeholder="0"
               :class="[delegate.amount ? '' : delegate.alert]"
+              @input="raiseCDA"
             />
+
+            <transition name="fade">
+            <p v-if="show"> 🤑 &nbsp; Piano Piano &nbsp;🤑</p>
+          </transition>
           </li>
           <li class="token">
             <label>Token</label>
             <input v-model="token" type="text" placeholder="0" disabled />
           </li>
+
         </ul>
 
         <ul class="basic-group clearfix">
@@ -131,6 +143,7 @@ export default {
   },
   data() {
     return {
+      show:false,
       context: 'Broadcast',
       udenom: this.globalData.kichain.udenom,
       token: this.globalData.kichain.token,
@@ -187,6 +200,7 @@ export default {
           gasLimit: 300000,
           output: '',
         });
+        this.show=false;
     },
     formatAmount(amount) {
       return token.format(amount);
@@ -282,8 +296,36 @@ export default {
 
     }
     },
+    setTokens(flag){
+
+        var available_tokens = parseFloat(this.currentWallet.balances.available.replace(/,/g, ""))
+
+        if (flag == 0){ //all
+          this.delegate.amount = available_tokens -1 > 0 ? available_tokens -1 : 0
+        }
+
+        if (flag == 1){ //half
+          this.delegate.amount =  available_tokens > 1 ? Number(Math.round(available_tokens / 2 + 'e6') + 'e-6') : 0
+        }
+    },
+
+    raiseCDA(){
+      if (parseFloat(this.currentWallet.balances.delegated.replace(/,/g, "")) > 100000000 && this.delegate.amount > 100){
+        this.show = true
+      }
+      if (this.delegate.amount < 100 || this.delegate.amount == ""){
+        this.show = false
+      }
+    }
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+</style>

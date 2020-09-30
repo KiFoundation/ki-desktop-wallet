@@ -1,6 +1,7 @@
 export const SET_CURRENT_WALLET = 'SET_CURRENT_WALLET';
 export const SET_CURRENT_WALLET_BALANCES = 'SET_CURRENT_WALLET_BALANCES';
 export const SET_CURRENT_WALLET_VALIDATORS = 'SET_CURRENT_WALLET_VALIDATORS';
+export const SET_CURRENT_WALLET_REWARDS = 'SET_CURRENT_WALLET_REWARDS';
 export const SET_CURRENT_WALLET_TX = 'SET_CURRENT_WALLET_TX';
 
 export const SET_WALLETS_LIST = 'SET_WALLETS_LIST';
@@ -24,6 +25,13 @@ export const mutations = {
       validators,
     };
   },
+  [SET_CURRENT_WALLET_REWARDS](state, rewards) {
+    state.wallets.current = {
+      ...state.wallets.current,
+      rewards,
+    };
+  },
+  
   [SET_WALLETS_LIST](state, walletsList) {
     state.wallets.list = walletsList;
   },

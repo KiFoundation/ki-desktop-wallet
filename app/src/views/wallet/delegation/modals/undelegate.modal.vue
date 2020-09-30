@@ -20,7 +20,13 @@
         </li>
         <ul class="basic-group clearfix">
           <li class="amount">
-            <label>{{ $t('delegation_amount') }}</label>
+            <div>
+              <label>{{ $t('undelegation_amount') }}</label>
+              <div class="all" >
+                <a class="all-link" @click="setTokens(1)"> Half </a> ·
+                <a class="all-link" @click="setTokens(0)"> All </a>
+              </div>
+            </div>
             <input
               v-model="undelegate.amount"
               type="text"
@@ -294,6 +300,19 @@ export default {
         }
       }
     },
+    setTokens(flag){
+      var delegation = this.currentWallet.delegation.find(
+        d => d.validator_address === this.validator.operator_address,
+      ).balance / Math.pow(10, 6)
+
+        if (flag == 0){ //all
+          this.undelegate.amount = delegation
+        }
+
+        if (flag == 1){ //half
+          this.undelegate.amount =  Number(Math.round(delegation / 2 + 'e6') + 'e-6') 
+        }
+    }
   },
 };
 </script>

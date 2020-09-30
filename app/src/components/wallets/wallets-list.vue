@@ -1,13 +1,11 @@
 <template>
-  <b-row v-if="list.length" class="w-100 mx-0">
+  <b-row v-if="list.length" class="w-100 mx-0 pl-3">
     <b-col
       v-for="(wallet, index) in list"
       :key="index"
       cols="4"
       :class="[
-        'mb-3 pl-0',
-        { 'pr-0': (index + 1) % 3 === 0 },
-        { 'pr-3': (index + 1) % 3 !== 0 },
+        'mb-3 pl-0 pr-3',
       ]"
     >
       <WalletCard :wallet="wallet" @onSelectWallet="onSelectWallet" />

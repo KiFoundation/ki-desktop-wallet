@@ -36,6 +36,19 @@
       class="mt-3 d-flex flex-column justify-content-between h-100"
     >
       <div>
+        <b-row class="header align-items-center mx-0" style="min-height:40px">
+          <b-col>
+            <b-row class="w-100 align-items-center">
+              <b-col cols="4" class="flex-row d-flex align-items-center">
+                <span style="margin-left:20px">Validator</span>
+              </b-col>
+              <b-col cols="4">
+                Share / total
+              </b-col>
+              <b-col cols="4" class="d-flex justify-content-end"/>
+            </b-row>
+          </b-col>
+        </b-row>
         <ValidatorCard
           v-for="(validator, idx) in validators
             .filter(v =>
@@ -178,7 +191,13 @@ export default {
       account: state => state.account,
     }),
     validators() {
-      return (this.filter === 'my' && this.myValidators) || this.allValidators;
+      var val = (this.filter === 'my' && this.myValidators) || this.allValidators;
+      val.sort((a, b) => {
+            let da = a.tokens,
+                db = b.tokens;
+            return db - da;
+        });
+      return val
     },
   },
   created() {

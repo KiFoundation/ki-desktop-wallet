@@ -36,6 +36,8 @@
         </h5>
       </div>
     </div>
+
+
     <div class="d-flex flex-row">
       <div class="pr-4">
         <a
@@ -65,18 +67,21 @@
     </div>
     <TransferModal />
     <InfoModal />
+    <ErrorModal />
   </div>
 </template>
 
 <script>
 import TransferModal from '@cmp/transfer/modals/index';
 import InfoModal from '@cmp/info/modals/index';
+import ErrorModal from '@cmp/error/modals/index';
 import { BAvatar, BTooltip } from 'bootstrap-vue';
 import { mapGetters, mapState, mapActions } from 'vuex';
 import {
   GET_CURRENT_WALLET_BALANCES_AMOUNT,
   GET_CURRENT_WALLET_BALANCES_DENOM,
   HYDRATE_CURRENT_WALLET,
+  FETCH_WALLET_REWARDS
 } from '@store/wallets';
 import { FETCH_VALIDATORS_LIST } from '@store/validators';
 
@@ -85,11 +90,13 @@ export default {
     TransferModal,
     BAvatar,
     InfoModal,
+    ErrorModal
   },
   data() {
     return {
       tooltipShow: false,
       refreshing: false,
+      invalidWallet: false
     };
   },
   computed: {
@@ -102,17 +109,23 @@ export default {
     }),
   },
   mounted() {
-    // const clipboard = new this.clipboard('#copy-btn');
+    this.invalidWallet = this.currentWallet.invalid
+
+   if(this.invalidWallet){
+     this.$bvModal.show("error-modal")
+   }
   },
   methods: {
     ...mapActions({
       hydrateCurrentWallet: HYDRATE_CURRENT_WALLET,
       fetchAllValidators: FETCH_VALIDATORS_LIST,
+      fetchWalletRewards: FETCH_WALLET_REWARDS,
     }),
     async handleRefresh() {
       this.refreshing = true;
       await this.hydrateCurrentWallet(this.currentWallet);
       await this.fetchAllValidators();
+      await this.fetchWalletRewards();
       this.refreshing = false;
     },
     toggleCopiedTooltip() {},

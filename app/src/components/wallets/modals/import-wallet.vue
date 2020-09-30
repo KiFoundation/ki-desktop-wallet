@@ -93,12 +93,12 @@
                       <ul>
                         <li>
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w0'">1.</label> <input :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic" />
+                            <label style="margin:0px;" :for="'w0'">1.</label> <input autocomplete="off" :id="'w0'" type="text" v-model="mnemonic_array[0]" @input="parseMnemonic" />
                           </div>
                         </li>
                         <li v-for="(item, idx) in new Array(23)" v-bind:key="'w'+(idx+2)">
                           <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
-                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)" />
+                            <label style="margin:0px;" :for="'w'+(idx+2)">{{idx+2}}.</label> <input autocomplete="off" :id="'w'+ (idx+2)" type="text" v-model="mnemonic_array[idx+1]" @input=" validateMnemonic(0)" />
                           </div>
                         </li>
                       </ul>
@@ -217,7 +217,7 @@ export default {
   },
   data() {
     return {
-      workflow: ['proceed', 'import', 'save'],
+      workflow: ['Proceed', 'Import', 'Save'],
       step: 0,
       filter: 'no',
       filter_sort: 'yes',

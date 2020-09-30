@@ -2,7 +2,7 @@
   <div class="d-flex w-100 h-100 flex-column px-3">
     <div
       class="d-flex justify-content-between align-items-end mt-1"
-      :style="{ position: 'relative', height: '47px' }"
+      :style="{ position: 'relative', height: '41px' }"
     >
       <div class="h-100">
         <b-form-input
@@ -25,6 +25,19 @@
       class="mt-3 d-flex flex-column justify-content-between h-100"
     >
       <div>
+        <b-row class="header align-items-center mx-0" style="min-height:40px">
+          <b-col>
+            <b-row class="w-100 align-items-center">
+              <b-col cols="4" class="flex-row d-flex align-items-center">
+                <span style="margin-left:20px">Validator</span>
+              </b-col>
+              <b-col cols="4">
+                Pending reward
+              </b-col>
+              <b-col cols="4" class="d-flex justify-content-end"/>
+            </b-row>
+          </b-col>
+        </b-row>
         <ValidatorCard
           v-for="(validator, idx) in validators
             .filter(v =>
@@ -33,6 +46,7 @@
             .slice(perPage * currentPage - perPage, perPage * currentPage)"
           :key="`validator-${idx}`"
           :validator="validator"
+          :reward="rewards[validator.operator_address]"
           class="mb-2"
         >
           <a
@@ -91,7 +105,7 @@ import {
   BPagination,
   BFormInput,
 } from 'bootstrap-vue';
-import { FETCH_WALLET_VALIDATORS } from '@store/wallets';
+import { FETCH_WALLET_VALIDATORS, FETCH_WALLET_REWARDS } from '@store/wallets';
 import ValidatorCard from '@cmp/validator/validator.card';
 import WithdrawModal from './modals/withdraw.modal';
 
@@ -107,27 +121,43 @@ export default {
       selectedValidator: null,
       text: '',
       currentPage: 1,
-      perPage: 5,
+      perPage: 10,
     };
   },
   computed: {
     ...mapState({
       advanced: state => state.app.advanced,
-      validators: state => state.wallets.current.validators,
+      myValidators: state => state.wallets.current.validators,
+      rewards:  state => state.wallets.current.rewards,
       account: state => state.account,
     }),
+    validators() {
+      var val = this.myValidators
+      val.sort((a, b) => {
+            let da = a.tokens,
+                db = b.tokens;
+            return db - da;
+        });
+      return val
+    },
   },
-  created() {},
-  mounted() {},
+  created() {
+  },
+  mounted() {
+     this.fetchRewards();
+  },
   methods: {
     ...mapActions({
       fetchMyValidators: FETCH_WALLET_VALIDATORS,
+      fetchRewards: FETCH_WALLET_REWARDS,
+
     }),
     selectValidator(validator) {
       this.selectedValidator = validator;
     },
     async handleWithdrawSuccess() {
       await this.fetchMyValidators();
+      await this.fetchRewards();
       this.$bvModal.hide('withdraw-modal');
     },
   },
