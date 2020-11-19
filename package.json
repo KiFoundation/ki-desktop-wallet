@@ -1,7 +1,7 @@
 {
   "productName": "Ki Desktop Wallet",
   "name": "ki-desktop-wallet",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "The KiCahin wallet",
   "main": "main.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "author": "KiFoundation",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^8.2.4",
+    "electron": ">=8.5.2",
     "electron-winstaller": "^4.0.0",
     "electron-wix-msi": "^2.2.0"
   },
