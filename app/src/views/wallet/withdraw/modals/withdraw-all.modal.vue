@@ -2,41 +2,12 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="`Withdraw from ${validator.description.moniker}`"
+    :title="`Withdraw all rewards`"
     hide-footer
     @show="resetData"
   >
     <div class="basic-form modal-body">
       <form class="basic-form">
-        <li class="token">
-          <div class="d-flex justify-content-center align-items-center">
-            From
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
-              {{ validator.operator_address }}
-            </b-badge>
-          </div>
-        </li>
-        <ul>
-          <li>
-            <label>{{ $t('withdraw_config') }}</label>
-            <select v-model="withdraw.config">
-              <option key="0" value="0">
-                Rewards only
-              </option>
-              <option key="1" value="1">
-                Commisions only
-              </option>
-              <option key="2" value="2">
-                Rewards and commissions
-              </option>
-            </select>
-            <span
-              v-if="withdraw.config == 1 || withdraw.config == 2"
-              class="local-alert"
-              >{{ $t('withdraw_with_commission_alert') }}</span
-            >
-          </li>
-        </ul>
         <div v-if="!multisig">
           <label>{{ $t('enter_password') }}</label>
           <div class="buttonInside">
@@ -64,7 +35,6 @@
             /></a>
           </div>
         </div>
-
         <li v-if="withdraw.output != ''" class="token">
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="withdraw.output" class="" rows="3" disabled />
@@ -94,7 +64,7 @@
 </template>
 
 <script>
-import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
+import { BRow, BCol, BSpinner, BModal } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
@@ -104,14 +74,17 @@ export default {
     BCol,
     BSpinner,
     BModal,
-    BBadge,
   },
   props: {
     modalId: {
       type: String,
-      default: 'withdraw-modal',
+      default: 'withdraw-all-modal',
     },
-    validator: {
+    validators: {
+      type: Array,
+      default: null,
+    },
+    rewards: {
       type: Object,
       default: null,
     },
@@ -158,7 +131,6 @@ export default {
           output: '',
         });
     },
-
     async sendWithdrawTx() {
       this.withdraw.alert = 'danger';
       let filled = true;
@@ -171,22 +143,21 @@ export default {
         return false;
       }
 
-      const limit = 200000;
+      var msg_withdraw_reward = []
+      for ( var validator of this.validators ){
+        if (numeral(this.rewards[validator.operator_address]).value() > 2 ){
+          msg_withdraw_reward.push({
+            type: 'cosmos-sdk/MsgWithdrawDelegationReward',
+            value: {
+              delegator_address: this.account.id,
+              validator_address: validator.operator_address,
+            },
+          })
+        }
+      }
 
-      const msg_withdraw_reward = {
-        type: 'cosmos-sdk/MsgWithdrawDelegationReward',
-        value: {
-          delegator_address: this.account.id,
-          validator_address: this.validator.operator_address,
-        },
-      };
-
-      const msg_withdraw_commision = {
-        type: 'cosmos-sdk/MsgWithdrawValidatorCommission',
-        value: {
-          validator_address: this.validator.operator_address,
-        },
-      };
+      const limit = Math.max(200000, msg_withdraw_reward.length * 100000);
+      const fees = limit * 0.025
 
 
       const transaction = {
@@ -194,24 +165,14 @@ export default {
         fee: {
           amount: [{
             denom: this.udenom,
-            amount: "5000",
+            amount: fees.toString(),
           }],
           gas: limit.toString(),
         },
         memo: '',
       };
 
-      if (this.withdraw.config == 0) {
-        transaction.msg = [msg_withdraw_reward];
-      }
-
-      if (this.withdraw.config == 1) {
-        transaction.msg = [msg_withdraw_commision];
-      }
-
-      if (this.withdraw.config == 2) {
-        transaction.msg = [msg_withdraw_reward, msg_withdraw_commision];
-      }
+      transaction.msg = msg_withdraw_reward;
 
       if (this.multisig) {
         this.withdraw.output =

@@ -167,7 +167,7 @@ export default {
       text: '',
       my_v_list: [],
       currentPage: 1,
-      perPage: 10,
+      perPage: 9,
       buttons: [
         {
           caption: 'My',
