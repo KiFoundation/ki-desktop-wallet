@@ -62,14 +62,14 @@
           <div>
             <a
               v-b-modal="'delegate-modal'"
-              class="link"
+              class="link ml-2"
               @click="selectedValidator = validator"
             >
               Delegate
             </a>
             <a
               v-b-modal="'undelegate-modal'"
-              :class="{'link':my_v_list.includes(validator.operator_address) ,'ml-3':true}"
+              :class="{'link':my_v_list.includes(validator.operator_address) ,'ml-2':true}"
               @click="selectedValidator = validator; "
               :disabled="!my_v_list.includes(validator.operator_address)"
             >
@@ -78,7 +78,7 @@
             <a
               v-b-modal="'redelegate-modal'"
               :class="{'link':my_v_list.includes(validator.operator_address) ,
-                        'ml-3':true}"
+                        'ml-2':true}"
               @click="selectedValidator = validator"
               :disabled="!my_v_list.includes(validator.operator_address)"
             >

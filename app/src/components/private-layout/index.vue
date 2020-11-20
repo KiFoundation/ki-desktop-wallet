@@ -1,7 +1,7 @@
 <template>
-  <b-container class="py-5 h-100">
+  <div class="py-4 px-4 h-100 mx-auto" style="max-width: 1100px;">
     <b-row>
-      <b-col class="pr-0" :style="{ marginRight: '5px' }" cols="1">
+      <b-col class="pr-0" :style="{ marginRight: '10px' }" cols="1">
         <CornerLogo />
       </b-col>
       <b-col class="pl-0">
@@ -9,7 +9,7 @@
       </b-col>
     </b-row>
     <b-row :style="{ marginTop: '5px', height: 'calc(100% - 80px)' }">
-      <b-col class="pr-0" cols="1" :style="{ marginRight: '5px' }">
+      <b-col class="pr-0" cols="1" :style="{ marginRight: '10px' }">
         <SideMenu />
       </b-col>
       <b-col class="pl-0 h-100">
@@ -18,11 +18,11 @@
         </Content>
       </b-col>
     </b-row>
-  </b-container>
+  </div>
 </template>
 
 <script>
-import { BContainer, BRow, BCol } from 'bootstrap-vue';
+import {BRow, BCol } from 'bootstrap-vue';
 import CornerLogo from './corner-logo';
 import TopBar from './topbar/index';
 import Content from './content';
@@ -30,7 +30,6 @@ import SideMenu from './sidemenu';
 
 export default {
   components: {
-    'b-container': BContainer,
     'b-row': BRow,
     'b-col': BCol,
     CornerLogo,

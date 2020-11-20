@@ -8,10 +8,10 @@ function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     // backgroundColor: '#043bea',
-    width: 1250,
-    height: 950,
-    minWidth: 1250,
-    minWidth: 900,
+    width: 1200,
+    height: 810,
+    minWidth: 1200,
+    // minWidth: 900,
     show: false,
     // frame:false,
     // titleBarStyle: 'hiddenInset',

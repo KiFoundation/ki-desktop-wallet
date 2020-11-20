@@ -68,9 +68,7 @@ body {
   color: #000;
   background-color: var(--pale-grey);
   /* background-color: var(--darkbg); */
-  min-width: 1040px;
-  /* overflow: scroll; */
-  /* min-height: 100vh; */
+  min-width: 1000px;
 }
 
 ul,
