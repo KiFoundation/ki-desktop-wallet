@@ -164,7 +164,8 @@ export default {
                   publickey: Buffer.from(lse_temp.publicKey, ).toString('hex'),
                   ms: lse_temp.ms,
                   offline: lse_temp.offline,
-                  invalid: lse_temp.invalid
+                  invalid: lse_temp.invalid,
+                  category: lse_temp.category != undefined ? lse_temp.category : "uncategorised"
                 }
 
                 if (wallet_tmp.ms) {
