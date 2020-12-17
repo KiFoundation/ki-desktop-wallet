@@ -1,23 +1,18 @@
 <template>
   <b-modal :id="modalId" tabindex="-1" hide-footer @show="resetData">
-    <template v-slot:modal-title>
-      <h5 class="modal-title">
-        Delegate to
-        <strong :style="{ fontWeight: '600' }">{{
-          validator.description.moniker
-        }}</strong>
-      </h5>
-    </template>
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Delegate to
+          <strong :style="{ fontWeight: '600' }">{{
+            validator.description.moniker
+          }}</strong>
+        </h5>
+      </div>
       <form class="basic-form">
         <li class="token">
-          <!-- <label class="mt-0">
-            <strong>{{ validator.description.moniker }}</strong> -
-            {{ formatAmount(validator.tokens) }}
-          </label> -->
           <div class="d-flex justify-content-start align-items-center">
-            <label class="m-0">To</label>
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+            <b-badge variant="light" class="ml-0" :style="{ fontSize: '14px' }">
               {{ delegate.validator }}
             </b-badge>
           </div>

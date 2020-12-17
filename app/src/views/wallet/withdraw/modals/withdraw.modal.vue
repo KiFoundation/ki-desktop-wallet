@@ -2,16 +2,22 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="`Withdraw from ${validator.description.moniker}`"
     hide-footer
     @show="resetData"
   >
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Withdraw from
+          <strong :style="{ fontWeight: '600' }">{{
+            validator.description.moniker
+          }}</strong>
+        </h5>
+      </div>
       <form class="basic-form">
         <li class="token">
-          <div class="d-flex justify-content-center align-items-center">
-            From
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+          <div class="d-flex justify-content-start align-items-center">
+            <b-badge variant="light" class="ml-0" :style="{ fontSize: '14px' }">
               {{ validator.operator_address }}
             </b-badge>
           </div>

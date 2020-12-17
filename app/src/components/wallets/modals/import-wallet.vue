@@ -3,23 +3,27 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 id="importTitle" class="modal-title">
+        <!-- <h5 id="importTitle" class="modal-title">
           {{ $t('webwallet_import_title') }}
-        </h5>
+        </h5> -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="onResetModal">
-          <span aria-hidden="true" style="color:white;">&times;</span>
+          <span aria-hidden="true" >&times;</span>
         </button>
       </div>
 
       <div class="basic-form modal-body">
-        <!-- <img src="static/img/chain/kichain_banner.png"  style="width:70%" class="card-img-top"> -->
         <div class="mnemonic-group">
+          <div class="modal-header" >
+             <h5 id="importTitle" class="modal-title">
+              {{ $t('webwallet_import_title') }}
+            </h5>
+          </div>
           <div class="mnemonic-form">
 
             <div v-if="step==0">
               <b-row style="margin-bottom:10px;">
                 <b-col cols="6">
-                  <h5>Wallet name</h5>
+                  <h6>Wallet name</h6>
                 </b-col>
                 <b-col />
               </b-row>
@@ -39,7 +43,7 @@
 
               <b-row style="margin-bottom:10px;margin-top:20px;">
                 <b-col cols="6">
-                  <h5>Account type</h5>
+                  <h6>Account type</h6>
                 </b-col>
                 <b-col />
 
@@ -75,7 +79,7 @@
                 <b-col v-if="step==1 && !multisig && !offline_wallet">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
-                      <h5>Your mnemonic</h5>
+                      <h6>Your mnemonic</h6>
                     </b-col>
                     <b-col />
                     <b-col style="text-align:right" cols="4">
@@ -138,7 +142,7 @@
                 <b-col v-if="step==2 && !multisig" >
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
-                      <h5>Wallet password</h5>
+                      <h6>Wallet password</h6>
                     </b-col>
                     <b-col />
                   </b-row>

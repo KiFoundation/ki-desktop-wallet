@@ -2,16 +2,22 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="'Redelegate'"
     hide-footer
     @show="resetData"
   >
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Redelegate from
+          <strong :style="{ fontWeight: '600' }">{{
+            validator.description.moniker
+          }}</strong>
+        </h5>
+      </div>
       <form class="basic-form">
         <li class="token">
           <div class="d-flex justify-content-start align-items-center">
-            <label class="my-0">From</label>
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+            <b-badge variant="light" class="ml-0" :style="{ fontSize: '14px' }">
               {{ redelegate.validator }}
             </b-badge>
           </div>
@@ -311,7 +317,7 @@ export default {
         }
 
         if (flag == 1){ //half
-          this.redelegate.amount = Number(Math.round(delegation / 2 + 'e6') + 'e-6') 
+          this.redelegate.amount = Number(Math.round(delegation / 2 + 'e6') + 'e-6')
         }
     }
   },

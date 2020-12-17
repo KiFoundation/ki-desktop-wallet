@@ -1,11 +1,19 @@
 <template>
   <b-modal
     :id="modalId"
-    :title="$t('transfer_modal_title')"
     hide-footer
     @show="onResetModal"
   >
-    <div class="basic-form modal-body d-flex w-100">
+  <div class="basic-form modal-body">
+    <div class="modal-header" >
+      <h5 class="modal-title">
+        {{
+          $t('transfer_modal_title')
+        }}
+      </h5>
+    </div>
+    <div class="basic-form d-flex w-100">
+
       <!-- ========================Transfer form============================ -->
       <div id="transfer-form" class="tab-pane in active w-100">
         <form class="basic-form">
@@ -106,6 +114,7 @@
           </b-row>
         </form>
       </div>
+    </div>
     </div>
   </b-modal>
 </template>

@@ -1,19 +1,18 @@
 <template>
   <b-modal :id="modalId" tabindex="-1" hide-footer @show="resetData">
-    <template v-slot:modal-title>
-      <h5 class="modal-title">
-        Undelegate from
-        <strong :style="{ fontWeight: '600' }">{{
-          validator.description.moniker
-        }}</strong>
-      </h5>
-    </template>
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Undelegate from
+          <strong :style="{ fontWeight: '600' }">{{
+            validator.description.moniker
+          }}</strong>
+        </h5>
+      </div>
       <form class="basic-form">
         <li class="token">
           <div class="d-flex justify-content-start align-items-center">
-            <label class="m-0">From</label>
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+            <b-badge variant="light" class="ml-0" :style="{ fontSize: '14px' }">
               {{ undelegate.validator }}
             </b-badge>
           </div>
@@ -310,7 +309,7 @@ export default {
         }
 
         if (flag == 1){ //half
-          this.undelegate.amount =  Number(Math.round(delegation / 2 + 'e6') + 'e-6') 
+          this.undelegate.amount =  Number(Math.round(delegation / 2 + 'e6') + 'e-6')
         }
     }
   },

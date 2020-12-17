@@ -3,22 +3,28 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 id="importTitle" class="modal-title">
+        <!-- <h5 id="importTitle" class="modal-title">
           {{ $t('webwallet_create_title') }}
-        </h5>
+        </h5> -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="onResetModal">
-          <span aria-hidden="true" style="color:white;">&times;</span>
+          <span aria-hidden="true" >&times;</span>
         </button>
       </div>
 
       <div class="basic-form modal-body">
+
         <div class="mnemonic-group">
+          <div class="modal-header" >
+             <h5 id="importTitle" class="modal-title">
+              {{ $t('webwallet_create_title') }}
+            </h5>
+          </div>
           <div class="mnemonic-form">
 
             <div v-if="step==0">
               <b-row style="margin-bottom:10px;">
                 <b-col cols="6">
-                  <h5>Wallet name</h5>
+                  <h6>Wallet name</h6>
                 </b-col>
                 <b-col />
               </b-row>
@@ -47,7 +53,7 @@
                 <b-col v-if="step==1 || step==2">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
-                      <h5>Your mnemonic</h5>
+                      <h6>Your mnemonic</h6>
                     </b-col>
                     <b-col />
                     <b-col style="text-align:right" cols="4">
@@ -101,7 +107,7 @@
                 <b-col v-if="step==4">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
-                      <h5>Wallet password</h5>
+                      <h6>Wallet password</h6>
                     </b-col>
                     <b-col />
                   </b-row>

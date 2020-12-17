@@ -2,11 +2,15 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="`Withdraw all rewards`"
     hide-footer
     @show="resetData"
   >
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Withdraw all rewards
+        </h5>
+      </div>
       <form class="basic-form">
         <div v-if="!multisig">
           <label>{{ $t('enter_password') }}</label>
