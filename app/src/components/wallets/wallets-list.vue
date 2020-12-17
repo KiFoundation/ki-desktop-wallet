@@ -99,11 +99,9 @@ export default {
       for (var wallet of this.list){
         this.contents[wallet.category].list.push(wallet);
       }
-      // console.log(this.contents)
     },
 
     expandDefault(){
-      console.log(this.$refs['accordion-body-uncategorised'])
       let el = this.$refs['accordion-body-uncategorised'][0];
       this.contents.uncategorised.active = true;
 

@@ -1,10 +1,11 @@
 <template>
+  <div>
   <b-row
     v-if="wallet"
     class="wallet-card align-items-center mx-0"
-    @click="selectWallet"
+    @click.self="selectWallet"
   >
-    <b-col cols="3" class="pr-0">
+    <b-col cols="3" class="pr-0" @click="selectWallet">
       <b-avatar
         class="d-flex justify-content-center align-items-center"
         size="56px"
@@ -31,18 +32,33 @@
         {{ wallet.address }}
       </h6>
     </b-col>
+
     <b-col cols="2">
-      <img src="static/img/icons/delete.png" width="20px" class="delete" @click="deleteWallet"/>
+      <a
+        role="button"
+        data-toggle="modal"
+        data-target="#edit-form-topbar"
+      >
+      <img src="static/img/icons/kebab-c.png" width="8px" class="delete" />
+    </a>
+
     </b-col>
   </b-row>
+  <EditWalletForm
+    modalId="edit-form-topbar"
+  />
+</div>
 </template>
 
 <script>
 import { BAvatar, BRow, BCol } from 'bootstrap-vue';
 import util from '../../../static/js/util';
+import EditWalletForm from '@cmp/wallets/modals/edit-wallet';
+
 
 export default {
   components: {
+    EditWalletForm,
     BAvatar,
   },
   props: {
@@ -70,7 +86,19 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      optionsArray: [
+    {
+      name: 'Add Star',
+      slug: 'add-star',
+      class: 'my-custom-class'
+    },
+    {
+      name: 'Remove Star',
+      slug: 'remove-star'
+    }
+  ]
+    };
   },
   methods: {
     selectWallet() {
@@ -93,8 +121,7 @@ export default {
         localStorage.setItem("wallet_list", wallet_list_tmp.join(","))
         window.location.reload();
       }
-    }
-
+    },
   },
 };
 </script>
