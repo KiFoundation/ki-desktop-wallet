@@ -20,6 +20,8 @@ import clipboard from 'clipboard';
 import Unicon from 'vue-unicons';
 import { store } from '@store/';
 import { colors } from '@static/js/colors';
+import VueClipboard from 'vue-clipboard2'
+Vue.use(VueClipboard);
 
 import { ToastPlugin } from 'bootstrap-vue';
 Vue.use(ToastPlugin);
