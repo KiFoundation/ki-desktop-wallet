@@ -24,7 +24,8 @@ import {
 } from 'vuex';
 import {
   SET_WALLETS_LIST,
-  SET_WALLETS_DICT
+  SET_WALLETS_DICT,
+  SET_CATEGORY_LIST
 } from '@store/wallets';
 import {
   SET_ACCOUNT
@@ -92,12 +93,17 @@ export default {
     };
     bootstrap();
   },
-  mounted() {},
+  mounted() {
+    this.getCategories();
+
+  },
   methods: {
     ...mapMutations({
       setWalletsList: SET_WALLETS_LIST,
       setWalletsDict: SET_WALLETS_DICT,
       setAccount: SET_ACCOUNT,
+      setCategoryList: SET_CATEGORY_LIST,
+
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
@@ -125,6 +131,16 @@ export default {
         }
         res(1);
       });
+    },
+    getCategories(){
+      let categories = [];
+      if (localStorage.getItem('categories')) {
+        categories = localStorage.getItem('categories').split(',');
+      }else{
+        categories =  ['personal','work','multisignature']
+        localStorage.setItem('categories', categories);
+      }
+      this.setCategoryList(categories);
     },
     getAccounts() {
       return new Promise(res => {
@@ -165,7 +181,7 @@ export default {
                   ms: lse_temp.ms,
                   offline: lse_temp.offline,
                   invalid: lse_temp.invalid,
-                  category: lse_temp.category != undefined ? lse_temp.category : "uncategorised"
+                  category: lse_temp.category != undefined ? lse_temp.category : "uncategorized"
                 }
 
                 if (wallet_tmp.ms) {
