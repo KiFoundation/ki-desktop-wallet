@@ -26,7 +26,7 @@
           disabled
         />
       </li>
-      <li class="token">
+      <li class="token" v-if="sign.onbehalf != account.id">
         <label>{{ $t('webwallet_sign_onbehalf') }}</label>
         <input
           v-model="sign.onbehalf"
@@ -164,6 +164,7 @@ export default {
         switch (msg_[0].type) {
           case 'cosmos-sdk/MsgSend':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.from_address;
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
@@ -176,6 +177,7 @@ export default {
 
           case 'cosmos-sdk/MsgDelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -188,6 +190,7 @@ export default {
 
           case 'cosmos-sdk/MsgUndelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Unbond:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -198,6 +201,7 @@ export default {
 
           case 'cosmos-sdk/MsgBeginRedelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -210,6 +214,7 @@ export default {
 
           case 'cosmos-sdk/MsgWithdrawDelegationReward':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             var output = 'Withdraw rewards ';
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
@@ -222,6 +227,7 @@ export default {
 
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
             var msg = msg_[0];
+            this.sign.onbehalf=this.account.id;
             var output = 'Withdraw commissions';
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
