@@ -4,16 +4,20 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="onResetModal">
-          <span aria-hidden="true" >&times;</span>
+          <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <div class="basic-form modal-body">
         <div class="mnemonic-group">
-          <div class="modal-header" >
-             <h5 id="importTitle" class="modal-title">
+          <div class="modal-header">
+            <h5 id="importTitle" class="modal-title">
               {{ $t('webwallet_edit_title') }}
+              <strong :style="{ fontWeight: '600' }">{{
+                wallet.account
+              }}</strong>
             </h5>
+            <img src="static/img/icons/delete.png" width="28px" class="delete" @click="deleteWallet" />
           </div>
           <div class="mnemonic-form">
             <div v-if="step==0">
@@ -26,7 +30,7 @@
               <b-row style="margin-bottom:20px;">
                 <b-col>Change the name of wallet </b-col>
               </b-row>
-              <input v-model="wallet_name" type="text" @input="
+              <input v-model="new_wallet_name" type="text" @input="
                     validateWalltName();
                     validateWalltNameExist();
                   " />
@@ -46,35 +50,17 @@
               <b-row style="margin-bottom:15px;" align-v="center">
                 <b-col cols="10">{{ $t('wallet_category') }}</b-col>
               </b-row>
-              <b-button v-for="(btn, idx) in buttons" size="sm" :key="idx" :pressed="filter === btn.filter" variant="outline-primary" style="margin-right:5px;margin-top:5px;" @click="btn.onPress(btn.filter)">
-                {{ btn.caption }}
+              <b-button v-for="(cat, idx) in categories" size="sm" :key="idx" :pressed="filter === cat" variant="outline-primary" style="margin-right:5px;margin-top:5px;" @click="handleCat(cat)">
+                {{ cat }}
               </b-button>
-
-              <b-row style="margin-bottom:10px;margin-top:20px;">
-                <b-col cols="10">
-                  <h6>Delete this wallet</h6>
-                </b-col>
-                <b-col />
-              </b-row>
-
-              <b-row style="margin-bottom:20px;">
-                <b-col>Enter the name of the wallet you want to delete to confirm </b-col>
-              </b-row>
-              <input v-model="wallet_name" type="text" @input="
-                    validateWalltName();
-                    validateWalltNameExist();
-                  "
-                  class="danger"/>
-                </div>
+            </div>
           </div>
           <div style="margin-bottom:20px">
             <div class="mnemonic-form">
               <b-row>
-                <!-- Main button warning section -->
                 <b-col>
-                  <!-- Main button -->
                   <div class="d-flex justify-content-center">
-                    <button class="btn btn-primary" @click="proceed" :disabled="!disabled">
+                    <button class="btn btn-primary" @click="updateWallet" :disabled="!disabled">
                       <span>{{$t(workflow[step])}}</span>
                     </button>
                   </div>
@@ -95,6 +81,7 @@ import {
   BCol,
   BButton,
 } from 'bootstrap-vue';
+import {  mapState } from 'vuex';
 
 export default {
   components: {
@@ -107,80 +94,44 @@ export default {
       type: String,
       default: 'modalId',
     },
+    wallet: {
+      type: Object,
+      default: null,
+    }
   },
+
   data() {
     return {
       workflow: ['Save'],
       step: 0,
-      filter: 'u',
-      wallet_name: '',
+      new_wallet_name: this.wallet.account,
+      new_wallet_categroy: this.wallet.category,
+      filter: this.wallet.category,
       name_exists: false,
       name_correct: true,
-      disabled: false,
-
-      buttons: [
-        {
-          caption: 'Personal',
-          onPress: this.handleCat,
-          filter: 'p',
-        },
-        {
-          caption: 'Work',
-          onPress: this.handleCat,
-          filter: 'w',
-        },
-        {
-          caption: 'Multisignature',
-          onPress: this.handleCat,
-          filter: 'm',
-        },
-        {
-            caption: 'Uncategorized',
-            onPress: this.handleCat,
-            filter: 'u',
-          },
-      ],
+      disabled: true,
+      wallet_name_to_delete: '',
     };
+  },
+  computed:{
+    ...mapState({
+      categories:  state => state.wallets.categories,
+    }),
   },
   methods: {
     onResetModal() {
       this.step = 0;
-      this.filter = 'u';
-      this.mnemonic = '';
-      this.ms_address = '';
-      this.wallet_name = '';
-      this.offline_address ='';
-      this.wallet_pass_tmp = '';
-      this.disabled = false;
-      this.multisig = false;
+      this.new_wallet_name = this.wallet.account;
+      this.new_wallet_categroy = this.wallet.category;
+      this.disabled = true;
       this.name_exists = false;
       this.name_correct = true;
     },
-    validatePassword() {
-      if (!this.wallet_pass_tmp) {
-        this.password_correct = false;
-      } else {
-        var ok_password = new RegExp(
-          '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})',
-        );
-        if (!ok_password.test(this.wallet_pass_tmp)) {
-          this.password_correct = false;
-        } else {
-          this.password_correct = true;
-        }
-      }
-      this.disabled = this.password_correct
-
-    },
-    toggletPasswordVisible() {
-      this.password_visible = !this.password_visible;
-    },
-
     validateWalltName() {
-      if (!this.wallet_name) {
+      if (!this.new_wallet_name) {
         this.name_correct = false;
       } else {
-        if (this.wallet_name.match(/[^\w\.\-]/)) {
+        if (this.new_wallet_name.match(/[^\w\.\-]/)) {
           this.name_correct = false;
         } else {
           this.name_correct = true;
@@ -190,24 +141,59 @@ export default {
 
     },
     validateWalltNameExist() {
-      let wallet_list = this.wallet_name;
+      let wallet_list = this.new_wallet_name;
 
-      if (localStorage.getItem('wallet_list')) {
-        let wallet_list_old = localStorage.getItem('wallet_list').split(',');
-        if (wallet_list_old.includes(wallet_list)) {
-          this.name_exists = true;
-        } else {
-          this.name_exists = false;
+      if (wallet_list == this.wallet.account){
+        this.name_exists = false;
+      }else{
+        if (localStorage.getItem('wallet_list')) {
+          let wallet_list_old = localStorage.getItem('wallet_list').split(',');
+          if (wallet_list_old.includes(wallet_list)) {
+            this.name_exists = true;
+          } else {
+            this.name_exists = false;
+          }
         }
       }
+
       this.disabled = this.name_correct && !this.name_exists;
     },
-
-    async proceed(e) {
-    },
-
     handleCat(cat) {
-        this.filter = cat;
+      this.filter = cat;
+      this.new_wallet_categroy = cat;
+    },
+    updateWallet() {
+      var updated_wallet = JSON.parse(localStorage.getItem(this.wallet.account))
+
+      if (this.new_wallet_categroy != this.wallet.category){
+        updated_wallet["category"]= this.new_wallet_categroy
+      }
+
+      localStorage.setItem(this.new_wallet_name, JSON.stringify(updated_wallet))
+
+      if (this.new_wallet_name != this.wallet.account){
+        localStorage.removeItem(this.wallet.account)
+        localStorage.setItem("wallet_list", localStorage.getItem("wallet_list").replace(","+this.wallet.account+",",","+this.new_wallet_name+","))
+      }
+      this.$emit('onUpdateSuccess');
+    },
+    deleteWallet() {
+      console.log(this.wallet)
+      if (confirm("Do you really want to delete " + this.wallet.account + " ?")) {
+        localStorage.removeItem(this.wallet.account)
+        var wallet_list_tmp = (localStorage.getItem("wallet_list")) ? localStorage.getItem("wallet_list").split(',') : '';
+        var index = wallet_list_tmp.indexOf(this.wallet.account);
+
+        if (index > -1) {
+          wallet_list_tmp.splice(index, 1);
+        }
+        if (wallet_list_tmp.length == 0) {
+          localStorage.setItem("identity_kichain", "")
+          localStorage.setItem("current_wallet", "")
+        }
+        localStorage.setItem("wallet_list", wallet_list_tmp.join(","))
+        window.location.reload();
+      }
     },
   },
 };
@@ -312,5 +298,13 @@ input:focus {
   margin-top: 20px;
   background-color: rgba(0, 0, 150, 0.1) !important;
   border: 1px solid rgb(224, 224, 224);
+}
+
+.delete {
+  opacity: 0.2
+}
+
+.delete:hover {
+  opacity: 0.5
 }
 </style>

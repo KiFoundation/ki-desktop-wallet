@@ -37,15 +37,17 @@
       <a
         role="button"
         data-toggle="modal"
-        data-target="#edit-form-topbar"
+        :data-target="'#edit-form-'+wallet.account"
       >
-      <img src="static/img/icons/kebab-c.png" width="8px" class="delete" />
+      <img src="static/img/icons/kebab-c.png" width="8px" class="more" />
     </a>
 
     </b-col>
   </b-row>
   <EditWalletForm
-    modalId="edit-form-topbar"
+    :modalId="'edit-form-'+wallet.account"
+    :wallet="wallet"
+    @onUpdateSuccess="handleUpdateSucces"
   />
 </div>
 </template>
@@ -104,7 +106,12 @@ export default {
     selectWallet() {
       this.$emit('onSelectWallet', this.wallet);
     },
+    handleUpdateSucces(){
+      console.log("asd")
+      this.$bvModal.hide('#edit-form-'+this.wallet.account);
+      window.location.reload();
 
+    },
     deleteWallet(){
       if(confirm("Do you really want to delete " + this.wallet.account+ " ?") ) {
         localStorage.removeItem(this.wallet.account)
@@ -142,11 +149,11 @@ export default {
   transform: scale(1.01);
 }
 
-.delete{
+.more{
   opacity:0.2
 }
 
-.delete:hover{
+.more:hover{
   opacity:0.5
 }
 </style>
