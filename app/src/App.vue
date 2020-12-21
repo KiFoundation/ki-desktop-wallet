@@ -82,6 +82,7 @@ export default {
       wallets: [],
       delegations: {},
       transactions: [],
+      categories: '',
     };
   },
   created() {
@@ -140,6 +141,7 @@ export default {
         categories =  ['personal','work','multisignature']
         localStorage.setItem('categories', categories);
       }
+      this.categories = categories.join(",");
       this.setCategoryList(categories);
     },
     getAccounts() {
@@ -181,7 +183,7 @@ export default {
                   ms: lse_temp.ms,
                   offline: lse_temp.offline,
                   invalid: lse_temp.invalid,
-                  category: lse_temp.category != undefined ? lse_temp.category : "uncategorized"
+                  category: (lse_temp.category != undefined && this.categories.includes(lse_temp.category)) ? lse_temp.category : "uncategorized"
                 }
 
                 if (wallet_tmp.ms) {
@@ -194,7 +196,6 @@ export default {
               }
             }
           }
-
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);
           res(1);

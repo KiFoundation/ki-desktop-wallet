@@ -43,16 +43,27 @@
 
               <b-row style="margin-bottom:10px;margin-top:20px;">
                 <b-col cols="10">
-                  <h6>Category</h6>
+                  <h6>Categories
+                  </h6>
                 </b-col>
-                <b-col />
+                <b-col>
+                  <!-- <img src="static/img/icons/edit.png" width="12px" class="delete" @click="edit" /> -->
+                  <a @click=" workflow_cat[editing].onPress(), editing = !editing">{{workflow_cat[editing].label}}</a>
+                </b-col>
               </b-row>
               <b-row style="margin-bottom:15px;" align-v="center">
                 <b-col cols="10">{{ $t('wallet_category') }}</b-col>
               </b-row>
-              <b-button v-for="(cat, idx) in categories" size="sm" :key="idx" :pressed="filter === cat" variant="outline-primary" style="margin-right:5px;margin-top:5px;" @click="handleCat(cat)">
-                {{ cat }}
-              </b-button>
+              <b-row align-v="center">
+                <b-col v-if="!editing">
+                  <b-button v-for="(cat, idx) in categories_.split(',')" size="sm" :key="idx" :pressed="filter === cat" variant="outline-primary" style="margin-right:5px;margin-top:5px;" @click="handleCat(cat)">
+                    {{ cat }}
+                  </b-button>
+                </b-col>
+                <b-col v-else>
+                  <input v-model="categories_" type="text" />
+                </b-col>
+              </b-row>
             </div>
           </div>
           <div style="margin-bottom:20px">
@@ -60,7 +71,7 @@
               <b-row>
                 <b-col>
                   <div class="d-flex justify-content-center">
-                    <button class="btn btn-primary" @click="updateWallet" :disabled="!disabled">
+                    <button class="btn btn-primary" @click="updateWallet" :disabled="editing || !disabled">
                       <span>{{$t(workflow[step])}}</span>
                     </button>
                   </div>
@@ -81,7 +92,13 @@ import {
   BCol,
   BButton,
 } from 'bootstrap-vue';
-import {  mapState } from 'vuex';
+import {
+  mapState,
+  mapMutations,
+} from 'vuex';
+import {
+  SET_CATEGORY_LIST
+} from '@store/wallets';
 
 export default {
   components: {
@@ -103,7 +120,19 @@ export default {
   data() {
     return {
       workflow: ['Save'],
+      workflow_cat: {
+        false: {
+          label: 'edit',
+          onPress: function(){},
+        },
+        true: {
+          label: 'save',
+          onPress: this.editCategories
+        }
+      },
+      categories_ : "",
       step: 0,
+      editing: false,
       new_wallet_name: this.wallet.account,
       new_wallet_categroy: this.wallet.category,
       filter: this.wallet.category,
@@ -113,17 +142,24 @@ export default {
       wallet_name_to_delete: '',
     };
   },
-  computed:{
+  computed: {
     ...mapState({
-      categories:  state => state.wallets.categories,
+      categories: state => state.wallets.categories,
     }),
   },
+  mounted(){
+    this.categories_ = this.categories.join(',')
+  },
   methods: {
+    ...mapMutations({
+      setCategoryList: SET_CATEGORY_LIST,
+    }),
     onResetModal() {
       this.step = 0;
       this.new_wallet_name = this.wallet.account;
       this.new_wallet_categroy = this.wallet.category;
       this.disabled = true;
+      this.editing=false;
       this.name_exists = false;
       this.name_correct = true;
     },
@@ -143,9 +179,9 @@ export default {
     validateWalltNameExist() {
       let wallet_list = this.new_wallet_name;
 
-      if (wallet_list == this.wallet.account){
+      if (wallet_list == this.wallet.account) {
         this.name_exists = false;
-      }else{
+      } else {
         if (localStorage.getItem('wallet_list')) {
           let wallet_list_old = localStorage.getItem('wallet_list').split(',');
           if (wallet_list_old.includes(wallet_list)) {
@@ -162,23 +198,26 @@ export default {
       this.filter = cat;
       this.new_wallet_categroy = cat;
     },
+    editCategories() {
+      localStorage.setItem('categories', this.categories_.split(','))
+      this.setCategoryList(this.categories_.split(','))
+    },
     updateWallet() {
       var updated_wallet = JSON.parse(localStorage.getItem(this.wallet.account))
 
-      if (this.new_wallet_categroy != this.wallet.category){
-        updated_wallet["category"]= this.new_wallet_categroy
+      if (this.new_wallet_categroy != this.wallet.category) {
+        updated_wallet["category"] = this.new_wallet_categroy
       }
 
       localStorage.setItem(this.new_wallet_name, JSON.stringify(updated_wallet))
 
-      if (this.new_wallet_name != this.wallet.account){
+      if (this.new_wallet_name != this.wallet.account) {
         localStorage.removeItem(this.wallet.account)
-        localStorage.setItem("wallet_list", localStorage.getItem("wallet_list").replace(","+this.wallet.account+",",","+this.new_wallet_name+","))
+        localStorage.setItem("wallet_list", localStorage.getItem("wallet_list").replace("," + this.wallet.account + ",", "," + this.new_wallet_name + ","))
       }
       this.$emit('onUpdateSuccess');
     },
     deleteWallet() {
-      console.log(this.wallet)
       if (confirm("Do you really want to delete " + this.wallet.account + " ?")) {
         localStorage.removeItem(this.wallet.account)
         var wallet_list_tmp = (localStorage.getItem("wallet_list")) ? localStorage.getItem("wallet_list").split(',') : '';
