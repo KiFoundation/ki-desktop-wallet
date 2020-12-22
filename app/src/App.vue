@@ -28,7 +28,8 @@ import {
   SET_CATEGORY_LIST
 } from '@store/wallets';
 import {
-  SET_ACCOUNT
+  SET_ACCOUNT,
+  GET_PRICE
 } from '@store/account';
 import {
   FETCH_VALIDATORS_LIST
@@ -90,13 +91,13 @@ export default {
       await this.getChain();
       await this.getAccounts();
       await this.fetchValidatorsList();
+      await this.getPrice();
       this.isLoading = false;
     };
     bootstrap();
   },
   mounted() {
     this.getCategories();
-
   },
   methods: {
     ...mapMutations({
@@ -104,10 +105,10 @@ export default {
       setWalletsDict: SET_WALLETS_DICT,
       setAccount: SET_ACCOUNT,
       setCategoryList: SET_CATEGORY_LIST,
-
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
+      getPrice: GET_PRICE,
     }),
     getChain() {
       return new Promise(async res => {

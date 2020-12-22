@@ -2,9 +2,10 @@
   <div class="d-flex w-100 h-100 justify-content-between align-items-center">
     <div class="d-flex justify-content-center flex-column ml-3" v-if="!loadingWallet">
       <h5>Total Balance</h5>
-      <h5 :style="{ fontWeight: 'bolder' }">
-        {{ globalData.kichain.token }} {{total}}
-      </h5>
+      <h4>
+        <span  :style="{ fontWeight: '800' }">{{total}} </span>
+        <span :style="{ fontWeight: '400' }">{{ globalData.kichain.token }}</span>
+      </h4>
       <p
         :style="{
           color: 'var(--secondary)',
@@ -13,24 +14,13 @@
         }"
       >
 
-      $ {{total_usd}} . $ {{ token_price }}/{{ globalData.kichain.token }}
+      ≈ ${{total_usd}}  (${{ token_price }}/{{ globalData.kichain.token }})
       </p>
-
 
     </div>
     <span v-else>
       <b-spinner type="grow" variant="light" />
     </span>
-    <!-- <div>
-      <h5>
-        <span> Total Balance </span>
-        <span v-if="!loadingWallet">
-          <h4> <span> {{ globalData.kichain.token }} {{total}}</span></h4>
-          <h6> USD  ~ {{total_usd}}</h6>
-        </span>
-
-      </h5>
-    </div> -->
     <div class="d-flex flex-row">
       <div class="pr-4">
         <a
@@ -94,6 +84,7 @@ export default {
     ...mapState({
       loadingWallet: state => state.wallets.loading,
       wallets: state => state.wallets.list,
+      token_price: state => state.price,
     }),
   },
   data() {
@@ -105,7 +96,7 @@ export default {
       token: '',
       total:0,
       total_usd:0,
-      token_price:0.06
+      // token_price:0.06
     };
   },
   mounted() {
@@ -197,6 +188,7 @@ export default {
       let total = 0
 
       for (var w in this.wallets){
+
         const responseBalances = await services.wallet.fetchBalancesList(
           this.wallets[w].address,
         );
@@ -225,9 +217,8 @@ export default {
           }
         }
       }
-
-      this.total_usd = tokenUtil.format(total * this.token_price);
-      this.total = tokenUtil.format(total)
+      this.total_usd = tokenUtil.formatShort(total * this.token_price);
+      this.total = tokenUtil.formatShort(total)
     }
   },
 };

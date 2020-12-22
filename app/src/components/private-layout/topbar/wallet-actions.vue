@@ -23,18 +23,17 @@
       <img type="button" v-clipboard:copy="currentWallet.address" src="static/img/icons/copy.png" width="15px" class="copy" />
 
       </div>
-
-      <h5 :style="{ fontWeight: 'bolder' }">
-        {{ globalData.kichain.token }}
-        {{ currentWalletBalancesAmount.available }}
-      </h5>
+      <h4>
+        <span  :style="{ fontWeight: '800' }">{{ total_available }} </span>
+        <span :style="{ fontWeight: '400' }">{{ globalData.kichain.token }}</span>
+      </h4>
       <p :style="{
             color: 'var(--secondary)',
             fontSize: '0.9rem',
             fontWeight: '600',
           }">
 
-        $ {{total_usd}} . $ {{ token_price }}/{{ globalData.kichain.token }}
+        ≈ ${{total_usd}}  (${{ token_price }}/{{ globalData.kichain.token }})
       </p>
     </div>
   </div>
@@ -97,8 +96,8 @@ export default {
       tooltipShow: false,
       refreshing: false,
       invalidWallet: false,
-      token_price: 0.06,
       total_usd:0,
+      total_available:0,
       show_add: false
     };
   },
@@ -109,6 +108,7 @@ export default {
     }),
     ...mapState({
       currentWallet: state => state.wallets.current,
+      token_price: state => state.price,
     }),
   },
   mounted() {
@@ -117,7 +117,8 @@ export default {
     if (this.invalidWallet) {
       this.$bvModal.show("error-modal")
     }
-    this.total_usd = tokenUtil.format(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price);
+    this.total_available = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6));
+    this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price);
   },
   methods: {
     ...mapActions({
