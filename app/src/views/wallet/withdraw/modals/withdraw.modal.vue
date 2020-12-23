@@ -77,21 +77,27 @@
         </li>
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="tx.loading === true"
-              @click="sendWithdrawTx"
-            >
-              <div v-if="!tx.loading">
-                <span v-if="!multisig">
-                  {{ $t('withdrawtx') }}
-                </span>
-                <span v-else>Generate</span>
-              </div>
-              <div v-else>
-                <b-spinner small label="Small Spinner" />
-              </div>
-            </button>
+            <div v-if="!tx.loading">
+
+            <span v-if="!multisig" >
+              <a class="btn btn-primary" @click="sendWithdrawTx">
+                {{ $t('withdrawtx') }}
+              </a>
+            </span>
+            <span v-else >
+              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendWithdrawTx">
+                Generate
+              </a>
+              <a v-else class="btn btn-download"
+              @click="download()">
+                Download
+              </a>
+            </span>
+          </div>
+
+            <div v-else>
+              <b-spinner small label="Small Spinner" />
+            </div>
           </b-col>
         </b-row>
       </form>

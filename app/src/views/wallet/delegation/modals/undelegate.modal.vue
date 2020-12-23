@@ -84,21 +84,27 @@
         </li>
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="tx.loading === true"
-              @click="sendUnDelegateTx"
-            >
-              <div v-if="!tx.loading">
-                <span v-if="!multisig">
-                  {{ $t('undelegatetx') }}
-                </span>
-                <span v-else>Generate</span>
-              </div>
-              <div v-else>
-                <b-spinner small label="Small Spinner" />
-              </div>
-            </button>
+            <div v-if="!tx.loading">
+
+            <span v-if="!multisig" >
+              <a class="btn btn-primary" @click="sendUnDelegateTx">
+                {{ $t('undelegatetx') }}
+              </a>
+            </span>
+            <span v-else >
+              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendUnDelegateTx">
+                Generate
+              </a>
+              <a v-else class="btn btn-download"
+              @click="download()">
+                Download
+              </a>
+            </span>
+          </div>
+
+            <div v-else>
+              <b-spinner small label="Small Spinner" />
+            </div>
           </b-col>
         </b-row>
       </form>
@@ -311,7 +317,10 @@ export default {
         if (flag == 1){ //half
           this.undelegate.amount =  Number(Math.round(delegation / 2 + 'e6') + 'e-6')
         }
-    }
+    },
+    download() {
+      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx.json', document, this.undelegate.output);
+    },
   },
 };
 </script>

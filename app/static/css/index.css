@@ -156,6 +156,7 @@ i {
 
 .btn-download {
   background: #888888;
+  color: #fff !important;
 }
 
 .btn-secondary,

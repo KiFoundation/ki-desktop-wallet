@@ -107,21 +107,27 @@
         </li>
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="tx.loading === true"
-              @click="sendReDelegateTx"
-            >
-              <div v-if="!tx.loading">
-                <span v-if="!multisig">
-                  {{ $t('redelegatetx') }}
-                </span>
-                <span v-else>Generate</span>
-              </div>
-              <div v-else>
-                <b-spinner small label="Small Spinner" />
-              </div>
-            </button>
+            <div v-if="!tx.loading">
+
+            <span v-if="!multisig" >
+              <a class="btn btn-primary" @click="sendReDelegateTx">
+                {{ $t('redelegatetx') }}
+              </a>
+            </span>
+            <span v-else >
+              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
+                Generate
+              </a>
+              <a v-else class="btn btn-download"
+              @click="download()">
+                Download
+              </a>
+            </span>
+          </div>
+
+            <div v-else>
+              <b-spinner small label="Small Spinner" />
+            </div>
           </b-col>
         </b-row>
       </form>
@@ -135,6 +141,7 @@ import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import { tokenUtil } from '@static/js/token';
 import FeesInput from '@cmp/tx/fees.input';
+import util from '@static/js/util';
 
 export default {
   components: {
@@ -319,7 +326,10 @@ export default {
         if (flag == 1){ //half
           this.redelegate.amount = Number(Math.round(delegation / 2 + 'e6') + 'e-6')
         }
-    }
+    },
+    download() {
+      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx.json', document, this.redelegate.output);
+    },
   },
 };
 </script>

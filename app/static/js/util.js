@@ -275,6 +275,22 @@ class Util {
       'linear-gradient(' + angle + 'deg, ' + newColor1 + ', ' + newColor2 + ')';
     return gradient;
   }
+
+  download(filename, doc, data){
+    let href =
+      'data:text/plain;charset=utf-8,' +
+      encodeURIComponent(data);
+
+    var element = doc.createElement('a');
+    element.setAttribute('href', href);
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    doc.body.appendChild(element);
+
+    element.click();
+    doc.body.removeChild(element);
+  }
 }
 
 let util = new Util();

@@ -111,6 +111,7 @@
 import { mapActions, mapState } from 'vuex';
 import { services } from '@services/index';
 import { signTx, createBroadcastTx } from '@tendermint/sig';
+import util from '@static/js/util';
 
 export default {
   data() {
@@ -246,21 +247,7 @@ export default {
       }
     },
     downloadSig() {
-      let filename = 'signed_tx.json';
-      let href =
-        'data:text/plain;charset=utf-8,' +
-        encodeURIComponent(this.sign.signature);
-
-      var element = document.createElement('a');
-      element.setAttribute('href', href);
-      element.setAttribute('download', filename);
-
-      element.style.display = 'none';
-      document.body.appendChild(element);
-
-      element.click();
-
-      document.body.removeChild(element);
+      return util.download( "signed_tx.json", document, this.sign.signature);
     },
     async signTxFile() {
       let transaction = JSON.parse(this.sign.file_content).value;
