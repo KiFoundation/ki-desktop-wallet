@@ -239,6 +239,7 @@ export default {
       ms_address_threshold: '',
       ms_address_pubkeys: '',
       ms_address_pubkeys_sort: true,
+      ms_pubkeys_base64_final: [],
       ms_data_correct: true,
       ms_data_pk_correct: false,
       ms_data_th_correct: false,
@@ -283,8 +284,9 @@ export default {
       this.ms_data_th_correct = false;
       this.ms_address_pubkeys = '';
       this.ms_address_threshold = '';
+      this.ms_pubkeys_base64_final = '';
+
       this.resetMnemonic()
-      // this.$emit('onResetModal');
     },
     importWallet() {
       const formValue = {
@@ -313,7 +315,6 @@ export default {
 
       if (!this.require_ms_data || ms_data_filled) {
 
-        var pubkeys_base64_final = []
         if (ms_data_filled) {
             var pubkeys_base64_tmp = []
 
@@ -329,11 +330,10 @@ export default {
               pubkeys_base64_tmp.sort((a, b) => a[1].localeCompare(b[1]));
             }
 
-            pubkeys_base64_final = pubkeys_base64_tmp.map(function(x) {
+            this.ms_pubkeys_base64_final = pubkeys_base64_tmp.map(function(x) {
               return x[0];
             });
           }
-
 
         const formValue = {
           wallet_name: this.wallet_name,
@@ -341,7 +341,7 @@ export default {
           wallet_pass_tmp: this.wallet_pass_tmp,
           multisig: true,
           threshold: this.ms_address_threshold,
-          pubkeys: pubkeys_base64_final,
+          pubkeys: this.ms_pubkeys_base64_final,
         };
         this.$emit('onImportMultiSigWallet', formValue);
       } else {
@@ -451,18 +451,32 @@ export default {
       }
       this.disabled = this.ms_data_pk_correct && this.ms_data_th_correct;
     },
-    // Query the blockchain to check whether the address is already known
+    // Query the blockchain to check whether we should ask for ms data
     async checkAddressStatus() {
       const account = await services.auth.fetchAccount(this.ms_address)
-      if (account.data.result.value.public_key == null){
+      var account_pubkey = {}
+      if (account.data.result.type == "cosmos-sdk/ContinuousVestingAccount" ||
+       account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
+          account_pubkey = account.data.result.value.BaseVestingAccount.BaseAccount.public_key
+      }
+      else{
+          account_pubkey = account.data.result.value.public_key
+      }
+
+      if (account_pubkey == null){
         return true
       }
       else{
-        if (account.data.result.value.public_key.type !="tendermint/PubKeyMultisigThreshold") {
+        if (account_pubkey.type !="tendermint/PubKeyMultisigThreshold") {
           this.not_ms_address = true;
           return true
         }
       }
+
+      this.ms_address_threshold = account_pubkey.value.threshold
+      this.ms_pubkeys_base64_final = account_pubkey.value.pubkeys.map(function(x) {
+        return x.value;
+      });
 
       return false
     },
