@@ -297,7 +297,7 @@ export const actions = {
         }
       }
 
-      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "denom":state.app.denom }
+      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "total":tokenUtil.format(available + delegated + locked), "denom":state.app.denom }
 
       if (responseBalances.data.result) {
         walletTmp = {
