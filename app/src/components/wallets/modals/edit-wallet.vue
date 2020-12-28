@@ -213,7 +213,16 @@ export default {
 
       if (this.new_wallet_name != this.wallet.account) {
         localStorage.removeItem(this.wallet.account)
-        localStorage.setItem("wallet_list", localStorage.getItem("wallet_list").replace("," + this.wallet.account + ",", "," + this.new_wallet_name + ","))
+        var old_list = localStorage.getItem("wallet_list").split(',')
+        var index = old_list.indexOf(this.wallet.account);
+
+        if (index !== -1) {
+            old_list[index] = this.new_wallet_name;
+        }
+
+        var new_list = old_list.join(',')
+
+        localStorage.setItem("wallet_list", new_list)
       }
       this.$emit('onUpdateSuccess');
     },
