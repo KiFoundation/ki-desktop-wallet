@@ -150,10 +150,10 @@ export default {
 }
 
 .more{
-  opacity:0.2
+  opacity:0.2;
 }
 
 .more:hover{
-  opacity:0.5
+  opacity:0.5;
 }
 </style>

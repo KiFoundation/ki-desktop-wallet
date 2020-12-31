@@ -139,7 +139,7 @@ export default {
       if (localStorage.getItem('categories')) {
         categories = localStorage.getItem('categories').split(',');
       }else{
-        categories =  ['personal','work','multisignature']
+        categories =  ['personal','work','multisignature','uncategorized']
         localStorage.setItem('categories', categories);
       }
       this.categories = categories.join(",");

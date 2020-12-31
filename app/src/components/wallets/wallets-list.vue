@@ -92,13 +92,19 @@ export default {
     },
 
     expandDefault() {
-      let el = this.$refs['accordion-body-'+Object.keys(this.categories)[0]][0];
-      this.categories[Object.keys(this.categories)[0]].active = true;
+      console.log(this.categories)
 
-      gsap.to(el, 1, {
-        height: el.scrollHeight,
-        ease: "elastic(1, 0.9)"
-      });
+      for (var i in this.categories){
+        if (this.categories[i].list.length > 0){
+          let el = this.$refs['accordion-body-' + i][0]
+          this.categories[i].active = true;
+
+          gsap.to(el, 1, {
+            height: el.scrollHeight,
+            ease: "elastic(1, 0.9)"
+          });
+        }
+      }
     },
     expand(i) {
       event.preventDefault();
@@ -173,10 +179,6 @@ export default {
 
 }
 
-.accordion-header a:not(.accordion-active):hover {
-  /* background-color: #d8d2ef8f; */
-}
-
 .accordion-header-div {
   padding: 1rem 1rem 1rem 1rem;
 }
@@ -188,18 +190,6 @@ export default {
   justify-content: center;
 }
 
-/* .accordion-caret {
-	background-image: linear-gradient(
-  	to top right,
-  	transparent 50%,
-  	#727272 50%
-  );
-	width: 0.5rem;
-	height: 0.5rem;
-	transform: rotate(-45deg);
-	animation: accordion-is-inactive 200ms linear forwards;
-} */
-
 .accordion-body {
   height: 0;
   overflow: hidden;
@@ -209,27 +199,5 @@ export default {
   padding: 1rem;
 }
 
-/* @keyframes accordion-is-inactive {
-	0%   { transform: rotate(-45deg); }
-	50%  { transform: scale(1.5) rotate(45deg); }
-	100% { transform: rotate(135deg); }
-}
 
-@keyframes accordion-is-active {
-	0%   { transform: rotate(135deg); }
-	50%  { transform: scale(1.5) rotate(45deg); }
-	100% { transform:  rotate(-45deg); }
-} */
-
-@media screen and (min-width: var(--base-width) {
-    #app {
-      padding: 2rem;
-      overflow: auto;
-    }
-
-    .accordion {
-      max-height: none;
-      border-radius: 0.5rem;
-    }
-  }
 </style>

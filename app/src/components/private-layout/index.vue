@@ -19,7 +19,7 @@
       </b-col>
     </b-row>
     <b-row class="footer justify-content-md-center align-items-center" :style="{ marginTop: '15px' }">
-      made by <img src="static/img/icons/ki_foundation.png" style="margin-left: 5px; height: 7px; width: auto;"/>
+      <img src="static/img/icons/ki_foundation.png" style="margin-left: 5px; height: 7px; width: auto;"/>
     </b-row>
 
   </div>

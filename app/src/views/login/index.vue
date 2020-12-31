@@ -267,27 +267,16 @@ export default {
       this.password_correct = true;
     },
 
-    // getwallets() {
-    //   if (localStorage.getItem('wallet_list')) {
-    //     let wallet_list = localStorage.getItem('wallet_list').split(',');
-    //     for (var w in wallet_list) {
-    //       this.wallets.push([
-    //         wallet_list[w],
-    //         JSON.parse(localStorage.getItem(wallet_list[w])).address,
-    //       ]);
-    //     }
-    //   }
-    // },
-
     getCategories(){
-      let categories = 'personal,work,multisignature';
+      let categories = [];
       if (localStorage.getItem('categories')) {
         categories = localStorage.getItem('categories').split(',');
       }else{
-        // categories = 'personal,work,uncategorized'
-        localStorage.setItem('categories', 'personal,work,multisignature');
+        categories =  ['personal','work','multisignature','uncategorized']
+        localStorage.setItem('categories', categories);
       }
-      setCategoryList(categories);
+      this.categories = categories.join(",");
+      this.setCategoryList(categories);
     },
 
     login() {
