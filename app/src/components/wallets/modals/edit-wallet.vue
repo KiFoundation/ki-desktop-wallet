@@ -199,8 +199,12 @@ export default {
       this.new_wallet_categroy = cat;
     },
     editCategories() {
-      localStorage.setItem('categories', this.categories_.split(','))
-      this.setCategoryList(this.categories_.split(','))
+      var categories_a = this.categories_.split(',')
+      if (!this.categories_.includes("uncategorized")){
+        categories_a.push("uncategorized")
+      }
+      localStorage.setItem('categories', categories_a)
+      this.setCategoryList(categories_a)
     },
     updateWallet() {
       var updated_wallet = JSON.parse(localStorage.getItem(this.wallet.account))

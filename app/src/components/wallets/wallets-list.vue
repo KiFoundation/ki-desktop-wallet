@@ -82,7 +82,7 @@ export default {
   methods: {
     splitCategories() {
       for (var wallet of this.list) {
-        if(wallet.category!=undefined){
+        if(wallet.category!=undefined && wallet.category in this.categories){
           this.categories[wallet.category].list.push(wallet);
         }
         else{
@@ -92,8 +92,6 @@ export default {
     },
 
     expandDefault() {
-      console.log(this.categories)
-
       for (var i in this.categories){
         if (this.categories[i].list.length > 0){
           let el = this.$refs['accordion-body-' + i][0]

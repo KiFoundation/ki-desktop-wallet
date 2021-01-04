@@ -8,9 +8,9 @@ function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     // backgroundColor: '#043bea',
-    width: 1200,
+    width: 1100,
     height: 810,
-    minWidth: 1200,
+    minWidth: 1100,
     // minWidth: 900,
     show: false,
     // frame:false,
