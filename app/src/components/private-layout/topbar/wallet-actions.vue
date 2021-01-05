@@ -131,6 +131,8 @@ export default {
       await this.hydrateCurrentWallet(this.currentWallet);
       await this.fetchAllValidators();
       await this.fetchWalletRewards();
+      this.total_available = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6));
+      this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price);
       this.refreshing = false;
     },
     toggleCopiedTooltip() {},

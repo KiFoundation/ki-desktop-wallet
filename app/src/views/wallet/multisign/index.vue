@@ -365,7 +365,7 @@ export default {
 
     async broadcastTx(){
       const bcTransactionme = createBroadcastTx(this.multisign.signature_obj);
-
+      var success = false
       try {
         const responsePostTransfer = await services.tx.postTx(bcTransactionme);
         this.$bvToast.toast('Transaction sent with success', {
@@ -375,10 +375,9 @@ export default {
           solid: true,
           toaster: 'b-toaster-bottom-center',
         });
-        removeFile('msf', '')
-        this.$emit('onTransferSuccess');
+        success = true;
+        // this.$emit('onTransferSuccess');
       } catch (error) {
-
         this.$bvToast.toast("Failed to send", {
           variant: 'danger',
           autoHideDelay: 2000,
@@ -386,7 +385,10 @@ export default {
           noCloseButton: true,
           toaster: 'b-toaster-bottom-center',
         });
-        this.$emit('onTransferError');
+        // this.$emit('onTransferError');
+      }
+      if (success){
+        this.removeFile('msf', '')
       }
     }
   }

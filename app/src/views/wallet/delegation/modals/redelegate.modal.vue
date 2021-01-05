@@ -31,7 +31,7 @@
           />
           <datalist id="validator_unbond_list">
             <option
-              v-for="(item, index) in currentWallet.validators"
+              v-for="(item, index) in validators"
               :key="index"
               :value="item.operator_address"
             >
@@ -202,6 +202,9 @@ export default {
     tx() {
       return this.$store.state.tx;
     },
+    validators(){
+      return this.$store.state.validators.list;
+    }
   },
   methods: {
     ...mapActions({
