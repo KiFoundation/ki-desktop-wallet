@@ -113,7 +113,7 @@ import ImportWalletForm from '@cmp/wallets/modals/import-wallet';
 import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import { mapMutations } from 'vuex';
 import { SET_ACCOUNT } from '@store/account';
-import { SET_CURRENT_WALLET, SET_WALLETS_LIST, SET_WALLETS_DICT } from '@store/wallets';
+import { SET_CURRENT_WALLET, SET_WALLETS_LIST, SET_WALLETS_DICT, SET_CATEGORY_LIST} from '@store/wallets';
 
 export default {
   components: {
@@ -150,7 +150,8 @@ export default {
   },
 
   mounted() {
-    this.getwallets();
+    // this.getwallets();
+    this.getCategories();
   },
 
   methods: {
@@ -159,6 +160,7 @@ export default {
       setCurrentWallet: SET_CURRENT_WALLET,
       setWalletsList: SET_WALLETS_LIST,
       setWalletsDict: SET_WALLETS_DICT,
+      setCategoryList: SET_CATEGORY_LIST,
     }),
     getChain() {
       if (this.blockchain) {
@@ -265,16 +267,16 @@ export default {
       this.password_correct = true;
     },
 
-    getwallets() {
-      if (localStorage.getItem('wallet_list')) {
-        let wallet_list = localStorage.getItem('wallet_list').split(',');
-        for (var w in wallet_list) {
-          this.wallets.push([
-            wallet_list[w],
-            JSON.parse(localStorage.getItem(wallet_list[w])).address,
-          ]);
-        }
+    getCategories(){
+      let categories = [];
+      if (localStorage.getItem('categories')) {
+        categories = localStorage.getItem('categories').split(',');
+      }else{
+        categories =  ['personal','work','multisignature','uncategorized']
+        localStorage.setItem('categories', categories);
       }
+      this.categories = categories.join(",");
+      this.setCategoryList(categories);
     },
 
     login() {

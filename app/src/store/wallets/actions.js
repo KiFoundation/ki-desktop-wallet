@@ -237,7 +237,7 @@ export const actions = {
         let total_duration = end - start
         let elapsed_duration = (Math.floor(Date.now() / 1000) - start > 0) ? Math.floor(Date.now() / 1000) - start : 0
         let vested_ratio = elapsed_duration / total_duration
-        let locked_ = original * (1 - vested_ratio)
+        let locked_ = original * Math.max(1 - vested_ratio, 0)
         let vested = original - locked_
 
         if (vesting_delayed){
@@ -297,7 +297,7 @@ export const actions = {
         }
       }
 
-      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "denom":state.app.denom }
+      let balances = {"available":tokenUtil.format(available), "delegated":tokenUtil.format(delegated), "unbonding":tokenUtil.format(unbonding), "available_real":tokenUtil.format(available_real), "locked":tokenUtil.format(locked), "total":tokenUtil.format(available + delegated), "denom":state.app.denom }
 
       if (responseBalances.data.result) {
         walletTmp = {

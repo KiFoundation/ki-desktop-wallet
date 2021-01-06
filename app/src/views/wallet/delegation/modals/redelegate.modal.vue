@@ -2,16 +2,22 @@
   <b-modal
     :id="modalId"
     tabindex="-1"
-    :title="'Redelegate'"
     hide-footer
     @show="resetData"
   >
     <div class="basic-form modal-body">
+      <div class="modal-header" >
+        <h5 class="modal-title">
+          Redelegate from
+          <strong :style="{ fontWeight: '600' }">{{
+            validator.description.moniker
+          }}</strong>
+        </h5>
+      </div>
       <form class="basic-form">
         <li class="token">
           <div class="d-flex justify-content-start align-items-center">
-            <label class="my-0">From</label>
-            <b-badge variant="light" class="ml-2" :style="{ fontSize: '14px' }">
+            <b-badge variant="light" class="ml-0" :style="{ fontSize: '14px' }">
               {{ redelegate.validator }}
             </b-badge>
           </div>
@@ -25,7 +31,7 @@
           />
           <datalist id="validator_unbond_list">
             <option
-              v-for="(item, index) in currentWallet.validators"
+              v-for="(item, index) in validators"
               :key="index"
               :value="item.operator_address"
             >
@@ -101,21 +107,27 @@
         </li>
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="tx.loading === true"
-              @click="sendReDelegateTx"
-            >
-              <div v-if="!tx.loading">
-                <span v-if="!multisig">
-                  {{ $t('redelegatetx') }}
-                </span>
-                <span v-else>Generate</span>
-              </div>
-              <div v-else>
-                <b-spinner small label="Small Spinner" />
-              </div>
-            </button>
+            <div v-if="!tx.loading">
+
+            <span v-if="!multisig" >
+              <a class="btn btn-primary" @click="sendReDelegateTx">
+                {{ $t('redelegatetx') }}
+              </a>
+            </span>
+            <span v-else >
+              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
+                Generate
+              </a>
+              <a v-else class="btn btn-download"
+              @click="download()">
+                Download
+              </a>
+            </span>
+          </div>
+
+            <div v-else>
+              <b-spinner small label="Small Spinner" />
+            </div>
           </b-col>
         </b-row>
       </form>
@@ -129,6 +141,7 @@ import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import { tokenUtil } from '@static/js/token';
 import FeesInput from '@cmp/tx/fees.input';
+import util from '@static/js/util';
 
 export default {
   components: {
@@ -189,6 +202,9 @@ export default {
     tx() {
       return this.$store.state.tx;
     },
+    validators(){
+      return this.$store.state.validators.list;
+    }
   },
   methods: {
     ...mapActions({
@@ -311,9 +327,12 @@ export default {
         }
 
         if (flag == 1){ //half
-          this.redelegate.amount = Number(Math.round(delegation / 2 + 'e6') + 'e-6') 
+          this.redelegate.amount = Number(Math.round(delegation / 2 + 'e6') + 'e-6')
         }
-    }
+    },
+    download() {
+      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx.json', document, this.redelegate.output);
+    },
   },
 };
 </script>

@@ -62,14 +62,14 @@
           <div>
             <a
               v-b-modal="'delegate-modal'"
-              class="link"
+              class="link ml-2"
               @click="selectedValidator = validator"
             >
               Delegate
             </a>
             <a
               v-b-modal="'undelegate-modal'"
-              :class="{'link':my_v_list.includes(validator.operator_address) ,'ml-3':true}"
+              :class="{'link':my_v_list.includes(validator.operator_address) ,'ml-2':true}"
               @click="selectedValidator = validator; "
               :disabled="!my_v_list.includes(validator.operator_address)"
             >
@@ -78,7 +78,7 @@
             <a
               v-b-modal="'redelegate-modal'"
               :class="{'link':my_v_list.includes(validator.operator_address) ,
-                        'ml-3':true}"
+                        'ml-2':true}"
               @click="selectedValidator = validator"
               :disabled="!my_v_list.includes(validator.operator_address)"
             >
@@ -110,8 +110,8 @@
       class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
     >
       <div>
-        <p style="font-size:60px">
-          🤔
+        <p style="margin-bottom: 10px">
+          <img src="static/img/chain/thinking-face.png" width="150px"/>
         </p>
         {{ $t('webwallet_no_delegations') }}
       </div>
@@ -167,7 +167,7 @@ export default {
       text: '',
       my_v_list: [],
       currentPage: 1,
-      perPage: 10,
+      perPage: 9,
       buttons: [
         {
           caption: 'My',

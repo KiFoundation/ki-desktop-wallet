@@ -57,6 +57,18 @@
             Withdraw
           </a>
         </ValidatorCard>
+        <TotalCard
+          :key="`total`"
+          :reward="mergedRewards"
+          class="mb-2"
+        >
+          <a
+            v-b-modal="'withdraw-all-modal'"
+            class="link"
+          >
+            Withdraw all
+          </a>
+        </TotalCard>
       </div>
       <div
         class="mt-2 mb-2"
@@ -80,8 +92,8 @@
       class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
     >
       <div>
-        <p style="font-size:60px">
-          🤔
+        <p style="margin-bottom: 10px">
+          <img src="static/img/chain/thinking-face.png" width="150px"/>
         </p>
         {{ $t('webwallet_no_delegations') }}
       </div>
@@ -92,6 +104,11 @@
         @onWithdrawSuccess="handleWithdrawSuccess"
       />
     </div>
+    <WithdrawAllModal
+     :validators="validators"
+     :rewards="rewards"
+     @onWithdrawSuccess="handleWithdrawSuccess"
+     />
   </div>
 </template>
 
@@ -100,33 +117,36 @@ import { mapActions, mapState } from 'vuex';
 import {
   BRow,
   BCol,
-  BButton,
-  BButtonGroup,
   BPagination,
   BFormInput,
 } from 'bootstrap-vue';
 import { FETCH_WALLET_VALIDATORS, FETCH_WALLET_REWARDS } from '@store/wallets';
 import ValidatorCard from '@cmp/validator/validator.card';
+import TotalCard from '@cmp/withdraw/total.card';
 import WithdrawModal from './modals/withdraw.modal';
+import WithdrawAllModal from './modals/withdraw-all.modal';
+import * as numeral from 'numeral';
+import { tokenUtil } from '@static/js/token';
 
 export default {
   components: {
+    TotalCard,
     ValidatorCard,
     BPagination,
     BFormInput,
     WithdrawModal,
+    WithdrawAllModal,
   },
   data() {
     return {
       selectedValidator: null,
       text: '',
       currentPage: 1,
-      perPage: 10,
+      perPage: 8,
     };
   },
   computed: {
     ...mapState({
-      advanced: state => state.app.advanced,
       myValidators: state => state.wallets.current.validators,
       rewards:  state => state.wallets.current.rewards,
       account: state => state.account,
@@ -140,8 +160,16 @@ export default {
         });
       return val
     },
-  },
-  created() {
+
+    mergedRewards(){
+      var pending = 0;
+
+      for (var val in this.rewards){
+        pending +=  numeral(this.rewards[val]).value() * Math.pow(10, 6)
+      }
+      return tokenUtil.format(pending)
+    }
+
   },
   mounted() {
      this.fetchRewards();
@@ -159,6 +187,7 @@ export default {
       await this.fetchMyValidators();
       await this.fetchRewards();
       this.$bvModal.hide('withdraw-modal');
+      this.$bvModal.hide('withdraw-all-modal');
     },
   },
 };

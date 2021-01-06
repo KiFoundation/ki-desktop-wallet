@@ -4,7 +4,7 @@
     <!-- ========================Transfer form============================ -->
     <b-col cols="7">
 
-      <b-row class="text-center" style="margin-bottom:20px; margin-top:10px">
+      <b-row class="text-center" style="margin-bottom:20px; margin-top:40px">
         <b-col>
 
           <b-avatar size="7rem" variant="light" :style="{
@@ -52,25 +52,21 @@
                   /* color: 'var(--secondary)', */
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                }"
-                 v-if="!multisig">
-                 Public Key
+                }" v-if="!multisig">
+                  Public Key
                 </p>
                 <p :style="{
                   /* color: 'var(--secondary)', */
                   fontSize: '0.85rem',
                   fontWeight: '600',
-                }"
-                 v-if="multisig">
-                 Description
+                }" v-if="multisig">
+                  Description
                 </p>
-                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;" >
-                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;"
-                    v-if="!multisig">
+                <div style="display:flex; flex-direction: row; justify-content: center; align-items: center;">
+                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;" v-if="!multisig">
                     {{ publickeyBech32 }}
                   </span>
-                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;"
-                    v-else>
+                  <span style="border: none ;color: var(--darkbg); display:block; width: 180px;  word-wrap:break-word;" v-else>
                     {{ currentWallet.multisign_data.description }}
                   </span>
                 </div>
@@ -81,14 +77,10 @@
       </b-row>
     </b-col>
 
-    <b-col cols="5" style="margin-top:20px">
+    <b-col cols="5" style="margin-top:0px">
       <b-row class="text-center">
         <b-col cols="12" class="pl-1 pr-1">
           <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
-            <h6 :style="{ fontWeight: 'bolder' }">
-              {{ globalData.kichain.token }}
-              {{ currentWalletBalancesAmount.available }}
-            </h6>
             <p :style="{
               color: 'var(--secondary)',
               fontSize: '0.85rem',
@@ -96,14 +88,21 @@
             }">
               Available
             </p>
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ currentWalletBalancesAmount.available }}
+              {{ globalData.kichain.token }}
+            </h6>
+            <p :style="{
+                color: 'var(--secondary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }">
+              ≈ ${{ this.balancesUSD.available }}
+            </p>
           </div>
         </b-col>
         <b-col cols="12" class="pl-1 pr-1">
           <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
-            <h6 :style="{ fontWeight: 'bolder' }">
-              {{ globalData.kichain.token }}
-              {{ currentWalletBalancesAmount.delegated }}
-            </h6>
             <p :style="{
               color: 'var(--secondary)',
               fontSize: '0.85rem',
@@ -111,14 +110,21 @@
             }">
               Delegated
             </p>
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ currentWalletBalancesAmount.delegated }}
+              {{ globalData.kichain.token }}
+            </h6>
+            <p :style="{
+                color: 'var(--secondary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }">
+              ≈ ${{ this.balancesUSD.delegated }}
+            </p>
           </div>
         </b-col>
         <b-col cols="12" class="pl-1 pr-1">
           <div class="d-flex justify-content-center flex-column" style="height:80px;border-bottom: 1px solid var(--pale-grey);">
-            <h6 :style="{ fontWeight: 'bolder' }">
-              {{ globalData.kichain.token }}
-              {{ currentWalletBalancesAmount.unbonding }}
-            </h6>
             <p :style="{
               color: 'var(--secondary)',
               fontSize: '0.85rem',
@@ -126,20 +132,60 @@
             }">
               Unbonding
             </p>
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ currentWalletBalancesAmount.unbonding }}
+              {{ globalData.kichain.token }}
+            </h6>
+            <p :style="{
+                color: 'var(--secondary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }">
+              ≈ ${{ this.balancesUSD.unbonding }}
+            </p>
           </div>
         </b-col>
         <b-col cols="12" class="pl-1 pr-1">
           <div class="d-flex justify-content-center flex-column" style="height:80px; border-bottom: 1px solid var(--pale-grey);">
-            <h6 :style="{ fontWeight: 'bolder' }">
-              {{ globalData.kichain.token }}
-              {{ currentWalletBalancesAmount.locked }}
-            </h6>
             <p :style="{
               color: 'var(--secondary)',
               fontSize: '0.85rem',
               fontWeight: '600',
             }">
               Locked
+            </p>
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ currentWalletBalancesAmount.locked }}
+              {{ globalData.kichain.token }}
+            </h6>
+            <p :style="{
+                color: 'var(--secondary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }">
+              ≈ ${{ this.balancesUSD.locked }}
+            </p>
+          </div>
+        </b-col>
+        <b-col cols="12" class="pl-1 pr-1">
+          <div class="d-flex justify-content-center flex-column" style="height:80px">
+            <p :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.85rem',
+              fontWeight: '600',
+            }">
+              Total
+            </p>
+            <h6 :style="{ fontWeight: 'bolder' }">
+              {{ currentWalletBalancesAmount.total }}
+              {{ globalData.kichain.token }}
+            </h6>
+            <p :style="{
+                color: 'var(--secondary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
+              }">
+              ≈ ${{ this.balancesUSD.total }}
             </p>
           </div>
         </b-col>
@@ -177,6 +223,10 @@ import {
   GET_CURRENT_WALLET_BALANCES_DENOM,
   HYDRATE_CURRENT_WALLET,
 } from '@store/wallets';
+import {
+  tokenUtil
+} from '@static/js/token';
+import * as numeral from 'numeral';
 
 export default {
   components: {
@@ -203,7 +253,17 @@ export default {
     }),
     ...mapState({
       currentWallet: state => state.wallets.current,
+      token_price: state => state.price,
     }),
+    balancesUSD() {
+      return {
+        available: tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10, 6) * this.token_price),
+        delegated: tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.delegated).value() * Math.pow(10, 6) * this.token_price),
+        unbonding: tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.unbonding).value() * Math.pow(10, 6) * this.token_price),
+        locked: tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.locked).value() * Math.pow(10, 6) * this.token_price),
+        total: tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.total).value() * Math.pow(10, 6) * this.token_price),
+      }
+    },
     multisig() {
       return this.$store.state.wallets.current.multisign;
     },
@@ -223,8 +283,7 @@ export default {
     },
 
   },
-  methods: {
-  },
+  methods: {},
 };
 </script>
 

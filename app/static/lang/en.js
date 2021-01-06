@@ -11,6 +11,7 @@ export default {
   webwallet_import: 'Import',
   webwallet_import_title: 'Import a Ki wallet',
   webwallet_create_title: 'Generate a Ki wallet',
+  webwallet_edit_title: 'Edit wallet',
   error_wallet_invalid: 'This wallet has not been imported properly and cannot be used. Please delete it from the wallet list and import it again.',
   warning_wallet_invalid_delete: 'Warning! Deleting this wallet will result in the loss of all it data from the Ki Desktop Wallet application.',
   transfer_modal_title: 'Make a Transfer',
@@ -29,6 +30,7 @@ export default {
   enter_wallet_name: 'Give a name to your wallet',
   multisig_wallet_true: 'Are you importing a multisignature account ?',
   offline_wallet:"Are you importing a watch only account ?",
+  wallet_category:"Pick a category for your wallet",
   error_mnemonic: 'Mnemonic phrase should be 24 words',
   error_password:
     'At least 8 characters, 1 uppercase, 1 lowercase and 1 number',

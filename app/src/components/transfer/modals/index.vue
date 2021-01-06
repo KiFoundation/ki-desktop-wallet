@@ -1,11 +1,19 @@
 <template>
   <b-modal
     :id="modalId"
-    :title="$t('transfer_modal_title')"
     hide-footer
     @show="onResetModal"
   >
-    <div class="basic-form modal-body d-flex w-100">
+  <div class="basic-form modal-body">
+    <div class="modal-header" >
+      <h5 class="modal-title">
+        {{
+          $t('transfer_modal_title')
+        }}
+      </h5>
+    </div>
+    <div class="basic-form d-flex w-100">
+
       <!-- ========================Transfer form============================ -->
       <div id="transfer-form" class="tab-pane in active w-100">
         <form class="basic-form">
@@ -95,17 +103,27 @@
           </li>
           <b-row align-v="center">
             <b-col class="d-flex justify-content-center">
-              <a class="btn btn-primary" @click="sendTransfer">
-                <span
-                  v-if="!multisig"
-                  >{{ $t('transfer') }}</span
-                >
-                <span v-else>Generate</span>
-              </a>
+              <span v-if="!multisig" >
+                <a class="btn btn-primary" @click="sendTransfer">
+                  {{ $t('transfer') }}
+                </a>
+              </span>
+              <span v-else >
+                <a v-if="transfer.output==''" class="btn btn-primary" @click="sendTransfer">
+                  Generate
+                </a>
+                <a v-else class="btn btn-download"
+                @click="download()">
+                  Download
+                </a>
+              </span>
+
+
             </b-col>
           </b-row>
         </form>
       </div>
+    </div>
     </div>
   </b-modal>
 </template>
@@ -122,6 +140,7 @@ import { BRow, BCol, BContainer, BModal } from 'bootstrap-vue';
 import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import FeesInput from '@cmp/tx/fees.input';
+import util from '@static/js/util';
 
 export default {
   components: {
@@ -173,7 +192,6 @@ export default {
     currentWallet() {
       return this.$store.state.wallets.current;
     },
-
     multisig() {
       return this.$store.state.wallets.current.multisign;
     },
@@ -352,7 +370,10 @@ export default {
         if (flag == 1){ //half
           this.transfer.amount = available_tokens > 1 ? Number(Math.round(available_tokens / 2 + 'e6') + 'e-6') : 0
         }
-    }
+    },
+    download() {
+      return util.download( 'transfer_' + this.transfer.amount + 'ki_tx.json', document, this.transfer.output);
+    },
   },
 };
 </script>

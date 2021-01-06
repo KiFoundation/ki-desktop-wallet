@@ -26,7 +26,7 @@
           disabled
         />
       </li>
-      <li class="token">
+      <li class="token" v-if="sign.onbehalf != account.id">
         <label>{{ $t('webwallet_sign_onbehalf') }}</label>
         <input
           v-model="sign.onbehalf"
@@ -111,6 +111,7 @@
 import { mapActions, mapState } from 'vuex';
 import { services } from '@services/index';
 import { signTx, createBroadcastTx } from '@tendermint/sig';
+import util from '@static/js/util';
 
 export default {
   data() {
@@ -164,6 +165,7 @@ export default {
         switch (msg_[0].type) {
           case 'cosmos-sdk/MsgSend':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.from_address;
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
@@ -176,6 +178,7 @@ export default {
 
           case 'cosmos-sdk/MsgDelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -188,6 +191,7 @@ export default {
 
           case 'cosmos-sdk/MsgUndelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Unbond:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -198,6 +202,7 @@ export default {
 
           case 'cosmos-sdk/MsgBeginRedelegate':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
@@ -210,6 +215,7 @@ export default {
 
           case 'cosmos-sdk/MsgWithdrawDelegationReward':
             var msg = msg_[0];
+            this.sign.onbehalf=msg.value.delegator_address;
             var output = 'Withdraw rewards ';
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
@@ -222,6 +228,7 @@ export default {
 
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
             var msg = msg_[0];
+            this.sign.onbehalf=this.account.id;
             var output = 'Withdraw commissions';
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
@@ -240,21 +247,7 @@ export default {
       }
     },
     downloadSig() {
-      let filename = 'signed_tx.json';
-      let href =
-        'data:text/plain;charset=utf-8,' +
-        encodeURIComponent(this.sign.signature);
-
-      var element = document.createElement('a');
-      element.setAttribute('href', href);
-      element.setAttribute('download', filename);
-
-      element.style.display = 'none';
-      document.body.appendChild(element);
-
-      element.click();
-
-      document.body.removeChild(element);
+      return util.download( "signed_tx.json", document, this.sign.signature);
     },
     async signTxFile() {
       let transaction = JSON.parse(this.sign.file_content).value;

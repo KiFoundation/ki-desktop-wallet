@@ -68,9 +68,7 @@ body {
   color: #000;
   background-color: var(--pale-grey);
   /* background-color: var(--darkbg); */
-  min-width: 1040px;
-  /* overflow: scroll; */
-  /* min-height: 100vh; */
+  min-width: 1000px;
 }
 
 ul,
@@ -158,6 +156,7 @@ i {
 
 .btn-download {
   background: #888888;
+  color: #fff !important;
 }
 
 .btn-secondary,
@@ -810,18 +809,18 @@ a.custom-card:hover {
 }
 
 .modal-title {
-  color: #fff;
-  font-weight: 300;
+  color: var(--textColor);
 }
 
 .modal-header {
   font-size: 12px;
-  color: #fff;
-  background-color: var(--primary);
-  /* background-color: var(--pale-grey);  */
+  color: var(--primary);
+  background-color: #fff;
   border-bottom: 0px solid #dee2e6;
   border-top-left-radius: 0.3rem;
   border-top-right-radius: 0.3rem;
+  padding: 5px 10px 10px 0;
+
 }
 
 .modal-content {

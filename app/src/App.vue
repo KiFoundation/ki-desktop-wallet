@@ -24,10 +24,12 @@ import {
 } from 'vuex';
 import {
   SET_WALLETS_LIST,
-  SET_WALLETS_DICT
+  SET_WALLETS_DICT,
+  SET_CATEGORY_LIST
 } from '@store/wallets';
 import {
-  SET_ACCOUNT
+  SET_ACCOUNT,
+  GET_PRICE
 } from '@store/account';
 import {
   FETCH_VALIDATORS_LIST
@@ -81,6 +83,7 @@ export default {
       wallets: [],
       delegations: {},
       transactions: [],
+      categories: '',
     };
   },
   created() {
@@ -88,19 +91,24 @@ export default {
       await this.getChain();
       await this.getAccounts();
       await this.fetchValidatorsList();
+      await this.getPrice();
       this.isLoading = false;
     };
     bootstrap();
   },
-  mounted() {},
+  mounted() {
+    this.getCategories();
+  },
   methods: {
     ...mapMutations({
       setWalletsList: SET_WALLETS_LIST,
       setWalletsDict: SET_WALLETS_DICT,
       setAccount: SET_ACCOUNT,
+      setCategoryList: SET_CATEGORY_LIST,
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
+      getPrice: GET_PRICE,
     }),
     getChain() {
       return new Promise(async res => {
@@ -125,6 +133,17 @@ export default {
         }
         res(1);
       });
+    },
+    getCategories(){
+      let categories = [];
+      if (localStorage.getItem('categories')) {
+        categories = localStorage.getItem('categories').split(',');
+      }else{
+        categories =  ['personal','work','multisignature','uncategorized']
+        localStorage.setItem('categories', categories);
+      }
+      this.categories = categories.join(",");
+      this.setCategoryList(categories);
     },
     getAccounts() {
       return new Promise(res => {
@@ -164,7 +183,8 @@ export default {
                   publickey: Buffer.from(lse_temp.publicKey, ).toString('hex'),
                   ms: lse_temp.ms,
                   offline: lse_temp.offline,
-                  invalid: lse_temp.invalid
+                  invalid: lse_temp.invalid,
+                  category: (lse_temp.category != undefined && this.categories.includes(lse_temp.category)) ? lse_temp.category : "uncategorized"
                 }
 
                 if (wallet_tmp.ms) {
@@ -177,7 +197,6 @@ export default {
               }
             }
           }
-
           this.setWalletsList(wallets);
           this.setWalletsDict(wallets_dict);
           res(1);

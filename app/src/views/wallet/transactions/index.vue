@@ -3,7 +3,7 @@
   <div class="d-flex w-100 h-100 flex-column px-3">
 
 
-      <b-row class="header align-items-center mx-0" style="min-height:40px">
+      <b-row   v-if="transactions && transactions.length" class="header align-items-center mx-0" style="min-height:40px">
           <b-col>
             <b-row class="w-100 align-items-center">
               <b-col cols="2"><span class="ml-4">Tx</span></b-col>
@@ -50,9 +50,9 @@
           class="d-flex align-items-center w-100 h-100 text-center justify-content-center"
           >
           <div>
-          <p style="font-size:60px">
-            🤔
-          </p>
+            <p style="margin-bottom: 10px">
+              <img src="static/img/chain/thinking-face.png" width="150px"/>
+            </p>
           {{ $t('webwallet_no_transactions') }}
         </div>
       </div>
