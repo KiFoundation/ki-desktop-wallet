@@ -17,7 +17,7 @@
   "author": "KiFoundation",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": ">=8.5.2",
+    "electron": ">=11.1.0",
     "electron-winstaller": "^4.0.0",
     "electron-wix-msi": "^2.2.0"
   },
