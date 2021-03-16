@@ -910,7 +910,7 @@ a.custom-card:hover {
 }
 
 .warning {
-  background-color: rgba(255, 204, 0, 0.2) !important;
+  background-color: rgba(255, 204, 0, 0.15) !important;
 }
 
 .badge {
