@@ -82,6 +82,7 @@ export default {
   delegatetx: 'Delegate',
   delegation_amount: 'Amount to bond',
   undelegation_amount : 'Amount to unbond',
+  undelegation_warning : 'Undelegation freezes tokens for 21 days. You migh need to consider redelgation instead.',  
   undelegatetx: 'Undelegate',
   redelegatetx: 'Redelegate',
   withdrawtx: 'Withdraw',

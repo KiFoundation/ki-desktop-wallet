@@ -82,6 +82,8 @@
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="undelegate.output" class="" rows="3" disabled />
         </li>
+        <div><b-alert show variant="warning">{{ $t('undelegation_warning') }} <a href="https://medium.com/ki-foundation/a-guide-to-staking-on-the-kichain-3d69a71b50e9" target="_blank"> Learn more</a>.</b-alert></div>
+
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
             <div v-if="!tx.loading">
@@ -113,7 +115,7 @@
 </template>
 
 <script>
-import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
+import { BRow, BCol, BSpinner, BModal, BBadge, BAlert } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
@@ -128,6 +130,7 @@ export default {
     BModal,
     FeesInput,
     BBadge,
+    BAlert
   },
   props: {
     modalId: {
@@ -141,6 +144,7 @@ export default {
   },
   data() {
     return {
+      explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
       undelegate: {
         alert: '',
@@ -281,15 +285,16 @@ export default {
       }
       else{
         try {
-          await this.postTx({
+          let res = await this.postTx({
             transaction,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+          this.$bvToast.toast(res.data.txhash.slice(0, 30) + "..." ,{
             title: `Transaction success`,
             variant: 'success',
-            autoHideDelay: 2000,
+            autoHideDelay: 5000,
             solid: true,
+            href: this.explorer + "/transactions/" + res.data.txhash,
             toaster: 'b-toaster-bottom-center',
           });
           this.$emit('onUndelegateSuccess');

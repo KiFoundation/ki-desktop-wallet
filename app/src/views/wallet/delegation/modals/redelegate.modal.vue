@@ -164,6 +164,7 @@ export default {
   },
   data() {
     return {
+      explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
       redelegate: {
         alert: '',
@@ -293,15 +294,16 @@ export default {
       }
       else{
         try {
-          await this.postTx({
+          let res = await this.postTx({
             transaction,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+          this.$bvToast.toast(res.data.txhash.slice(0, 30) + "..." , {
             title: `Transaction success`,
             variant: 'success',
-            autoHideDelay: 2000,
+            autoHideDelay: 5000,
             solid: true,
+            href: this.explorer + "/transactions/" + res.data.txhash,
             toaster: 'b-toaster-bottom-center',
           });
           this.$emit('onRedelegateSuccess');

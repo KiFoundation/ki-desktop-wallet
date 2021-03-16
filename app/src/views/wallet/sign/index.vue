@@ -280,19 +280,38 @@ export default {
         sequence: sequence_.toString(),
       };
 
-      var CryptoJS = require('crypto-js');
-      var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
-      let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+      try{
 
-      const publickey = Buffer.from(this.wallet.publickey, 'hex');
+        var CryptoJS = require('crypto-js');
+        var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+        let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
+        const publickey = Buffer.from(this.wallet.publickey, 'hex');
 
-      let signedTransactionme = signTx(transaction, signMeta, {
-        privateKey: key,
-        publicKey: publickey,
-      });
+        let signedTransactionme = await signTx(transaction, signMeta, {
+          privateKey: key,
+          publicKey: publickey,
+        });
+        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
+        this.wallet_pass_tmp=''
 
-      this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
-      this.wallet_pass_tmp=''
+      } catch (error) {
+        let humanizedError;
+
+        if (
+          RegExp(
+            `^RangeError: private key length is invalid|Malformed UTF-8 data`,
+          ).test(error)
+        ) {
+          humanizedError = 'Wrong Password';
+        }
+        this.$bvToast.toast("Wrong Password", {
+          title: `Transaction failed`,
+          variant: 'danger',
+          autoHideDelay: 2000,
+          solid: true,
+          toaster: 'b-toaster-bottom-center',
+        });
+      }
     },
     removeFile() {
         this.sign.file = '';

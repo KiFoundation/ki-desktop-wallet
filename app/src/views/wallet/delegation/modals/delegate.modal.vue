@@ -149,6 +149,7 @@ export default {
       context: 'Broadcast',
       udenom: this.globalData.kichain.udenom,
       token: this.globalData.kichain.token,
+      explorer: this.globalData.explorer,
       delegate: {
         alert: '',
         validator: this.validator.operator_address,
@@ -273,14 +274,14 @@ export default {
 
       else{
       try {
-        await this.postTx({
+        let res = await this.postTx({
           transaction,
           password: this.wallet_pass_tmp,
         });
-        this.$bvToast.toast('Transaction sent with success', {
+        this.$bvToast.toast(res.data.txhash.slice(0, 30) + "...", {
           title: `Transaction success`,
           variant: 'success',
-          autoHideDelay: 2000,
+          autoHideDelay: 5000,
           solid: true,
           toaster: 'b-toaster-bottom-center',
         });
