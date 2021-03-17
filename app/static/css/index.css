@@ -923,6 +923,8 @@ a.custom-card:hover {
   color: #9c6cff;
 }
 
+.badge-undelegate,
+.badge-redelegate, 
 .badge-delegate {
     background-color: #ffd887;
     color: #eba01b;

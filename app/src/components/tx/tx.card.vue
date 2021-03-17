@@ -7,13 +7,14 @@
           <unicon name="location-arrow" :fill="colors.secondary" />
           <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
-        <b-col cols="1">
+        <b-col cols="1" style="padding-left:0px">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2"><a :href="explorer+ 'account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
-        <b-col cols="2" v-if="transaction[1]=='delegate'"><a :href="explorer+ 'validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]]? validators_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
+        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate'"><a :href="explorer+ 'validator/' + transaction[6]" target="_blank"><h6 class="ml-3 text-truncate">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6></a></b-col>
+        <b-col cols="2" v-else ><a :href="explorer+ 'account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
+        <b-col cols="2" v-if="transaction[1]=='delegate' || transaction[1]=='undelegate' || transaction[1]=='redelegate'"><a :href="explorer+ 'validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]] ? validators_dict[transaction[2]].moniker : transaction[2] }}</h6></a></b-col>
         <b-col cols="2" v-else  class="text"><a :href="explorer+ 'account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
         <b-col cols="3">
           <span>
@@ -59,7 +60,7 @@ export default {
     ...mapState({
       currentWallet: state => state.wallets.current,
       wallets_dict: state => state.wallets.dict,
-      validators_dict: state => state.wallets.current.validators_dict,
+      validators_dict: state => state.validators.dict,
     }),
   },
   methods: {

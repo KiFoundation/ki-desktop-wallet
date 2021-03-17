@@ -336,7 +336,7 @@ export default {
           variant: 'success',
           autoHideDelay: 5000,
           solid: true,
-          href: this.explorer + "/transactions/" + res.data.txhash,
+          href: this.explorer + "transactions/" + res.data.txhash,
           toaster: 'b-toaster-bottom-center',
         });
         this.handleTransferSuccess()

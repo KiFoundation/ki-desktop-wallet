@@ -32,7 +32,8 @@ import {
   GET_PRICE
 } from '@store/account';
 import {
-  FETCH_VALIDATORS_LIST
+  FETCH_VALIDATORS_LIST,
+  FETCH_VALIDATORS_DICT,
 } from '@/store/validators';
 
 export default {
@@ -91,6 +92,7 @@ export default {
       await this.getChain();
       await this.getAccounts();
       await this.fetchValidatorsList();
+      await this.fetchValidatorsDict();
       await this.getPrice();
       this.isLoading = false;
     };
@@ -108,6 +110,7 @@ export default {
     }),
     ...mapActions({
       fetchValidatorsList: FETCH_VALIDATORS_LIST,
+      fetchValidatorsDict: FETCH_VALIDATORS_DICT,
       getPrice: GET_PRICE,
     }),
     getChain() {
