@@ -27,7 +27,6 @@ export const actions = {
         }
       }
     }
-    console.log(validators_dict)
     commit(SET_VALIDATORS_DICT, validators_dict);
   },
 };

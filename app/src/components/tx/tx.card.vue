@@ -12,27 +12,39 @@
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate'"><a :href="explorer+ 'validator/' + transaction[6]" target="_blank"><h6 class="ml-3 text-truncate">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6></a></b-col>
-        <b-col cols="2" v-else ><a :href="explorer+ 'account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]" ><h6 class="ml-3 text-truncate">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6></a></b-col>
-        <b-col cols="2" v-if="transaction[1]=='delegate' || transaction[1]=='undelegate' || transaction[1]=='redelegate'"><a :href="explorer+ 'validator/' + transaction[2]" target="_blank"><h6 class="text-truncate">{{validators_dict[transaction[2]] ? validators_dict[transaction[2]].moniker : transaction[2] }}</h6></a></b-col>
-        <b-col cols="2" v-else  class="text"><a :href="explorer+ 'account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]"><h6 class="text-truncate">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6></a></b-col>
+        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate'">
+          <a :href="explorer+ 'validator/' + transaction[6]" target="_blank" >
+            <h6 class="ml-3 text-truncate" :title="transaction[6]">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6>
+          </a>
+        </b-col>
+        <b-col cols="2" v-else >
+          <a :href="explorer+ 'account/' + transaction[6]" target="_blank" :title="wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6]">
+            <h6 class="ml-3 text-truncate" :title="transaction[6]">{{wallets_dict[transaction[6]]? wallets_dict[transaction[6]] : transaction[6] }}</h6>
+          </a>
+        </b-col>
+        <b-col cols="2" v-if="transaction[1]=='delegate' || transaction[1]=='undelegate' || transaction[1]=='redelegate'">
+          <a :href="explorer+ 'validator/' + transaction[2]" target="_blank" >
+            <h6 class="text-truncate" :title="transaction[2]">{{validators_dict[transaction[2]] ? validators_dict[transaction[2]].moniker : transaction[2] }}</h6>
+          </a>
+        </b-col>
+        <b-col cols="2" v-else  class="text">
+          <a :href="explorer+ 'account/' + transaction[2]" target="_blank" :title="wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2]">
+            <h6 class="text-truncate" :title="transaction[2]">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6>
+          </a>
+        </b-col>
         <b-col cols="3">
           <span>
             {{ globalData.kichain.token }} {{transaction[3]}}
           </span>
         </b-col>
         <b-col cols="2"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
-
-        <!-- <b-col cols="4" class="d-flex justify-content-end"> -->
-          <!-- <slot /> -->
-        <!-- </b-col> -->
       </b-row>
     </b-col>
   </b-row>
 </template>
 
 <script>
-import { BRow, BCol, BButton, BBadge} from 'bootstrap-vue';
+import { BRow, BCol, BButton, BBadge, } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapState } from 'vuex';
 import { tokenUtil } from '@static/js/token';
@@ -47,7 +59,8 @@ export default {
   components: {
     BRow,
     BCol,
-    BBadge
+    BBadge,
+    // BPopover
   },
   props: {
     transaction: {

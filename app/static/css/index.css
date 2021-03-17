@@ -741,6 +741,7 @@ i {
 
 .table td {
   border-top: 0px;
+  padding-left: 0;
 }
 
 .table td.text {
@@ -758,6 +759,7 @@ i {
 .table thead th {
   vertical-align: bottom;
   border: 0px solid #dee2e6;
+  display: none;
 }
 
 .table thead {
@@ -771,7 +773,7 @@ i {
 
 .wallet-list {
   padding: 0px 0px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   margin-bottom: 10px;
   max-height: 50%;
   width: 100%;
@@ -924,7 +926,7 @@ a.custom-card:hover {
 }
 
 .badge-undelegate,
-.badge-redelegate, 
+.badge-redelegate,
 .badge-delegate {
     background-color: #ffd887;
     color: #eba01b;

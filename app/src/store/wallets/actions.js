@@ -107,9 +107,9 @@ export const actions = {
               }
 
               transactions.push([tx.txhash, 'receive',
-                "",
+                tx.tx.value.msg[0].value.to_address,
                 tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.to_address,
+                fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
               ])
             }
           }
