@@ -255,11 +255,11 @@ export default {
             var msg = msg_[0];
             this.multisign.txfile_valid = true
             return (
-              'Send:\t ' +
+              'Send: ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
+              this.denom + '\nfrom: ' +
               msg.value.from_address +
-              ' \nto:\t\t ' +
+              ' \nto: ' +
               msg.value.to_address
             );
             break;
@@ -268,21 +268,22 @@ export default {
             var msg = msg_[0];
             this.multisign.txfile_valid = true
             return (
-              'Delegate:\t ' +
+              'Delegate: ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
+              this.denom + '\nfrom: ' +
               msg.value.delegator_address +
-              '\nto:\t ' +
+              '\nto: ' +
               msg.value.validator_address
             );
             break;
 
           case 'cosmos-sdk/MsgUndelegate':
             var msg = msg_[0];
+            this.multisign.txfile_valid = true
             return (
-              'Unbond:\t ' +
+              'Unbond: ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
+              this.denom + '\nfrom: ' +
               msg.value.validator_address
             );
             break;
@@ -291,11 +292,11 @@ export default {
             var msg = msg_[0];
             this.multisign.txfile_valid = true
             return (
-              'Redelagate:\t ' +
+              'Redelagate: ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
+              this.denom + '\nfrom: ' +
               msg.value.validator_src_address +
-              ' \nto:\t ' +
+              ' \nto: ' +
               msg.value.validator_dst_address
             );
             break;
@@ -480,9 +481,11 @@ export default {
       var success = false
       try {
         const responsePostTransfer = await services.tx.postTx(bcTransactionme);
-        // if (responsePostTransfer.code="4"){
-        //   throw new TypeError("Signature verification failed")
-        // }
+
+        if (responsePostTransfer.data.code==4){
+          throw new TypeError("Signature verification failed")
+        }
+
         this.$bvToast.toast('Transaction sent with success', {
           variant: 'success',
           autoHideDelay: 2000,

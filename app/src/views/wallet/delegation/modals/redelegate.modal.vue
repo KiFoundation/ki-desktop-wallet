@@ -115,7 +115,7 @@
               </a>
             </span>
             <span v-else >
-              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
+              <a v-if="redelegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
                 Generate
               </a>
               <a v-else class="btn btn-download"
@@ -287,7 +287,7 @@ export default {
       };
 
       if (this.multisig) {
-        this.delegate.output =
+        this.redelegate.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
           JSON.stringify(transaction) +
           '}';

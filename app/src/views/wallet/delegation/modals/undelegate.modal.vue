@@ -82,7 +82,7 @@
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="undelegate.output" class="" rows="3" disabled />
         </li>
-        <div><b-alert show variant="warning">{{ $t('undelegation_warning') }} <a href="https://medium.com/ki-foundation/a-guide-to-staking-on-the-kichain-3d69a71b50e9" target="_blank"> Learn more</a>.</b-alert></div>
+        <div><b-alert show style="margin-top:10px" variant="warning">{{ $t('undelegation_warning') }} <a href="https://medium.com/ki-foundation/a-guide-to-staking-on-the-kichain-3d69a71b50e9" target="_blank"> Learn more</a>.</b-alert></div>
 
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
@@ -94,7 +94,7 @@
               </a>
             </span>
             <span v-else >
-              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendUnDelegateTx">
+              <a v-if="undelegate.output==''" class="btn btn-primary" @click="sendUnDelegateTx">
                 Generate
               </a>
               <a v-else class="btn btn-download"
@@ -121,6 +121,7 @@ import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import { tokenUtil } from '@static/js/token';
 import FeesInput from '@cmp/tx/fees.input';
+import util from '@static/js/util';
 
 export default {
   components: {
