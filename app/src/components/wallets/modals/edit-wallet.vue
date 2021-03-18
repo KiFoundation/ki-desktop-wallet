@@ -23,6 +23,22 @@
             <div v-if="step==0">
               <b-row style="margin-bottom:10px;">
                 <b-col cols="10">
+                  <h6>Wallet address</h6>
+                </b-col>
+                <b-col />
+              </b-row>
+              <b-row style="margin-bottom:20px;">
+                <b-col>
+                  <!-- <span v-clipboard:copy="wallet.address" @click="copy_text='Copied'"> {{ wallet.address }} </span> -->
+                  <span style=" display: inline;">
+                    {{ wallet.address }}
+                  </span>
+                  <img type="button" v-clipboard:copy="wallet.address" src="static/img/icons/copy.png" width="15px" class="copy" />
+                </b-col>
+              </b-row>
+
+              <b-row style="margin-bottom:10px;">
+                <b-col cols="10">
                   <h6>Wallet name</h6>
                 </b-col>
                 <b-col />
@@ -357,6 +373,16 @@ input:focus {
 }
 
 .delete:hover {
+  opacity: 0.5
+}
+* {
+  color: var(--textColor);
+}
+.copy {
+  opacity: 0.2
+}
+
+.copy:hover {
   opacity: 0.5
 }
 </style>
