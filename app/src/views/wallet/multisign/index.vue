@@ -60,100 +60,97 @@
         </b-row>
         <b-row align-v="end" >
           <b-col>
-            <b-progress :max="threshold" height="25px">
-              <b-progress-bar :value="multisign.progress" variant="success"/>
+            <b-progress :max="pubkeys.length" height="25px">
+              <b-progress-bar :value="multisign.progress" style="background-color:var(--primary)"/>
+              <b-progress-bar :value="threshold - multisign.progress" style="background-color:var(--secondary)"/>
             </b-progress>
-            <!-- <input type="text" style="margin:0" :value="this.multisign.file.name" disabled /> -->
           </b-col>
         </b-row>
       </b-col>
     </b-row>
+    <b-row style="margin-bottom:25px;">
+      <b-col cols="6">
+        <b-row style="margin-bottom:10px;">
+          <b-col cols="10">
+            <h6>{{$t("webwallet_sign_participants_sig")}}</h6>
+          </b-col>
+          <b-col />
+        </b-row>
+        <b-row>
+          <b-col cols="6">
+            <div style="text-align: center; height:180px" v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
+              <p > <img src="static/img/icons/add.png" style="width:70px; opacity:0.2;margin-bottom:20px" /></p>
+              <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
+            </div>
+          </b-col>
+          <b-col cols="6" style="max-height:180px">
+            <div class="wallet-list" style="max-height:100%; margin-bottom:0">
 
+            <li class="token" v-for="(item, index) in multisign.sigfiles" v-bind:key="index">
+              <!-- <label>{{$t("webwallet_signing_file_label")}}</label> -->
+              <div class="buttonInside">
+                <input type="text" style="margin:0; font-size:11px" :value="item.name" disabled />
+                <a  v-if="multisign.signature==''" class="inside" @click="removeFile('mssf', item);getProgress()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2" /></a>
+              </div>
+            </li>
+          </div>
+          </b-col>
+        </b-row>
+      </b-col>
+      <b-col cols="6">
+        <b-row style="margin-bottom:10px;">
+          <b-col>
+          <div v-if="this.multisign.signature!=''" class="token">
+            <b-row style="margin-bottom:10px;">
+              <b-col cols="10">
+                <h6>{{$t("webwallet_sign_signature")}}</h6>
+              </b-col>
+              <b-col />
+            </b-row>
+            <b-row style="margin-bottom:10px;">
+              <b-col cols="12">
+                <textarea class="" v-model="this.multisign.signature" rows="5" disabled />
+                </b-col>
+            </b-row>
+          </div>
+        </b-col>
 
+        </b-row>
 
-      <b-row style="margin-bottom:25px;">
-        <b-col cols="6">
-          <b-row style="margin-bottom:10px;">
-            <b-col cols="10">
-              <h6>{{$t("webwallet_sign_participants_sig")}}</h6>
-            </b-col>
-            <b-col />
-          </b-row>
-          <b-row>
-            <b-col cols="6">
-              <div style="text-align: center; height:180px" v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
-                <p > <img src="static/img/icons/add.png" style="width:70px; opacity:0.2;margin-bottom:20px" /></p>
-                <span style="opacity:0.3">{{$t('webwallet_drag_drop_sigs')}}</span>
+        <b-row style="margin-bottom:10px;">
+          <b-col>
+            <b-row v-if="this.multisign.signature=='' && multisign.txfile_valid && multisign.progress >= threshold ">
+              <b-col style="text-align: end;">
+                <a class="btn btn-primary mt-1" @click="msignTxFile">{{$t("signtx")}}</a>
+              </b-col>
+            </b-row>
+
+            <b-row v-if="this.multisign.signature!=''">
+              <b-col style="text-align: end;">
+                <a class="btn btn-download mt-1" @click="downloadSig">{{$t("download")}}</a>
+                <a class="btn btn-primary mt-1" @click="broadcastTx">{{$t("broadcast")}}</a>
+              </b-col>
+            </b-row>
+        </b-col>
+
+        </b-row>
+      </b-col>
+    </b-row>
+
+    </form>
+    <form v-else>
+        <div class="upload-form" >
+            <b-col cols="4"/>
+            <b-col>
+              <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
+                <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px" /></p>
+                <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
               </div>
             </b-col>
-            <b-col cols="6" style="max-height:180px">
-              <div class="wallet-list" style="max-height:100%; margin-bottom:0">
-
-              <li class="token" v-for="(item, index) in multisign.sigfiles" v-bind:key="index">
-                <!-- <label>{{$t("webwallet_signing_file_label")}}</label> -->
-                <div class="buttonInside">
-                  <input type="text" style="margin:0; font-size:11px" :value="item.name" disabled />
-                  <a class="inside" @click="removeFile('mssf', item);getProgress()"><img src="static/img/icons/delete.png" style="width:25px; opacity:0.2" /></a>
-                </div>
-              </li>
-            </div>
-            </b-col>
-          </b-row>
-        </b-col>
-        <b-col cols="6">
-          <b-row style="margin-bottom:10px;">
-            <b-col>
-            <div v-if="this.multisign.signature!=''" class="token">
-              <b-row style="margin-bottom:10px;">
-                <b-col cols="10">
-                  <h6>{{$t("webwallet_sign_signature")}}</h6>
-                </b-col>
-                <b-col />
-              </b-row>
-              <b-row style="margin-bottom:10px;">
-                <b-col cols="12">
-                  <textarea class="" v-model="this.multisign.signature" rows="5" disabled />
-                  </b-col>
-              </b-row>
-            </div>
-          </b-col>
-
-          </b-row>
-
-          <b-row style="margin-bottom:10px;">
-            <b-col>
-              <b-row v-if="this.multisign.signature==''">
-                <b-col style="text-align: end;">
-                  <a class="btn  btn-primary mt-1" @click="msignTxFile">{{$t("signtx")}}</a>
-                </b-col>
-              </b-row>
-
-              <b-row v-else>
-                <b-col style="text-align: end;">
-                  <a class="btn btn-download mt-1" @click="downloadSig">{{$t("download")}}</a>
-                  <a class="btn btn-success mt-1" @click="broadcastTx">{{$t("broadcast")}}</a>
-                </b-col>
-              </b-row>
-          </b-col>
-
-          </b-row>
-        </b-col>
-      </b-row>
-
-      </form>
-      <form v-else>
-          <div class="upload-form" >
-              <b-col cols="4"/>
-              <b-col>
-                <div v-cloak @drop.prevent="upload" @dragover.prevent class="upload-area" ref="myFile" >
-                  <p> <img src="static/img/icons/add.png" style="width:100px; opacity:0.2;margin-bottom:20px" /></p>
-                  <span style="opacity:0.3">{{$t('webwallet_drag_drop')}}</span>
-                </div>
-              </b-col>
-              <b-col cols="4" />
-          </div>
-      </form>
-    </div>
+            <b-col cols="4" />
+        </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -219,7 +216,6 @@ export default {
     upload(e) {
 
       let file = e.dataTransfer.files[0];
-
       if (this.multisign.file_content == '') {
         this.multisign.file = file;
         if (!file) return;
@@ -257,6 +253,7 @@ export default {
         switch (msg_[0].type) {
           case 'cosmos-sdk/MsgSend':
             var msg = msg_[0];
+            this.multisign.txfile_valid = true
             return (
               'Send:\t ' +
               msg.value.amount[0].amount / Math.pow(10, 6) +
@@ -269,12 +266,13 @@ export default {
 
           case 'cosmos-sdk/MsgDelegate':
             var msg = msg_[0];
+            this.multisign.txfile_valid = true
             return (
               'Delegate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.delegator_address +
-              '\nto:\t\t\t ' +
+              '\nto:\t ' +
               msg.value.validator_address
             );
             break;
@@ -291,12 +289,13 @@ export default {
 
           case 'cosmos-sdk/MsgBeginRedelegate':
             var msg = msg_[0];
+            this.multisign.txfile_valid = true
             return (
               'Redelagate:\t ' +
               msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
+              this.denom + '\nfrom:\t ' +
               msg.value.validator_src_address +
-              ' \nto:\t\t\t ' +
+              ' \nto:\t ' +
               msg.value.validator_dst_address
             );
             break;
@@ -304,6 +303,7 @@ export default {
           case 'cosmos-sdk/MsgWithdrawDelegationReward':
             var msg = msg_[0];
             var output = 'Withdraw rewards ';
+            this.multisign.txfile_valid = true
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
                 output = 'Withdraw rewards and commissions ';
@@ -316,6 +316,7 @@ export default {
           case 'cosmos-sdk/MsgWithdrawValidatorCommission':
             var msg = msg_[0];
             var output = 'Withdraw commissions';
+            this.multisign.txfile_valid = true
             if (!(msg_[1] === undefined)) {
               if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
                 output = 'Withdraw rewards and commissions ';
@@ -344,10 +345,7 @@ export default {
       this.getProgress();
     },
     getProgress(){
-      this.multisign.progress =  Object.keys(this.multisign.signed).length
-      console.log(this.multisign.signed)
-      console.log(this.multisign.progress)
-
+      this.multisign.progress =  Object.keys(this.multisign.sigfiles).length
     },
     downloadSig() {
       let filename = 'signed_tx.json';
@@ -451,20 +449,27 @@ export default {
         this.multisign.sigfiles = [];
         this.multisign.signature = '';
         this.multisign.file_valid = false;
+        this.multisign.txfile_valid = false;
         this.multisign.file_content = '';
-        this.pubkeys.forEach(key => (key.status = 'pending...'));
         this.multisign.signed = [];
+        this.multisign.progress = 0;
+        this.pubkeys.forEach(key => (key.status = 'pending...'));
       }
 
       if (list == 'mssf') {
         this.multisign.sigfiles = this.multisign.sigfiles.filter(f => {
-          this.pubkeys.forEach(
+          try{
+            this.pubkeys.forEach(
             key =>
             (key.status =
               key.address == this.multisign.signed[file.name][0] ?
               'pending...' :
               key.status),
           );
+        }catch(error)
+        {
+          console.log("Not a signature file")
+        }
           return f != file;
         });
       }
@@ -475,6 +480,9 @@ export default {
       var success = false
       try {
         const responsePostTransfer = await services.tx.postTx(bcTransactionme);
+        // if (responsePostTransfer.code="4"){
+        //   throw new TypeError("Signature verification failed")
+        // }
         this.$bvToast.toast('Transaction sent with success', {
           variant: 'success',
           autoHideDelay: 2000,
