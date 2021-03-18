@@ -7,10 +7,11 @@
       <b-row class="text-center" style="margin-bottom:20px; margin-top:40px">
         <b-col>
 
-          <b-avatar size="7rem" variant="light" :style="{
+          <!-- <b-avatar size="7rem" variant="light" :style="{
             color: 'white',
             backgroundImage: currentWallet.bgImageStyle,
-          }" :text="currentWallet.account[0].toUpperCase()" />
+          }" :text="currentWallet.account[0].toUpperCase()" /> -->
+          <qrcode-vue :value="currentWallet.address" :size="120" level="H" />
         </b-col>
       </b-row>
 
@@ -227,13 +228,15 @@ import {
   tokenUtil
 } from '@static/js/token';
 import * as numeral from 'numeral';
+import QrcodeVue from 'qrcode.vue';
 
 export default {
   components: {
     BRow,
     BCol,
-    BAvatar,
+    // BAvatar,
     BBadge,
+    QrcodeVue,
   },
   props: {
     modalId: {
