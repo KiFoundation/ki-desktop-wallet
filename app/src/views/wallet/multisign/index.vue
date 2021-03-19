@@ -233,12 +233,13 @@ export default {
           console.error(evt);
         };
       } else {
-        this.multisign.sigfiles.push(file);
         if (!file) return;
         let reader = new FileReader();
         reader.readAsText(file, 'UTF-8');
         reader.onload = evt => {
           this.parseSignature(file.name, evt.target.result);
+          this.multisign.sigfiles.push(file);
+          this.getProgress();
         };
         reader.onerror = evt => {
           console.error(evt);
@@ -336,17 +337,41 @@ export default {
     },
     parseSignature(name, file) {
       let sig_data = JSON.parse(file);
-      let pubkey = sig_data.pub_key.value;
-      let sig = sig_data.signature;
-      this.multisign.signed[name] = [pubkey, sig];
-
-      this.pubkeys.forEach(
-        key => (key.status = key.address == pubkey ? 'signed' : key.status),
-      );
-      this.getProgress();
+      try{
+        let pubkey = sig_data.pub_key.value;
+        let sig = sig_data.signature;
+        this.multisign.signed[name] = [pubkey, sig];
+        this.pubkeys.forEach( function(key){
+            // key.status = key.address == pubkey ? 'signed' : key.status
+            if (key.address == pubkey) {
+              if (key.status == 'signed'){
+                throw new Error("Signature already exists")
+              }else{
+                key.status = 'signed'
+              }
+            }
+        });
+      }
+      catch(error){
+        let humanizedError;
+        if (RegExp(`^TypeError: Cannot read property 'value'`).test(error)) {
+          humanizedError = 'Not a signature file';
+        }
+        if (RegExp(`^Error: Signature already exists`).test(error)) {
+          humanizedError = 'Signature already exists';
+        }
+        this.$bvToast.toast(humanizedError, {
+          variant: 'danger',
+          autoHideDelay: 2000,
+          solid: true,
+          noCloseButton: true,
+          toaster: 'b-toaster-bottom-center',
+        });
+        throw new Error(humanizedError);
+      }
     },
     getProgress(){
-      this.multisign.progress =  Object.keys(this.multisign.sigfiles).length
+      this.multisign.progress =  Object.keys(this.multisign.signed).length
     },
     downloadSig() {
       let filename = 'signed_tx.json';
@@ -467,6 +492,7 @@ export default {
               'pending...' :
               key.status),
           );
+          delete this.multisign.signed[file.name];
         }catch(error)
         {
           console.log("Not a signature file")
