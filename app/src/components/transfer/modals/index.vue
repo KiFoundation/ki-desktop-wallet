@@ -331,12 +331,22 @@ export default {
           password: this.wallet_pass_tmp,
         });
 
-        this.$bvToast.toast(res.data.txhash.slice(0, 30) + "..." , {
+        const $txhashlink = this.$createElement(
+          'a',
+          {
+            attrs: {
+                href:  this.explorer + "transactions/" + res.data.txhash,
+                target: "_blank"
+              }
+          },
+           res.data.txhash.slice(0, 30) + "..."
+        )
+
+        this.$bvToast.toast([$txhashlink] , {
           title: `Transaction success`,
           variant: 'success',
           autoHideDelay: 5000,
           solid: true,
-          href: this.explorer + "transactions/" + res.data.txhash,
           toaster: 'b-toaster-bottom-center',
         });
         this.handleTransferSuccess()
