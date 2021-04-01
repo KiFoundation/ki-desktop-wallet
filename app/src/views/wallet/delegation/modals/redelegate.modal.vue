@@ -343,7 +343,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx.json', document, this.redelegate.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx_' + date_today + '.json', document, this.redelegate.output);
     },
   },
 };

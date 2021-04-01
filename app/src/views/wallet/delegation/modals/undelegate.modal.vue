@@ -336,7 +336,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx.json', document, this.undelegate.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx_' + date_today + '.json', document, this.undelegate.output);
     },
   },
 };

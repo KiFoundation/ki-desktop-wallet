@@ -384,7 +384,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'transfer_' + this.transfer.amount + 'ki_tx.json', document, this.transfer.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'transfer_' + this.transfer.amount + 'ki_tx_' + date_today + '.json', document, this.transfer.output);
     },
   },
 };

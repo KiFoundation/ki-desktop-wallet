@@ -333,7 +333,8 @@ export default {
       }
     },
     download(){
-      return util.download( 'delegate_' + this.delegate.amount + 'ki_tx.json', document, this.delegate.output);
+      date_today = util.getFormatedDate()
+      return util.download( 'delegate_' + this.delegate.amount + 'ki_tx_' + date_today + '.json', document, this.delegate.output);
     }
   },
 };
