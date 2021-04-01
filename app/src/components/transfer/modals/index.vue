@@ -296,7 +296,7 @@ export default {
             type: 'cosmos-sdk/MsgSend',
             value: {
               from_address: account,
-              to_address: this.transfer.account,
+              to_address: this.transfer.account.trim(),
               amount: [
                 {
                   denom: this.udenom,

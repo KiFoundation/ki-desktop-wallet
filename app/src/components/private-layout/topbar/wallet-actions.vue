@@ -13,7 +13,7 @@
     </div>
     <div class="d-flex justify-content-center flex-column ml-3">
       <h5 >{{ currentWallet.account }}</h5>
-        <h6 class="mt-1" style=" display: inline; font-weight:400">
+        <h6 class="mt-1" style=" display: inline; font-weight:400; cursor: pointer;">
           <span id="popover-target-copy" v-clipboard:copy="currentWallet.address" @click="copy_text='Copied'"> {{ currentWallet.address }} </span>
           <b-popover target="popover-target-copy" triggers="hover" placement="right" @hidden="onHidden">
              {{copy_text}}
