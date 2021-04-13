@@ -7,10 +7,10 @@
   "scripts": {
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app --ignore=^/installers",
-    "package-mac-arm": "electron-packager . --overwrite --platform=darwin --arch=arm64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app --ignore=^/installers",
+    "package-mac-arm": "electron-packager . --asar --overwrite --platform=darwin --arch=arm64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app --ignore=^/installers",
     "package-linux": "electron-packager . ki-desktop-wallet --overwrite --platform=linux --asar=true --arch=x64 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app --ignore=^/installers --executableName=ki-desktop-wallet ",
     "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.png --prune=true --out=release-builds --ignore=^/app --ignore=^/installers --asar",
-    "build-installer-mac": "dmgbuild -s installers/config/macos/settings-arm.py 'Ki Wallet Installer' installers/output/macos/ki-desktop-wallet-0.3.1-macos.dmg",
+    "build-installer-mac": "dmgbuild -s installers/config/macos/settings.py 'Ki Wallet Installer' installers/output/macos/ki-desktop-wallet-0.3.1-macos.dmg",
     "build-installer-mac-arm": "dmgbuild -s installers/config/macos/settings-arm.py 'Ki Wallet Installer' installers/output/macos/ki-desktop-wallet-0.3.1-macos-m1.dmg",
     "build-installer-linux": "electron-installer-debian --src ./release-builds/ki-desktop-wallet-linux-x64/ --arch amd64 --config installers/config/debian/debian.json --dest installers/output/debian/",
     "build-installer-win": "node installers/config/windows/createinstaller.js"
