@@ -7,9 +7,9 @@ class Util {
     var date = new Date(timestamp);
     var Y = date.getFullYear() + '-';
     var M =
-      (date.getMonth() + 1 < 10
-        ? '0' + (date.getMonth() + 1)
-        : date.getMonth() + 1) + '-';
+      (date.getMonth() + 1 < 10 ?
+        '0' + (date.getMonth() + 1) :
+        date.getMonth() + 1) + '-';
     var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
     var h =
       (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
@@ -135,7 +135,10 @@ class Util {
     } else {
       const electron = window.require('electron');
       cookieValue = await electron.remote.session.defaultSession.cookies
-        .get({ url: 'http://localhost:8484', name: name })
+        .get({
+          url: 'http://localhost:8484',
+          name: name
+        })
         .then(
           cookies => {
             if (cookies && cookies.length) {
@@ -276,7 +279,7 @@ class Util {
     return gradient;
   }
 
-  download(filename, doc, data){
+  download(filename, doc, data) {
     let href =
       'data:text/plain;charset=utf-8,' +
       encodeURIComponent(data);
@@ -290,6 +293,16 @@ class Util {
 
     element.click();
     doc.body.removeChild(element);
+  }
+
+  getFormatedDate() {
+    var date_today = new Date();
+    var date_today_s;
+
+    date_today_s = ('0' + date_today.getDate()).slice(-2)
+                   ('0' + (date_today.getMonth() + 1)).slice(-2)
+                   date_today.getFullYear();
+    return date_today_s
   }
 }
 

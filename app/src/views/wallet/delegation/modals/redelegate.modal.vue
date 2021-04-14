@@ -115,7 +115,7 @@
               </a>
             </span>
             <span v-else >
-              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
+              <a v-if="redelegate.output==''" class="btn btn-primary" @click="sendReDelegateTx">
                 Generate
               </a>
               <a v-else class="btn btn-download"
@@ -164,6 +164,7 @@ export default {
   },
   data() {
     return {
+      explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
       redelegate: {
         alert: '',
@@ -286,21 +287,32 @@ export default {
       };
 
       if (this.multisig) {
-        this.delegate.output =
+        this.redelegate.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
           JSON.stringify(transaction) +
           '}';
       }
       else{
         try {
-          await this.postTx({
+          let res = await this.postTx({
             transaction,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+          const $txhashlink = this.$createElement(
+            'a',
+            {
+              attrs: {
+                  href:  this.explorer + "transactions/" + res.data.txhash,
+                  target: "_blank"
+                }
+            },
+             res.data.txhash.slice(0, 30) + "..."
+          )
+
+          this.$bvToast.toast([$txhashlink] , {
             title: `Transaction success`,
             variant: 'success',
-            autoHideDelay: 2000,
+            autoHideDelay: 5000,
             solid: true,
             toaster: 'b-toaster-bottom-center',
           });
@@ -331,7 +343,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx.json', document, this.redelegate.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx_' + date_today + '.json', document, this.redelegate.output);
     },
   },
 };

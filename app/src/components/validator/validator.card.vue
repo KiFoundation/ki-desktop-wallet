@@ -2,7 +2,7 @@
   <b-row v-if="validator" class="validator-card align-items-center mx-0">
     <b-col>
       <b-row class="w-100 align-items-center">
-        <b-col cols="4" class="flex-row d-flex align-items-center">
+        <b-col cols="3" class="flex-row d-flex align-items-center">
           <div :style="{ position: 'relative' }">
             <b-avatar
               class="d-flex justify-content-center align-items-center"
@@ -16,8 +16,18 @@
               :style="{ backgroundImage: avatarGradient, color: 'white' }"
             />
           </div>
-          <h6 class="ml-4">{{ validator.description.moniker }}</h6>
+          <h6 class="ml-4">
+            {{ validator.description.moniker }}
+
+          </h6>
         </b-col>
+
+        <b-col cols="1">
+          <b-badge v-if="validators_dict[validator.operator_address].status=='unbonded' || validators_dict[validator.operator_address].status=='unbonding'"  >
+            Jailed
+          </b-badge>
+        </b-col>
+
         <b-col cols="4">
           <span v-if="!reward"
             :style="{
@@ -58,7 +68,7 @@
 </template>
 
 <script>
-import { BRow, BCol, BAvatar, BButton } from 'bootstrap-vue';
+import { BRow, BCol, BAvatar, BButton, BBadge } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapState } from 'vuex';
 import { tokenUtil } from '@static/js/token';
@@ -69,6 +79,7 @@ export default {
     BRow,
     BCol,
     BAvatar,
+    BBadge
   },
   props: {
     validator: {
@@ -83,6 +94,7 @@ export default {
   computed: {
     ...mapState({
       currentWallet: state => state.wallets.current,
+      validators_dict: state => state.validators.dict,
     }),
     avatarRandomVariant() {
       const variants = [
@@ -106,7 +118,12 @@ export default {
       this.$emit('onSelectValidator', this.validator);
     },
     formatAmount(amount) {
-      return tokenUtil.format(amount);
+      if ( amount > 1 ){
+        return tokenUtil.format(amount);
+      }
+      else{
+        return 0
+      }
     },
   },
 };

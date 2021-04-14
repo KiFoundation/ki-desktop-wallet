@@ -2,6 +2,7 @@ export default {
   root: process.env.NODE_ENV === 'production' ? '/web' : '',
   kichain: {
     nodeUrl: "https://api-wallet.blockchain.ki",
+    priceUrl: "https://oracle.blockchain.ki",
     token: 'ҟ',
     prefix: 'ki',
     denom: 'xki',

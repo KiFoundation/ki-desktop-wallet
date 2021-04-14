@@ -3,38 +3,34 @@
   <div class="d-flex flex-row">
     <div class="d-flex justify-content-center align-items-center">
       <a v-b-modal="'info-modal'" class="d-flex flex-column align-items-center justify-content-center">
-        <b-avatar class="d-flex justify-content-center align-items-center" size="3.5rem" variant="light" :style="{
+        <b-avatar badge-offset="-2px" class="d-flex justify-content-center align-items-center" size="3.5rem" variant="light" :style="{
             color: 'white',
             backgroundImage: currentWallet.bgImageStyle,
-          }" :text="currentWallet.account[0].toUpperCase()" />
+          }" :text="currentWallet.account[0].toUpperCase()" >
+          <template #badge><div style="color:white;font-weight:400;font-size:10px">+</div></template>
+        </b-avatar>
       </a>
-
     </div>
     <div class="d-flex justify-content-center flex-column ml-3">
-      <a v-if="!show_add" @click="show_add=!show_add">
       <h5 >{{ currentWallet.account }}</h5>
-    </a>
-      <div v-else>
-        <a  @click="show_add=!show_add">
-        <h6 style=" display: inline;">
-          {{ currentWallet.address }}
+        <h6 class="mt-1" style=" display: inline; font-weight:400; cursor: pointer;">
+          <span id="popover-target-copy" v-clipboard:copy="currentWallet.address" @click="copy_text='Copied'"> {{ currentWallet.address }} </span>
+          <b-popover target="popover-target-copy" triggers="hover" placement="right" @hidden="onHidden">
+             {{copy_text}}
+           </b-popover>
         </h6>
-      </a>
-      <img type="button" v-clipboard:copy="currentWallet.address" src="static/img/icons/copy.png" width="15px" class="copy" />
-
-      </div>
-      <h4>
-        <span  :style="{ fontWeight: '800' }">{{ total_available }} </span>
+      <h4 class="mt-1">
+        <span :style="{ fontSize:'1.4rem', fontWeight: '800' }">{{ total_available }} </span>
         <span :style="{ fontWeight: '400' }">{{ globalData.kichain.token }}</span>
-      </h4>
-      <p :style="{
-            color: 'var(--secondary)',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-          }">
+        <span  :style="{
+              color: 'var(--secondary)',
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }">
 
-        ≈ ${{total_usd}}  (${{ token_price }}/{{ globalData.kichain.token }})
-      </p>
+          ≈ ${{total_usd}}  (${{ token_price }}/{{ globalData.kichain.token }})
+        </span>
+      </h4>
     </div>
   </div>
 
@@ -65,7 +61,8 @@ import InfoModal from '@cmp/info/modals/index';
 import ErrorModal from '@cmp/error/modals/index';
 import {
   BAvatar,
-  BTooltip
+  BTooltip,
+  BPopover
 } from 'bootstrap-vue';
 import {
   mapGetters,
@@ -89,7 +86,8 @@ export default {
     TransferModal,
     BAvatar,
     InfoModal,
-    ErrorModal
+    ErrorModal,
+    BPopover
   },
   data() {
     return {
@@ -98,7 +96,8 @@ export default {
       invalidWallet: false,
       total_usd:0,
       total_available:0,
-      show_add: false
+      show_add: false,
+      copy_text: "Click to copy"
     };
   },
   computed: {
@@ -136,6 +135,9 @@ export default {
       this.refreshing = false;
     },
     toggleCopiedTooltip() {},
+    onHidden(){
+      this.copy_text= "Click to copy"
+    }
   },
 };
 </script>

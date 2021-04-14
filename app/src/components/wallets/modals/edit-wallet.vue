@@ -23,6 +23,20 @@
             <div v-if="step==0">
               <b-row style="margin-bottom:10px;">
                 <b-col cols="10">
+                  <h6>Wallet address</h6>
+                </b-col>
+
+              </b-row>
+              <b-row style="margin-bottom:20px;">
+                <b-col ref="walladd"  cols="10">
+                    {{ wallet.address }}
+                </b-col>
+                <b-col  style="text-align:right">
+                  <a @click="copy(wallet.address)" width="15px">copy</a>
+                </b-col>
+              </b-row>
+              <b-row style="margin-bottom:10px;">
+                <b-col cols="10">
                   <h6>Wallet name</h6>
                 </b-col>
                 <b-col />
@@ -46,8 +60,7 @@
                   <h6>Categories
                   </h6>
                 </b-col>
-                <b-col>
-                  <!-- <img src="static/img/icons/edit.png" width="12px" class="delete" @click="edit" /> -->
+                <b-col style="text-align:right">
                   <a @click=" workflow_cat[editing].onPress(), editing = !editing">{{workflow_cat[editing].label}}</a>
                 </b-col>
               </b-row>
@@ -90,7 +103,7 @@
 import {
   BRow,
   BCol,
-  BButton,
+  BButton
 } from 'bootstrap-vue';
 import {
   mapState,
@@ -104,7 +117,7 @@ export default {
   components: {
     BRow,
     BCol,
-    BButton,
+    BButton
   },
   props: {
     modalId: {
@@ -247,6 +260,22 @@ export default {
         window.location.reload();
       }
     },
+    copy(value){
+      navigator.clipboard.writeText(value)
+        .then(() => {
+          this.$bvToast.toast("Address copied" , {
+            variant: 'success',
+            autoHideDelay: 2000,
+            noCloseButton: true,
+            solid: true,
+            toaster: 'b-toaster-bottom-center',
+          });
+        })
+        .catch(err => {
+          // This can happen if the user denies clipboard permissions:
+          console.error('Could not copy text: ', err);
+        });
+    }
   },
 };
 </script>
@@ -359,4 +388,5 @@ input:focus {
 .delete:hover {
   opacity: 0.5
 }
+
 </style>

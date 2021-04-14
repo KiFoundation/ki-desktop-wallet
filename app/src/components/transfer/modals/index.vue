@@ -257,7 +257,7 @@ export default {
       this.$emit('onResetModal');
     },
     // Make transfer
-    sendTransfer() {
+    async sendTransfer() {
       this.transfer.alert = 'danger';
       let filled = true;
 
@@ -296,7 +296,7 @@ export default {
             type: 'cosmos-sdk/MsgSend',
             value: {
               from_address: account,
-              to_address: this.transfer.account,
+              to_address: this.transfer.account.trim(),
               amount: [
                 {
                   denom: this.udenom,
@@ -326,14 +326,26 @@ export default {
       }
       else {
         try {
-        this.postTx({
+        let res = await this.postTx({
           transaction,
           password: this.wallet_pass_tmp,
         });
-        this.$bvToast.toast('Transaction sent with success', {
+
+        const $txhashlink = this.$createElement(
+          'a',
+          {
+            attrs: {
+                href:  this.explorer + "transactions/" + res.data.txhash,
+                target: "_blank"
+              }
+          },
+           res.data.txhash.slice(0, 30) + "..."
+        )
+
+        this.$bvToast.toast([$txhashlink] , {
           title: `Transaction success`,
           variant: 'success',
-          autoHideDelay: 2000,
+          autoHideDelay: 5000,
           solid: true,
           toaster: 'b-toaster-bottom-center',
         });
@@ -372,7 +384,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'transfer_' + this.transfer.amount + 'ki_tx.json', document, this.transfer.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'transfer_' + this.transfer.amount + 'ki_tx_' + date_today + '.json', document, this.transfer.output);
     },
   },
 };

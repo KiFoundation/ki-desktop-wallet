@@ -147,6 +147,71 @@ export const actions = {
             }
           }
         }
+
+        // Fetch the redelegate transactions
+      const responseWalletTransactionsRedelegatePage = await services.tx.fetchTxsList(
+        {"message.sender" : wallet.address, "message.action": "begin_redelegate" },
+      );
+
+      pages = responseWalletTransactionsRedelegatePage.data.page_total
+      if (pages != 0){
+          for (var page = 1; page<=pages; page++ ){
+            let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+              {"message.sender" : wallet.address, "message.action": "begin_redelegate" , "page":page },
+            );
+
+            transactionsRaw = responseWalletTransactionsDelegate.data.txs
+
+            for (var tx_key in transactionsRaw){
+              var tx = transactionsRaw[tx_key]
+
+              let fee = 0
+
+              if (tx.tx.value.fee.amount.length > 0) {
+                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              }
+
+              transactions.push([tx.txhash, 'redelegate',
+                tx.tx.value.msg[0].value.validator_dst_address,
+                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
+              ])
+            }
+          }
+        }
+
+        // Fetch the undelegate transactions
+      const responseWalletTransactionsUndelegatePage = await services.tx.fetchTxsList(
+        {"message.sender" : wallet.address, "message.action": "begin_unbonding" },
+      );
+
+      pages = responseWalletTransactionsUndelegatePage.data.page_total
+      if (pages != 0){
+          for (var page = 1; page<=pages; page++ ){
+            let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+              {"message.sender" : wallet.address, "message.action": "begin_unbonding" , "page":page },
+            );
+
+            transactionsRaw = responseWalletTransactionsDelegate.data.txs
+
+            for (var tx_key in transactionsRaw){
+              var tx = transactionsRaw[tx_key]
+
+              let fee = 0
+
+              if (tx.tx.value.fee.amount.length > 0) {
+                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              }
+
+              transactions.push([tx.txhash, 'undelegate',
+                "",
+                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                fee, tx.timestamp,tx.tx.value.msg[0].value.validator_address,
+              ])
+            }
+          }
+        }
+
       transactions.sort(function(a, b) {
         const date_a = Date.parse(a[5])
         const date_b = Date.parse(b[5])

@@ -7,7 +7,7 @@
           <b-col>
             <b-row class="w-100 align-items-center">
               <b-col cols="2"><span class="ml-4">Tx</span></b-col>
-              <b-col cols="1">type</b-col>
+              <b-col cols="1" style="padding-left:0px">type</b-col>
               <b-col cols="2"><span class="ml-3">From</span></b-col>
               <b-col cols="2">To</b-col>
               <b-col cols="3">Amount</b-col>
@@ -56,6 +56,9 @@
           {{ $t('webwallet_no_transactions') }}
         </div>
       </div>
+      <!-- <b-popover  triggers="hover" placement="bottom"> -->
+         <!-- {{transaction[6]}} -->
+       <!-- </b-popover> -->
     </div>
 
     <!-- </section> -->
@@ -63,7 +66,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import {  BPagination } from 'bootstrap-vue';
+import {  BPagination, BPopover } from 'bootstrap-vue';
 import TransactionCard from '@cmp/tx/tx.card';
 
 export default {
@@ -88,7 +91,8 @@ export default {
 
   components: {
     BPagination,
-    TransactionCard
+    TransactionCard,
+    // BPopover
   },
   computed: {
     ...mapState({

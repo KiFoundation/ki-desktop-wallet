@@ -82,6 +82,8 @@
           <label>{{ $t('webwallet_output') }}</label>
           <textarea v-model="undelegate.output" class="" rows="3" disabled />
         </li>
+        <div><b-alert show style="margin-top:10px" variant="warning">{{ $t('undelegation_warning') }} <a href="https://medium.com/ki-foundation/a-guide-to-staking-on-the-kichain-3d69a71b50e9" target="_blank"> Learn more</a>.</b-alert></div>
+
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
             <div v-if="!tx.loading">
@@ -92,7 +94,7 @@
               </a>
             </span>
             <span v-else >
-              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendUnDelegateTx">
+              <a v-if="undelegate.output==''" class="btn btn-primary" @click="sendUnDelegateTx">
                 Generate
               </a>
               <a v-else class="btn btn-download"
@@ -113,12 +115,13 @@
 </template>
 
 <script>
-import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
+import { BRow, BCol, BSpinner, BModal, BBadge, BAlert } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import { tokenUtil } from '@static/js/token';
 import FeesInput from '@cmp/tx/fees.input';
+import util from '@static/js/util';
 
 export default {
   components: {
@@ -128,6 +131,7 @@ export default {
     BModal,
     FeesInput,
     BBadge,
+    BAlert
   },
   props: {
     modalId: {
@@ -141,6 +145,7 @@ export default {
   },
   data() {
     return {
+      explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
       undelegate: {
         alert: '',
@@ -281,14 +286,26 @@ export default {
       }
       else{
         try {
-          await this.postTx({
+          let res = await this.postTx({
             transaction,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+
+          const $txhashlink = this.$createElement(
+            'a',
+            {
+              attrs: {
+                  href:  this.explorer + "transactions/" + res.data.txhash,
+                  target: "_blank"
+                }
+            },
+             res.data.txhash.slice(0, 30) + "..."
+          )
+
+          this.$bvToast.toast([$txhashlink] , {
             title: `Transaction success`,
             variant: 'success',
-            autoHideDelay: 2000,
+            autoHideDelay: 5000,
             solid: true,
             toaster: 'b-toaster-bottom-center',
           });
@@ -319,7 +336,8 @@ export default {
         }
     },
     download() {
-      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx.json', document, this.undelegate.output);
+      var date_today = util.getFormatedDate()
+      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx_' + date_today + '.json', document, this.undelegate.output);
     },
   },
 };

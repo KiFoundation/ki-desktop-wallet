@@ -107,7 +107,6 @@ export default {
       this.$emit('onSelectWallet', this.wallet);
     },
     handleUpdateSucces(){
-      console.log("asd")
       this.$bvModal.hide('#edit-form-'+this.wallet.account);
       window.location.reload();
 
