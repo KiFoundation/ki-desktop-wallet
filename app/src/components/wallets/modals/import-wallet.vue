@@ -120,7 +120,7 @@
                     <b-col>Paste your private key here</b-col>
                   </b-row>
                   <textarea v-model="private_key" @input="validatePrivKey()"/>
-                  <span v-if="!private_key_correct" class="mnemonic-error">{{$t('error_password')}}</span>
+                  <span v-if="!private_key_correct" class="mnemonic-error">{{$t('error_privatekey')}}</span>
 
                 </b-col>
 
