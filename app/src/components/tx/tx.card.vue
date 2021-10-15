@@ -33,8 +33,11 @@
           </a>
         </b-col>
         <b-col cols="3">
-          <span>
+          <span v-if="transaction[3] != ''">
             {{ globalData.kichain.token }} {{transaction[3]}}
+          </span>
+          <span v-else>
+            -
           </span>
         </b-col>
         <b-col cols="2"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>

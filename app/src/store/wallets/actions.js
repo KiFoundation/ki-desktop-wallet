@@ -73,12 +73,21 @@ export const actions = {
               if (tx.tx.value.fee.amount.length > 0) {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
+              if(tx.tx.value.msg.length == 1){
 
               transactions.push([tx.txhash, 'send',
                 tx.tx.value.msg[0].value.to_address,
                 tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
                 fee, tx.timestamp,tx.tx.value.msg[0].value.from_address,
               ])
+            }
+            else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -106,11 +115,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'receive',
-                tx.tx.value.msg[0].value.to_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
-              ])
+              if(tx.tx.value.msg.length == 1){
+                transactions.push([tx.txhash, 'receive',
+                  tx.tx.value.msg[0].value.to_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
+                ])
+              }
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, ""
+                ])
+              }
             }
           }
         }
@@ -139,11 +157,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'delegate',
-                tx.tx.value.msg[0].value.validator_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
-              ])
+              if(tx.tx.value.msg.length == 1){
+                transactions.push([tx.txhash, 'delegate',
+                  tx.tx.value.msg[0].value.validator_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
+                ])
+              }
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -171,11 +198,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'redelegate',
-                tx.tx.value.msg[0].value.validator_dst_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
-              ])
+              if(tx.tx.value.msg.length == 1){
+
+                transactions.push([tx.txhash, 'redelegate',
+                  tx.tx.value.msg[0].value.validator_dst_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
+                ])}
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -203,11 +239,19 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
+              if(tx.tx.value.msg.length == 1){
               transactions.push([tx.txhash, 'undelegate',
                 "",
                 tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
                 fee, tx.timestamp,tx.tx.value.msg[0].value.validator_address,
-              ])
+              ])}
+                else {
+                    transactions.push([tx.txhash, 'multiple',
+                      "",
+                      "",
+                      fee, tx.timestamp, wallet.address
+                    ])
+              }
             }
           }
         }
