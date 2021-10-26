@@ -269,7 +269,7 @@ export default {
               validator_dst_address: this.redelegate.to_validator,
               amount: {
                 denom: this.udenom,
-                amount: (this.redelegate.amount * Math.pow(10, 6)).toString(),
+                amount: Math.round(this.redelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
           },

@@ -393,9 +393,8 @@ export const actions = {
 
       if(responseDelegation.data.result[0]){
         for (var delegation in responseDelegation.data.result) {
-          delegated += parseInt(responseDelegation.data.result[delegation].balance)
+          delegated += parseInt(responseDelegation.data.result[delegation].balance.amount)
         }
-
       }
 
       if(responseUnbondingDelegation.data.result[0]){

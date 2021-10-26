@@ -248,7 +248,7 @@ export default {
               validator_address: this.delegate.validator,
               amount: {
                 denom: this.udenom,
-                amount: (this.delegate.amount * Math.pow(10, 6)).toString(),
+                amount: Math.round(this.delegate.amount * Math.pow(10, 6)).toString(),
               },
             },
           },

@@ -1,7 +1,7 @@
 {
-  "productName": "Ki Desktop Wallet",
-  "name": "ki-desktop-wallet",
-  "version": "0.3.1",
+  "productName": "Ki Desktop Wallet IBC",
+  "name": "ki-desktop-wallet-ibc",
+  "version": "0.4.0",
   "description": "The KiCahin wallet",
   "main": "main.js",
   "scripts": {

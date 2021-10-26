@@ -27,9 +27,9 @@ export const actions = {
           res = account.data.result.value;
         }
 
-        sequence = res.sequence;
-        account_number = res.account_number;
-        
+        sequence = res.sequence || 1;
+        account_number = res.account_number || 0;
+
         const signMeta = {
           chain_id: state.app.chainId,
           account_number: account_number.toString(),

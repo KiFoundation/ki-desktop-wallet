@@ -201,7 +201,6 @@ export default {
       let total = 0
 
       for (var w in this.wallets){
-
         const responseBalances = await services.wallet.fetchBalancesList(
           this.wallets[w].address,
         );
@@ -214,14 +213,15 @@ export default {
         );
         if(responseDelegations.data.result[0]){
           for (var delegation in responseDelegations.data.result) {
-            total += parseInt(responseDelegations.data.result[delegation].balance)
+            total += parseInt(responseDelegations.data.result[delegation].balance.amount)
           }
-
         }
+
 
         const responseUndelegations = await services.wallet.fetchDelegatorsUnbondingDelegationsList(
           this.wallets[w].address,
         );
+
         if(responseUndelegations.data.result[0]){
           for (var delegation in responseUndelegations.data.result) {
             for (var entry in responseUndelegations.data.result[delegation].entries){

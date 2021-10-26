@@ -300,7 +300,7 @@ export default {
               amount: [
                 {
                   denom: this.udenom,
-                  amount: (this.transfer.amount * Math.pow(10, 6)).toString(),
+                  amount: Math.round(this.transfer.amount * Math.pow(10, 6)).toString(),
                 },
               ],
             },

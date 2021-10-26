@@ -23,8 +23,11 @@
         </b-col>
 
         <b-col cols="1">
-          <b-badge v-if="validators_dict[validator.operator_address].status=='unbonded' || validators_dict[validator.operator_address].status=='unbonding'"  >
+          <b-badge v-if="validators_dict[validator.operator_address].status=='UNBONDED' || validators_dict[validator.operator_address].status=='UNBONDING'"  class="badge-delegate">
             Jailed
+          </b-badge>
+          <b-badge v-else >
+            Active
           </b-badge>
         </b-col>
 
@@ -38,12 +41,12 @@
           >
             {{
               currentWallet.delegation.find(
-                d => d.validator_address === validator.operator_address,
+                d => d.delegation.validator_address === validator.operator_address,
               ) &&
                 formatAmount(
                   currentWallet.delegation.find(
-                    d => d.validator_address === validator.operator_address,
-                  ).shares,
+                    d => d.delegation.validator_address === validator.operator_address,
+                  ).delegation.shares,
                 ) + ' / '
             }}
             {{ formatAmount(validator.delegator_shares) }}

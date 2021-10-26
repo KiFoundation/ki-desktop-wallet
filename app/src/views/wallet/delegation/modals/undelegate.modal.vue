@@ -261,7 +261,7 @@ export default {
               validator_address: this.undelegate.validator,
               amount: {
                 denom: this.udenom,
-                amount: (this.undelegate.amount * Math.pow(10, 6)).toString(),
+                amount: Math.round(this.undelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
           },
