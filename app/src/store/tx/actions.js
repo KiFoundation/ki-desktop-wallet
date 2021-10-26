@@ -27,7 +27,7 @@ export const actions = {
           res = account.data.result.value;
         }
 
-        sequence = res.sequence || 1;
+        sequence = res.sequence || 0;
         account_number = res.account_number || 0;
 
         const signMeta = {

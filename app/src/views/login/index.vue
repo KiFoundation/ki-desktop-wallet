@@ -100,7 +100,7 @@
 <script>
 import Vue from 'vue';
 import router from '@router';
-import { createWalletFromMnemonic } from '@tendermint/sig';
+import { createWalletFromMnemonic, createAddress } from '@tendermint/sig';
 import { BDropdown, BDropdownItem } from 'bootstrap-vue';
 Vue.component('BDropdownItem', BDropdownItem);
 Vue.component('BDropdown', BDropdown);
@@ -114,6 +114,7 @@ import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import { mapMutations } from 'vuex';
 import { SET_ACCOUNT } from '@store/account';
 import { SET_CURRENT_WALLET, SET_WALLETS_LIST, SET_WALLETS_DICT, SET_CATEGORY_LIST} from '@store/wallets';
+import { publicKeyCreate as secp256k1PublicKeyCreate } from 'secp256k1';
 
 export default {
   components: {

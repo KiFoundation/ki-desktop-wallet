@@ -331,8 +331,8 @@ export default {
     },
     setTokens(flag){
         var delegation = this.currentWallet.delegation.find(
-          d => d.validator_address === this.validator.operator_address,
-        ).balance / Math.pow(10, 6)
+          d => d.delegation.validator_address === this.validator.operator_address,
+        ).balance.amount / Math.pow(10, 6)
 
         if (flag == 0){ //all
           this.redelegate.amount = delegation
