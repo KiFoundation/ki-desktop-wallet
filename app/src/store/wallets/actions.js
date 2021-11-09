@@ -73,12 +73,21 @@ export const actions = {
               if (tx.tx.value.fee.amount.length > 0) {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
+              if(tx.tx.value.msg.length == 1){
 
               transactions.push([tx.txhash, 'send',
                 tx.tx.value.msg[0].value.to_address,
                 tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
                 fee, tx.timestamp,tx.tx.value.msg[0].value.from_address,
               ])
+            }
+            else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -106,11 +115,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'receive',
-                tx.tx.value.msg[0].value.to_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
-              ])
+              if(tx.tx.value.msg.length == 1){
+                transactions.push([tx.txhash, 'receive',
+                  tx.tx.value.msg[0].value.to_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
+                ])
+              }
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, ""
+                ])
+              }
             }
           }
         }
@@ -139,11 +157,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'delegate',
-                tx.tx.value.msg[0].value.validator_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
-              ])
+              if(tx.tx.value.msg.length == 1){
+                transactions.push([tx.txhash, 'delegate',
+                  tx.tx.value.msg[0].value.validator_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
+                ])
+              }
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -171,11 +198,20 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              transactions.push([tx.txhash, 'redelegate',
-                tx.tx.value.msg[0].value.validator_dst_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
-              ])
+              if(tx.tx.value.msg.length == 1){
+
+                transactions.push([tx.txhash, 'redelegate',
+                  tx.tx.value.msg[0].value.validator_dst_address,
+                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
+                  fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
+                ])}
+              else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+              }
             }
           }
         }
@@ -203,11 +239,19 @@ export const actions = {
                 fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
               }
 
+              if(tx.tx.value.msg.length == 1){
               transactions.push([tx.txhash, 'undelegate',
                 "",
                 tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
                 fee, tx.timestamp,tx.tx.value.msg[0].value.validator_address,
-              ])
+              ])}
+                else {
+                    transactions.push([tx.txhash, 'multiple',
+                      "",
+                      "",
+                      fee, tx.timestamp, wallet.address
+                    ])
+              }
             }
           }
         }
@@ -258,7 +302,7 @@ export const actions = {
 
         else{
           if (vesting){
-            ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
+            ms_data = account.data.result.value.base_vesting_account.base_account.public_key.value
           }
           else{
             ms_data = account.data.result.value.public_key.value
@@ -292,11 +336,11 @@ export const actions = {
         let res = account.data.result.value
 
         // get the original vesting
-        let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount);
+        let original = parseFloat(res.base_vesting_account.original_vesting[0].amount);
 
         // get vesting period
         let start = res.start_time;
-        let end = res.BaseVestingAccount.end_time;
+        let end = res.base_vesting_account.end_time;
 
         // get vested amount
         let total_duration = end - start
@@ -314,11 +358,11 @@ export const actions = {
         }
       }
 
-        let delegated = res.BaseVestingAccount.delegated_vesting.length > 0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) : 0;
+        let delegated = res.base_vesting_account.delegated_vesting.length > 0 ? parseFloat(res.base_vesting_account.delegated_vesting[0].amount) : 0;
 
         locked = locked_
 
-        res = account.data.result.value.BaseVestingAccount.BaseAccount;
+        res = account.data.result.value.base_vesting_account.base_account;
         let coins = res.coins;
 
         if (coins) {
@@ -349,9 +393,8 @@ export const actions = {
 
       if(responseDelegation.data.result[0]){
         for (var delegation in responseDelegation.data.result) {
-          delegated += parseInt(responseDelegation.data.result[delegation].balance)
+          delegated += parseInt(responseDelegation.data.result[delegation].balance.amount)
         }
-
       }
 
       if(responseUnbondingDelegation.data.result[0]){

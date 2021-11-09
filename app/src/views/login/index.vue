@@ -100,7 +100,7 @@
 <script>
 import Vue from 'vue';
 import router from '@router';
-import { createWalletFromMnemonic } from '@tendermint/sig';
+import { createWalletFromMnemonic, createAddress } from '@tendermint/sig';
 import { BDropdown, BDropdownItem } from 'bootstrap-vue';
 Vue.component('BDropdownItem', BDropdownItem);
 Vue.component('BDropdown', BDropdown);
@@ -114,6 +114,7 @@ import CreateWalletForm from '@cmp/wallets/modals/create-wallet';
 import { mapMutations } from 'vuex';
 import { SET_ACCOUNT } from '@store/account';
 import { SET_CURRENT_WALLET, SET_WALLETS_LIST, SET_WALLETS_DICT, SET_CATEGORY_LIST} from '@store/wallets';
+import { publicKeyCreate as secp256k1PublicKeyCreate } from 'secp256k1';
 
 export default {
   components: {
@@ -198,10 +199,23 @@ export default {
     },
 
     handleImportWallet(formValue) {
-      const { wallet_name, wallet_pass_tmp, mnemonic, multisig, offline } = formValue;
+      const { wallet_name, wallet_pass_tmp, mnemonic, private_key, multisig, offline, address} = formValue;
 
-      // Create the wallet
-      const wallet = createWalletFromMnemonic(mnemonic, '', this.prefix);
+      var wallet = {}
+      var priv_key = ''
+
+      if ( mnemonic != null &&  private_key == null){
+        // Create the wallet
+        const wallet_temp = createWalletFromMnemonic(mnemonic, '', this.prefix);
+        wallet = wallet_temp
+        priv_key = wallet.privateKey.toString('hex')
+      }
+
+      if ( mnemonic == null &&  private_key != null){
+        priv_key = private_key
+        wallet.publicKey = secp256k1PublicKeyCreate(Buffer.from(private_key, 'hex'), true);
+        wallet.address = createAddress(wallet.publicKey, this.prefix);
+      }
 
       // Store Wallet
       this.storeInWalletList(wallet_name);
@@ -209,7 +223,7 @@ export default {
       // Encrypt the private key
       if (!offline){
         var encrypted_key = AES.encrypt(
-          wallet.privateKey.toString('hex'),
+          priv_key,
           wallet_pass_tmp,
         ).toString();
 

@@ -22,14 +22,14 @@ export const actions = {
       if (account.data.result.value) {
         let res = '';
         if (account.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-          res = account.data.result.value.BaseVestingAccount.BaseAccount;
+          res = account.data.result.value.base_vesting_account.base_account;
         } else {
           res = account.data.result.value;
         }
 
-        sequence = res.sequence;
-        account_number = res.account_number;
-        
+        sequence = res.sequence || 0;
+        account_number = res.account_number || 0;
+
         const signMeta = {
           chain_id: state.app.chainId,
           account_number: account_number.toString(),

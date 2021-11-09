@@ -269,7 +269,7 @@ export default {
               validator_dst_address: this.redelegate.to_validator,
               amount: {
                 denom: this.udenom,
-                amount: (this.redelegate.amount * Math.pow(10, 6)).toString(),
+                amount: Math.round(this.redelegate.amount * Math.pow(10, 6)).toString(),
               },
             },
           },
@@ -331,8 +331,8 @@ export default {
     },
     setTokens(flag){
         var delegation = this.currentWallet.delegation.find(
-          d => d.validator_address === this.validator.operator_address,
-        ).balance / Math.pow(10, 6)
+          d => d.delegation.validator_address === this.validator.operator_address,
+        ).balance.amount / Math.pow(10, 6)
 
         if (flag == 0){ //all
           this.redelegate.amount = delegation

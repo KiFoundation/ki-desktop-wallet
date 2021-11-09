@@ -24,7 +24,7 @@ export const actions = {
     if (response.data.result.value) {
       let res = '';
       if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount'  || account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-        res = response.data.result.value.BaseVestingAccount.BaseAccount;
+        res = response.data.result.value.base_vesting_account.base_account;
       } else {
         res = response.data.result.value;
       }

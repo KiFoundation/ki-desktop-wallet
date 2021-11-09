@@ -124,7 +124,7 @@ export default {
   gas_price_min: 'Gas Price cannot be lower than 1Gwei',
   gas_limit_min: 'Gas Limit cannot be lower than ',
 
-
+  error_privatekey: 'The entered private key format is invalid',
   webwallet_your: 'Your',
   webwallet_generator: 'address generator',
   generate: 'Generate',

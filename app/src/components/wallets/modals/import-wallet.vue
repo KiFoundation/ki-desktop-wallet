@@ -76,7 +76,7 @@
             <div class="mnemonic-form">
               <b-row v-if="step!=0" style="margin-bottom:10px">
                 <!-- Mnemonic views -->
-                <b-col v-if="step==1 && !multisig && !offline_wallet">
+                <b-col v-if="step==1 && !multisig && !offline_wallet && import_mode==='m'">
                   <b-row style="margin-bottom:10px;">
                     <b-col cols="6">
                       <h6>Your mnemonic</h6>
@@ -109,6 +109,23 @@
                     </div>
                   </div>
                 </b-col>
+
+                <b-col v-if="step==1 && !multisig && !offline_wallet && import_mode==='k'">
+                  <b-row style="margin-bottom:10px;">
+                    <b-col cols="6">
+                      <h6>Your private key</h6>
+                    </b-col>
+                  </b-row>
+                  <b-row style="margin-bottom:20px;">
+                    <b-col>Paste your private key here</b-col>
+                  </b-row>
+                  <textarea v-model="private_key" @input="validatePrivKey()"/>
+                  <span v-if="!private_key_correct" class="mnemonic-error">{{$t('error_privatekey')}}</span>
+
+                </b-col>
+
+
+
                 <b-col v-if="step==1 && multisig && !offline_wallet">
                   <label>{{ $t('enter_public_address') }}</label>
                   <textarea v-model="ms_address" rows="1" @input="validateAddress" :disabled="require_ms_data" />
@@ -181,7 +198,14 @@
                     <span>reset all and restart from beginning</span>
                   </a>
                 </b-col>
-
+              </b-row>
+              <b-row v-if="step==1" style="margin-top:4px">
+                <!-- <b-col cols="2" /> -->
+                <b-col style="text-align:center">
+                  <a class="stealth-link" @click="onSwitchImportMode">
+                    <span>Import wallet by {{import_modes[getOtherImportMode()]}}</span>
+                  </a>
+                </b-col>
               </b-row>
             </div>
           </div>
@@ -233,6 +257,8 @@ export default {
       mnemonic: '',
       mnemonic_array: [],
       mnemonic_correct: true,
+      private_key: "",
+      private_key_correct: false,
       ms_address: '',
       ms_address_correct: false,
       require_ms_data: false,
@@ -251,6 +277,11 @@ export default {
       password: 'password',
       password_correct: true,
       password_visible: false,
+      import_mode : 'm',
+      import_modes:{
+        m: "mnemonic",
+        k: "private key"
+      },
       buttons: [{
           caption: 'Yes',
           onPress: this.handleYes,
@@ -270,6 +301,7 @@ export default {
       this.filter = 'no';
       this.mnemonic = '';
       this.ms_address = '';
+      this.private_key = '';
       this.wallet_name = '';
       this.offline_address ='';
       this.wallet_pass_tmp = '';
@@ -282,17 +314,28 @@ export default {
       this.password_correct = true;
       this.ms_data_pk_correct = false;
       this.ms_data_th_correct = false;
+      this.private_key_correct = false;
       this.ms_address_pubkeys = '';
       this.ms_address_threshold = '';
       this.ms_pubkeys_base64_final = '';
 
       this.resetMnemonic()
     },
+    getOtherImportMode(){
+      return this.import_mode == 'm' ? 'k' : 'm'
+    },
+    onSwitchImportMode(){
+      this.resetMnemonic()
+      this.resetKey()
+
+      this.import_mode = this.getOtherImportMode()
+    },
     importWallet() {
       const formValue = {
         wallet_name: this.wallet_name,
         address: this.offline_address,
-        mnemonic: this.mnemonic,
+        mnemonic: this.mnemonic || null,
+        private_key: this.private_key || null,
         wallet_pass_tmp: this.wallet_pass_tmp,
         multisig: false,
         offline: this.offline_wallet,
@@ -457,7 +500,7 @@ export default {
       var account_pubkey = {}
       if (account.data.result.type == "cosmos-sdk/ContinuousVestingAccount" ||
        account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-          account_pubkey = account.data.result.value.BaseVestingAccount.BaseAccount.public_key
+          account_pubkey = account.data.result.value.base_vesting_account.base_account.public_key
       }
       else{
           account_pubkey = account.data.result.value.public_key
@@ -479,6 +522,16 @@ export default {
       });
 
       return false
+    },
+    validatePrivKey(){
+      try {
+        Buffer.from(this.private_key, 'hex')
+        this.private_key_correct = true
+      } catch (err) {
+        this.private_key_correct = false
+      }
+
+      this.disabled = this.private_key != '' && this.private_key_correct ;
     },
     validateMnemonic(type) {
       let input = '';
@@ -567,6 +620,9 @@ export default {
     },
     resetMnemonic() {
       this.mnemonic_array = []
+    },
+    resetKey() {
+      this.private_key = []
     }
   },
 };

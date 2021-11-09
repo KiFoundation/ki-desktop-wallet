@@ -5,7 +5,7 @@
 
         <b-col cols="2" class="flex-row d-flex align-items-center">
           <unicon name="location-arrow" :fill="colors.secondary" />
-          <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
+          <h6 class="ml-2 text-truncate"><a :href="explorer+ '/transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
         <b-col cols="1" style="padding-left:0px">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
@@ -33,8 +33,11 @@
           </a>
         </b-col>
         <b-col cols="3">
-          <span>
+          <span v-if="transaction[3] != ''">
             {{ globalData.kichain.token }} {{transaction[3]}}
+          </span>
+          <span v-else>
+            -
           </span>
         </b-col>
         <b-col cols="2"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
