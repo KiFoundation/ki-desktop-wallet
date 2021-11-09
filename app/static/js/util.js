@@ -127,7 +127,6 @@ class Util {
           // Does this cookie string begin with the name we want?
           if (cookie.substring(0, name.length + 1) == name + '=') {
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            // console.log(cookieValue);
             break;
           }
         }
@@ -151,7 +150,6 @@ class Util {
           },
         );
     }
-    // console.log("???", cookieValue);
     return cookieValue;
   }
 
@@ -298,9 +296,8 @@ class Util {
   getFormatedDate() {
     var date_today = new Date();
     var date_today_s;
-
-    date_today_s = ('0' + date_today.getDate()).slice(-2)
-                   ('0' + (date_today.getMonth() + 1)).slice(-2)
+    date_today_s = ('0' + date_today.getDate()).slice(-2) +
+                   ('0' + (date_today.getMonth() + 1)).slice(-2) +
                    date_today.getFullYear();
     return date_today_s
   }

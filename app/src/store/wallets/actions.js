@@ -302,7 +302,7 @@ export const actions = {
 
         else{
           if (vesting){
-            ms_data = account.data.result.value.BaseVestingAccount.BaseAccount.public_key.value
+            ms_data = account.data.result.value.base_vesting_account.base_account.public_key.value
           }
           else{
             ms_data = account.data.result.value.public_key.value
@@ -336,11 +336,11 @@ export const actions = {
         let res = account.data.result.value
 
         // get the original vesting
-        let original = parseFloat(res.BaseVestingAccount.original_vesting[0].amount);
+        let original = parseFloat(res.base_vesting_account.original_vesting[0].amount);
 
         // get vesting period
         let start = res.start_time;
-        let end = res.BaseVestingAccount.end_time;
+        let end = res.base_vesting_account.end_time;
 
         // get vested amount
         let total_duration = end - start
@@ -358,11 +358,11 @@ export const actions = {
         }
       }
 
-        let delegated = res.BaseVestingAccount.delegated_vesting.length > 0 ? parseFloat(res.BaseVestingAccount.delegated_vesting[0].amount) : 0;
+        let delegated = res.base_vesting_account.delegated_vesting.length > 0 ? parseFloat(res.base_vesting_account.delegated_vesting[0].amount) : 0;
 
         locked = locked_
 
-        res = account.data.result.value.BaseVestingAccount.BaseAccount;
+        res = account.data.result.value.base_vesting_account.base_account;
         let coins = res.coins;
 
         if (coins) {

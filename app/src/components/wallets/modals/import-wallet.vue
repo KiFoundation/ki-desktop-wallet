@@ -500,7 +500,7 @@ export default {
       var account_pubkey = {}
       if (account.data.result.type == "cosmos-sdk/ContinuousVestingAccount" ||
        account.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-          account_pubkey = account.data.result.value.BaseVestingAccount.BaseAccount.public_key
+          account_pubkey = account.data.result.value.base_vesting_account.base_account.public_key
       }
       else{
           account_pubkey = account.data.result.value.public_key

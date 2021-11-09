@@ -1,6 +1,6 @@
 {
-  "productName": "Ki Desktop Wallet IBC",
-  "name": "ki-desktop-wallet-ibc",
+  "productName": "Ki Desktop Wallet",
+  "name": "ki-desktop-wallet",
   "version": "0.4.0",
   "description": "The KiChain wallet",
   "main": "main.js",
@@ -8,7 +8,7 @@
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app --ignore=^/installers",
     "package-mac-arm": "electron-packager . --asar --overwrite --platform=darwin --arch=arm64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds --ignore=^/app --ignore=^/installers",
-    "package-linux": "electron-packager . ki-desktop-wallet --overwrite --platform=linux --asar=true --arch=x64 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app --ignore=^/installers --executableName=ki-desktop-wallet ",
+    "package-linux": "electron-packager . ki-desktop-wallet --overwrite --platform=linux --asar=true --arch=x64 --icon=assets/icons/linux/icon.png --prune=true --out=release-builds --ignore=^/app --ignore=^/installers --executableName=ki-desktop-wallet",
     "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.png --prune=true --out=release-builds --ignore=^/app --ignore=^/installers --asar",
     "build-installer-mac": "dmgbuild -s installers/config/macos/settings.py 'Ki Wallet Installer' installers/output/macos/ki-desktop-wallet-0.4.0-macos.dmg",
     "build-installer-mac-arm": "dmgbuild -s installers/config/macos/settings-arm.py 'Ki Wallet Installer' installers/output/macos/ki-desktop-wallet-0.4.0-macos-m1.dmg",

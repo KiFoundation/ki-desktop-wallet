@@ -157,6 +157,14 @@ import {
   BButton,
 } from 'bootstrap-vue';
 
+
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { Secp256k1Wallet, MultisigThresholdPubkey, StdFee, encodeSecp256k1Pubkey, createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
+import { makeMultisignedTx, MsgSendEncodeObject, SignerData, SigningStargateClient, StargateClient, coins } from '@cosmjs/stargate'
+
+
+
 export default {
   data() {
     return {
@@ -299,10 +307,43 @@ export default {
       }
     },
     downloadSig() {
-      return util.download("signed_tx.json", document, this.sign.signature);
+      return util.download("signed_" + this.account.name + "_" + this.sign.file.name.replace(".json", "")  + ".json", document, this.sign.signature);
     },
+
+
+    async singleSign(signingInstruction, key) {
+      const wallet = await Secp256k1Wallet.fromKey(key, "tki");
+      const pubkey = encodeSecp256k1Pubkey((await wallet.getAccounts())[0].pubkey);
+      const address = (await wallet.getAccounts())[0].address;
+
+      const signingClient = await SigningStargateClient.offline(wallet);
+
+      const signerData = {
+        accountNumber: signingInstruction.accountNumber,
+        sequence: signingInstruction.sequence,
+        chainId: signingInstruction.chainId,
+      };
+
+
+      try{
+        const { bodyBytes: bb, signatures } = await signingClient.sign(
+          address,
+          signingInstruction.msgs,
+          signingInstruction.fee,
+          signingInstruction.memo,
+          signerData,
+        );
+
+        return {"address": address, "signature": signatures[0], "transaction": bb, "signingInstruction": signingInstruction};
+      }
+      catch (err){
+        console.log(err);
+      }
+    },
+
     async signTxFile() {
       let transaction = JSON.parse(this.sign.file_content).value;
+
       let account =
         this.sign.onbehalf == '' ? this.account.id : this.sign.onbehalf;
 
@@ -318,7 +359,7 @@ export default {
       if (response.data.result.value) {
         let res = '';
         if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-          res = response.data.result.value.BaseVestingAccount.BaseAccount;
+          res = response.data.result.value.base_vesting_account.base_account;
         } else {
           res = response.data.result.value;
         }
@@ -326,24 +367,32 @@ export default {
         account_number_ = res.account_number;
       }
 
-      const signMeta = {
-        chain_id: this.chainId,
-        account_number: account_number_.toString(),
-        sequence: sequence_.toString(),
-      };
+
+      var msg = {
+        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+        value: {
+          fromAddress: transaction.msg[0].value.from_address,
+          toAddress: transaction.msg[0].value.to_address,
+          amount: transaction.msg[0].value.amount
+        }
+      }
+
+      const signingInstruction = {
+          accountNumber: parseInt(account_number_),
+          sequence: parseInt(sequence_),
+          chainId: this.chainId,
+          msgs: [msg],
+          fee: transaction.fee,
+          memo: transaction.memo,
+        };
 
       try {
 
         var CryptoJS = require('crypto-js');
         var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
         let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
-        const publickey = Buffer.from(this.wallet.publickey, 'hex');
-
-        let signedTransactionme = await signTx(transaction, signMeta, {
-          privateKey: key,
-          publicKey: publickey,
-        });
-        this.sign.signature = JSON.stringify(signedTransactionme.signatures[0]);
+        let signedTransactionme = await this.singleSign(signingInstruction, key)
+        this.sign.signature = JSON.stringify(signedTransactionme);
         this.wallet_pass_tmp = ''
 
       } catch (error) {
