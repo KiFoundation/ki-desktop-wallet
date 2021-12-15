@@ -486,8 +486,8 @@ export default {
       try {
         const responsePostTransfer = await services.tx.postMsTx(bcTransactionme);
 
-        if (responsePostTransfer.data.tx_response.code==4){
-          throw new TypeError("Signature verification failed")
+        if (responsePostTransfer.data.tx_response.code != 0){
+          throw new TypeError(responsePostTransfer.data.tx_response.raw_log)
         }
 
         this.$bvToast.toast('Transaction sent with success', {
