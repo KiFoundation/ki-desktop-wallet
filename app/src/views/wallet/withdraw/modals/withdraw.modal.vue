@@ -85,7 +85,7 @@
               </a>
             </span>
             <span v-else >
-              <a v-if="delegate.output==''" class="btn btn-primary" @click="sendWithdrawTx">
+              <a v-if="withdraw.output==''" class="btn btn-primary" @click="sendWithdrawTx">
                 Generate
               </a>
               <a v-else class="btn btn-download"
@@ -110,6 +110,8 @@ import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
 import * as numeral from 'numeral';
 import { mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
+import util from '@static/js/util';
+
 export default {
   components: {
     BRow,
@@ -258,6 +260,10 @@ export default {
         }
       }
     },
+    download() {
+      var date_today = util.getFormatedDate()
+      return util.download( 'withdraw_from_' + this.validator.operator_address + '_tx_' + date_today + '.json', document, this.withdraw.output);
+    }
   },
 };
 </script>
