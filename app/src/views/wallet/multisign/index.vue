@@ -25,9 +25,17 @@
           </b-col>
           <b-col />
         </b-row>
-        <b-row style="margin-bottom:25px;">
+        <b-row style="margin-bottom:10px;">
           <b-col cols="12">
             <textarea style="font-size:14px" v-model="this.multisign.summary" rows="3" disabled />
+          </b-col>
+        </b-row>
+        <b-row align-v="center" style="margin-bottom:25px;">
+          <b-col style="text-align:end">
+            <a class="stealth-link" @click="changeSignMode">
+              <span v-if="!signRawData">Sign raw data file</span>
+              <span v-else>Sign transaction file</span>
+            </a>
           </b-col>
         </b-row>
       </b-col>
@@ -187,6 +195,7 @@ export default {
       password: 'password',
       wallet_pass_tmp: '',
       isLoading: true,
+      signRawData: false,
       multisign: {
         'alert': '',
         'file': '',
@@ -253,94 +262,104 @@ export default {
         };
       }
     },
+    changeSignMode(){
+      this.signRawData = !this.signRawData
+      this.multisign.summary = this.parseMessage(this.multisign.file_content);
+    },
     parseMessage(file) {
-      try {
-        this.multisign.signature_obj = JSON.parse(file).value
-        let msg_ = JSON.parse(file).value.msg;
+      if (!this.signRawData) {
 
-        switch (msg_[0].type) {
-          case 'cosmos-sdk/MsgSend':
-            var msg = msg_[0];
-            this.multisign.txfile_valid = true
-            return (
-              'Send: ' +
-              msg.value.amount[0].amount / Math.pow(10, 6) +
-              this.denom + '\nfrom: ' +
-              msg.value.from_address +
-              ' \nto: ' +
-              msg.value.to_address
-            );
-            break;
+        try {
+          this.multisign.signature_obj = JSON.parse(file).value
+          let msg_ = JSON.parse(file).value.msg;
 
-          case 'cosmos-sdk/MsgDelegate':
-            var msg = msg_[0];
-            this.multisign.txfile_valid = true
-            return (
-              'Delegate: ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom: ' +
-              msg.value.delegator_address +
-              '\nto: ' +
-              msg.value.validator_address
-            );
-            break;
+          switch (msg_[0].type) {
+            case 'cosmos-sdk/MsgSend':
+              var msg = msg_[0];
+              this.multisign.txfile_valid = true
+              return (
+                'Send: ' +
+                msg.value.amount[0].amount / Math.pow(10, 6) +
+                this.denom + '\nfrom: ' +
+                msg.value.from_address +
+                ' \nto: ' +
+                msg.value.to_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgUndelegate':
-            var msg = msg_[0];
-            this.multisign.txfile_valid = true
-            return (
-              'Unbond: ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom: ' +
-              msg.value.validator_address
-            );
-            break;
+            case 'cosmos-sdk/MsgDelegate':
+              var msg = msg_[0];
+              this.multisign.txfile_valid = true
+              return (
+                'Delegate: ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom: ' +
+                msg.value.delegator_address +
+                '\nto: ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgBeginRedelegate':
-            var msg = msg_[0];
-            this.multisign.txfile_valid = true
-            return (
-              'Redelagate: ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom: ' +
-              msg.value.validator_src_address +
-              ' \nto: ' +
-              msg.value.validator_dst_address
-            );
-            break;
+            case 'cosmos-sdk/MsgUndelegate':
+              var msg = msg_[0];
+              this.multisign.txfile_valid = true
+              return (
+                'Unbond: ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom: ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawDelegationReward':
-            var msg = msg_[0];
-            var output = 'Withdraw rewards ';
-            this.multisign.txfile_valid = true
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgBeginRedelegate':
+              var msg = msg_[0];
+              this.multisign.txfile_valid = true
+              return (
+                'Redelagate: ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom: ' +
+                msg.value.validator_src_address +
+                ' \nto: ' +
+                msg.value.validator_dst_address
+              );
+              break;
+
+            case 'cosmos-sdk/MsgWithdrawDelegationReward':
+              var msg = msg_[0];
+              var output = 'Withdraw rewards ';
+              this.multisign.txfile_valid = true
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawValidatorCommission':
-            var msg = msg_[0];
-            var output = 'Withdraw commissions';
-            this.multisign.txfile_valid = true
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+              var msg = msg_[0];
+              var output = 'Withdraw commissions';
+              this.multisign.txfile_valid = true
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          default:
-            return 'The file does not seem to contain a valid transaction structure.';
+            default:
+              return 'The file does not seem to contain a valid transaction structure.';
+          }
+        } catch (error) {
+          return 'The file does not seem to contain a valid transaction structure.';
         }
-      } catch (error) {
-        return 'The file does not seem to contain a valid transaction structure.';
-      }
+      } else {
+          this.multisign.txfile_valid = true
+          return file
+        }
     },
     parseSignature(name, file) {
       let sig_data = JSON.parse(file);
@@ -353,7 +372,6 @@ export default {
 
         this.multisign.signed[name] = {pubkey: pubkey, signature: sig, address: bechAddress, txBody: txBody, signingInstruction: signingInstruction};
         this.pubkeys.forEach( function(key){
-            // key.status = key.address == pubkey ? 'signed' : key.status
             if (key.address == pubkey) {
               if (key.status == 'signed'){
                 throw new Error("Signature already exists")

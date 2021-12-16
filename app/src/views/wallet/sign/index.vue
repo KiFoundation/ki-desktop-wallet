@@ -18,7 +18,7 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col cols="6" v-if="sign.onbehalf != account.id">
+      <b-col cols="6" v-if="sign.onbehalf != account.id && !signRawData">
         <b-row style="margin-bottom:10px;">
           <b-col cols="10">
             <h6>{{ $t('webwallet_sign_onbehalf') }} <span style="font-weight:800"> {{ sign.onbehalf_name }} </span></h6>
@@ -40,10 +40,18 @@
       </b-col>
       <b-col />
     </b-row>
-    <b-row style="margin-bottom:25px;">
+    <b-row style="margin-bottom:10px;">
       <b-col cols="12">
         <textarea v-model="sign.summary" class="warning" rows="3" disabled />
-        </b-col>
+      </b-col>
+    </b-row>
+    <b-row align-v="center" style="margin-bottom:25px;">
+      <b-col style="text-align:end">
+        <a class="stealth-link" @click="changeSignMode">
+          <span v-if="!signRawData">Sign raw data file</span>
+          <span v-else>Sign transaction file</span>
+        </a>
+      </b-col>
     </b-row>
 
     <b-row style="margin-bottom:10px;">
@@ -135,16 +143,7 @@
             </b-col>
             <b-col cols="4" />
           </b-row>
-          <b-row align-v="center" class="mt-3">
-            <b-col cols="4" />
-            <b-col>
-              <a class="stealth-link" @click="changeSignMode">
-                <span v-if="!signRawData">Sign raw data file</span>
-                <span v-else>Sign transaction file</span>
-              </a>
-            </b-col>
-            <b-col cols="4" />
-          </b-row>
+
         </div>
       <!-- </div> -->
     </form>
@@ -240,110 +239,115 @@ export default {
     },
     changeSignMode(){
       this.signRawData = !this.signRawData
+      this.sign.summary = this.parseMessage(this.sign.file_content);
     },
     parseMessage(file) {
-      try {
-        let msg_ = JSON.parse(file).value.msg;
+      if (!this.signRawData) {
 
-        switch (msg_[0].type) {
-          case 'cosmos-sdk/MsgSend':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.from_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Send:\t ' +
-              msg.value.amount[0].amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
-              msg.value.from_address + '\t\t(' + this.findWalletName(msg.value.from_address) + ')' +
-              ' \nto:\t\t ' +
-              msg.value.to_address + '\t\t\t(' + this.findWalletName(msg.value.to_address) + ')'
-            );
-            break;
+        try {
+          let msg_ = JSON.parse(file).value.msg;
 
-          case 'cosmos-sdk/MsgDelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Delegate:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
-              msg.value.delegator_address + '\t\t(' + this.findWalletName(msg.value.delegator_address) + ')' +
-              '\nto:\t\t\t ' +
-              msg.value.validator_address
-            );
-            break;
+          switch (msg_[0].type) {
+            case 'cosmos-sdk/MsgSend':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.from_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Send:\t ' +
+                msg.value.amount[0].amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t ' +
+                msg.value.from_address + '\t\t(' + this.findWalletName(msg.value.from_address) + ')' +
+                ' \nto:\t\t ' +
+                msg.value.to_address + '\t\t\t(' + this.findWalletName(msg.value.to_address) + ')'
+              );
+              break;
 
-          case 'cosmos-sdk/MsgUndelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Unbond:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
-              msg.value.validator_address
-            );
-            break;
+            case 'cosmos-sdk/MsgDelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Delegate:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t\t ' +
+                msg.value.delegator_address + '\t\t(' + this.findWalletName(msg.value.delegator_address) + ')' +
+                '\nto:\t\t\t ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgBeginRedelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Redelagate:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
-              msg.value.validator_src_address +
-              ' \nto:\t\t\t ' +
-              msg.value.validator_dst_address
-            );
-            break;
+            case 'cosmos-sdk/MsgUndelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Unbond:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawDelegationReward':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            var output = 'Withdraw rewards ';
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgBeginRedelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Redelagate:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t\t ' +
+                msg.value.validator_src_address +
+                ' \nto:\t\t\t ' +
+                msg.value.validator_dst_address
+              );
+              break;
+
+            case 'cosmos-sdk/MsgWithdrawDelegationReward':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              var output = 'Withdraw rewards ';
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawValidatorCommission':
-            var msg = msg_[0];
-            this.sign.onbehalf = this.account.id;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            var output = 'Withdraw commissions';
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+              var msg = msg_[0];
+              this.sign.onbehalf = this.account.id;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              var output = 'Withdraw commissions';
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          default:
-            return 'The file does not seem to contain a valid transaction structure.';
+            default:
+              return 'The file does not seem to contain a valid transaction structure. You might want to use Raw data signing instead.';
+          }
+        } catch (error) {
+          return 'The file does not seem to contain a valid transaction structure. You might want to use Raw data signing instead.';
         }
-      } catch (error) {
-        return 'The file does not seem to contain a valid transaction structure.';
+      }
+      else {
+        return file
       }
     },
     downloadSig() {
       return util.download("signed_" + this.account.name + "_" + this.sign.file.name.replace(".json", "") + ".json", document, this.sign.signature);
     },
 
-
     async singleSign(signingInstruction, key) {
       const wallet = await Secp256k1Wallet.fromKey(key, this.prefix);
       const pubkey = encodeSecp256k1Pubkey((await wallet.getAccounts())[0].pubkey);
-      console.log(pubkey);
       const address = (await wallet.getAccounts())[0].address;
 
       const signingClient = await SigningStargateClient.offline(wallet);
@@ -397,8 +401,8 @@ export default {
           return {
             typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
             value: {
-              delegator_address: transaction.msg[0].value.delegator_address,
-              validator_address: transaction.msg[0].value.validator_address,
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
               amount: transaction.msg[0].value.amount
             }
           }
@@ -409,8 +413,8 @@ export default {
           return {
             typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
             value: {
-              delegator_address: transaction.msg[0].value.delegator_address,
-              validator_address: transaction.msg[0].value.validator_address,
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
               amount: transaction.msg[0].value.amount
             }
           }
@@ -421,9 +425,9 @@ export default {
           return {
             typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
             value: {
-              delegator_address: transaction.msg[0].value.delegator_address,
-              validator_src_address: transaction.msg[0].value.validator_src_address,
-              validator_dst_address: transaction.msg[0].value.validator_dst_address,
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorSrcAddress: transaction.msg[0].value.validator_src_address,
+              validatorDstAddress: transaction.msg[0].value.validator_dst_address,
               amount: transaction.msg[0].value.amount
             }
           }
@@ -434,8 +438,8 @@ export default {
           return {
             typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
             value: {
-              delegator_address: transaction.msg[0].value.from_address,
-              validator_address: transaction.msg[0].value.to_address,
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
             }
           }
         break;
@@ -444,7 +448,7 @@ export default {
           return {
             typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
             value: {
-              validator_address: transaction.msg[0].value.to_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
             }
           }
         break;
