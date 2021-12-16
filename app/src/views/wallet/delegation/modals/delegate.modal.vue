@@ -279,6 +279,11 @@ export default {
           password: this.wallet_pass_tmp,
         });
 
+        if (res.data.code && res.data.code != 0){
+          console.log(res.data.raw_log);
+          throw new TypeError(res.data.raw_log)
+        }
+
         const $txhashlink = this.$createElement(
           'a',
           {
@@ -299,7 +304,7 @@ export default {
         });
         this.$emit('onDelegateSuccess');
       } catch (error) {
-        this.$bvToast.toast(error, {
+        this.$bvToast.toast(error.message, {
           title: `Transaction failed`,
           variant: 'danger',
           autoHideDelay: 2000,

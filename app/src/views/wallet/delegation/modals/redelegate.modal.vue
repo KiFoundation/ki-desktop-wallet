@@ -298,11 +298,17 @@ export default {
             transaction,
             password: this.wallet_pass_tmp,
           });
+
+          if (res.data.code && res.data.code != 0){
+            console.log(res.data.raw_log);
+            throw new TypeError(res.data.raw_log)
+          }
+
           const $txhashlink = this.$createElement(
             'a',
             {
               attrs: {
-                  href:  this.explorer + "transactions/" + res.data.txhash,
+                  href:  this.explorer + "txs/" + res.data.txhash,
                   target: "_blank"
                 }
             },
@@ -318,7 +324,7 @@ export default {
           });
           this.$emit('onRedelegateSuccess');
         } catch (error) {
-          this.$bvToast.toast(error, {
+          this.$bvToast.toast(error.message, {
             title: `Transaction failed`,
             variant: 'danger',
             autoHideDelay: 2000,
