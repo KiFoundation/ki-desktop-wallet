@@ -280,7 +280,6 @@ export default {
         });
 
         if (res.data.code && res.data.code != 0){
-          console.log(res.data.raw_log);
           throw new TypeError(res.data.raw_log)
         }
 

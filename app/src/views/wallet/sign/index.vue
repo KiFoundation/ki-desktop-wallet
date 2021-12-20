@@ -371,11 +371,13 @@ export default {
           signerData,
         );
 
+        var bb64encoded = Buffer.from(bb).toString("base64")
+
         return {
           "address": address,
           "pubKey": pubkey,
           "signature": signatures[0],
-          "transaction": bb,
+          "transaction": bb64encoded,
           "signingInstruction": signingInstruction
         };
       } catch (err) {
@@ -502,7 +504,6 @@ export default {
       else {
         signingInstruction = JSON.parse(this.sign.file_content)
       }
-
 
       try {
         var CryptoJS = require('crypto-js');

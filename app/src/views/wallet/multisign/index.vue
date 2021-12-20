@@ -367,7 +367,7 @@ export default {
         let pubkey = sig_data.pubKey.value;
         let sig = sig_data.signature;
         let bechAddress = sig_data.address;
-        let txBody = sig_data.transaction;
+        let txBody = Buffer.from(sig_data.transaction, 'base64')
         let signingInstruction = sig_data.signingInstruction;
 
         this.multisign.signed[name] = {pubkey: pubkey, signature: sig, address: bechAddress, txBody: txBody, signingInstruction: signingInstruction};
