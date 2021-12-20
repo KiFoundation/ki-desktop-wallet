@@ -342,7 +342,7 @@ export default {
       }
     },
     downloadSig() {
-      return util.download("signed_" + this.account.name + "_" + this.sign.file.name.replace(".json", "") + ".json", document, this.sign.signature);
+      return util.download(this.sign.file.name.replace(".json", "") + "_signed_" + this.account.name  + ".json", document, this.sign.signature);
     },
 
     async singleSign(signingInstruction, key) {

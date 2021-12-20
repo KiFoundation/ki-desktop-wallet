@@ -341,7 +341,7 @@ export default {
     },
     download() {
       var date_today = util.getFormatedDate()
-      return util.download( 'undelegate_' + this.undelegate.amount + 'ki_tx_' + date_today + '.json', document, this.undelegate.output);
+      return util.download(  date_today + '_undelegate_' + this.undelegate.amount + 'xki' + '.json', document, this.undelegate.output);
     },
   },
 };

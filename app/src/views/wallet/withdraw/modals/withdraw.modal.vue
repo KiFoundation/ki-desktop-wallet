@@ -262,7 +262,7 @@ export default {
     },
     download() {
       var date_today = util.getFormatedDate()
-      return util.download( 'withdraw_from_' + this.validator.operator_address + '_tx_' + date_today + '.json', document, this.withdraw.output);
+      return util.download(  date_today + '_withdraw_from_' + this.validator.description.moniker +'.json', document, this.withdraw.output);
     }
   },
 };

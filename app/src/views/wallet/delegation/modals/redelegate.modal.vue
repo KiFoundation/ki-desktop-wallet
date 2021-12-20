@@ -349,7 +349,7 @@ export default {
     },
     download() {
       var date_today = util.getFormatedDate()
-      return util.download( 'redelegate_' + this.redelegate.amount + 'ki_tx_' + date_today + '.json', document, this.redelegate.output);
+      return util.download( date_today + '_redelegate_' + this.redelegate.amount + 'xki' + '.json', document, this.redelegate.output);
     },
   },
 };
