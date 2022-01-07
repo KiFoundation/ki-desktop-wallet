@@ -315,7 +315,7 @@ export default {
               var msg = msg_[0];
               this.multisign.txfile_valid = true
               return (
-                'Redelagate: ' +
+                'Redelegate: ' +
                 msg.value.amount.amount / Math.pow(10, 6) +
                 this.denom + '\nfrom: ' +
                 msg.value.validator_src_address +

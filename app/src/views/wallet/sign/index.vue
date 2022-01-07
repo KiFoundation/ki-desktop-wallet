@@ -293,7 +293,7 @@ export default {
               this.sign.onbehalf = msg.value.delegator_address;
               this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
               return (
-                'Redelagate:\t ' +
+                'Redelegate:\t ' +
                 msg.value.amount.amount / Math.pow(10, 6) +
                 this.denom + '\nfrom:\t\t ' +
                 msg.value.validator_src_address +
