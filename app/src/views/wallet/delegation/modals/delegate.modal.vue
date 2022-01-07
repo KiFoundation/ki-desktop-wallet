@@ -279,6 +279,10 @@ export default {
           password: this.wallet_pass_tmp,
         });
 
+        if (res.data.code && res.data.code != 0){
+          throw new TypeError(res.data.raw_log)
+        }
+
         const $txhashlink = this.$createElement(
           'a',
           {
@@ -299,7 +303,7 @@ export default {
         });
         this.$emit('onDelegateSuccess');
       } catch (error) {
-        this.$bvToast.toast(error, {
+        this.$bvToast.toast(error.message, {
           title: `Transaction failed`,
           variant: 'danger',
           autoHideDelay: 2000,
@@ -333,8 +337,8 @@ export default {
       }
     },
     download(){
-      date_today = util.getFormatedDate()
-      return util.download( 'delegate_' + this.delegate.amount + 'ki_tx_' + date_today + '.json', document, this.delegate.output);
+      var date_today = util.getFormatedDate()
+      return util.download( date_today + '_delegate_' + this.delegate.amount + 'xki' + '.json', document, this.delegate.output);
     }
   },
 };

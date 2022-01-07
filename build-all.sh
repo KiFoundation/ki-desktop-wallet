@@ -19,7 +19,7 @@ npm run package-linux
 # Build the releases
 # macos
 npm run build-installer-mac
-npm run build-installer-mac-arm
+# npm run build-installer-mac-arm
 
 # linux
 npm run build-installer-linux

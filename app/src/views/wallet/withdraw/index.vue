@@ -52,7 +52,7 @@
           <a
             v-b-modal="'withdraw-modal'"
             class="link"
-            @click="selectedValidator = validator"
+            @click="selectValidator(validator)"
           >
             Withdraw
           </a>

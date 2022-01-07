@@ -1,5 +1,5 @@
 <template>
-<div id="sign-form" class="d-flex w-100 h-100 flex-column px-3" style="background-color:white">
+<div id="sign-form" class="d-flex w-100 h-100 flex-column px-3" style="background-color:white;overflow-x: hidden;">
   <form v-if="sign.file_valid" class="basic-form modal-body" style="padding-top:40px">
     <b-row>
       <b-col>
@@ -18,7 +18,7 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col cols="6" v-if="sign.onbehalf != account.id">
+      <b-col cols="6" v-if="sign.onbehalf != account.id && !signRawData">
         <b-row style="margin-bottom:10px;">
           <b-col cols="10">
             <h6>{{ $t('webwallet_sign_onbehalf') }} <span style="font-weight:800"> {{ sign.onbehalf_name }} </span></h6>
@@ -40,10 +40,18 @@
       </b-col>
       <b-col />
     </b-row>
-    <b-row style="margin-bottom:25px;">
+    <b-row style="margin-bottom:10px;">
       <b-col cols="12">
         <textarea v-model="sign.summary" class="warning" rows="3" disabled />
-        </b-col>
+      </b-col>
+    </b-row>
+    <b-row align-v="center" style="margin-bottom:25px;">
+      <b-col style="text-align:end">
+        <a class="stealth-link" @click="changeSignMode">
+          <span v-if="!signRawData">Sign raw data file</span>
+          <span v-else>Sign transaction file</span>
+        </a>
+      </b-col>
     </b-row>
 
     <b-row style="margin-bottom:10px;">
@@ -108,7 +116,7 @@
     <form v-else>
       <!-- <div class="basic-form"> -->
         <div class="upload-form">
-          <!-- <b-row align-v="center"> -->
+          <b-row align-v="center">
             <b-col cols="4" />
             <b-col>
               <div
@@ -125,13 +133,17 @@
                     style="width:100px; opacity:0.2;margin-bottom:20px"
                   />
                 </p>
-                <span style="opacity:0.3">{{
+                <span v-if="signRawData" style="opacity:0.3">{{
+                  $t('webwallet_drag_drop_data')
+                }}</span>
+                <span v-else style="opacity:0.3">{{
                   $t('webwallet_drag_drop')
                 }}</span>
               </div>
             </b-col>
             <b-col cols="4" />
-          <!-- </b-row> -->
+          </b-row>
+
         </div>
       <!-- </div> -->
     </form>
@@ -158,10 +170,21 @@ import {
 } from 'bootstrap-vue';
 
 
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { Secp256k1Wallet, MultisigThresholdPubkey, StdFee, encodeSecp256k1Pubkey, createMultisigThresholdPubkey, pubkeyToAddress } from "@cosmjs/amino";
-import { makeMultisignedTx, MsgSendEncodeObject, SignerData, SigningStargateClient, StargateClient, coins } from '@cosmjs/stargate'
+import {
+  MsgSend
+} from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import {
+  TxRaw
+} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import {
+  Secp256k1Wallet,
+  encodeSecp256k1Pubkey,
+} from "@cosmjs/amino";
+import {
+  SignerData,
+  SigningStargateClient,
+  StargateClient,
+} from '@cosmjs/stargate'
 
 
 
@@ -169,9 +192,11 @@ export default {
   data() {
     return {
       denom: this.globalData.kichain.denom,
+      prefix: this.globalData.kichain.prefix,
       password: 'password',
       wallet_pass_tmp: '',
       isLoading: true,
+      signRawData: false,
       sign: {
         alert: '',
         file: '',
@@ -212,107 +237,116 @@ export default {
         console.error(evt);
       };
     },
+    changeSignMode(){
+      this.signRawData = !this.signRawData
+      this.sign.summary = this.parseMessage(this.sign.file_content);
+    },
     parseMessage(file) {
-      try {
-        let msg_ = JSON.parse(file).value.msg;
+      if (!this.signRawData) {
 
-        switch (msg_[0].type) {
-          case 'cosmos-sdk/MsgSend':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.from_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Send:\t ' +
-              msg.value.amount[0].amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
-              msg.value.from_address + '\t\t(' + this.findWalletName(msg.value.from_address) + ')' +
-              ' \nto:\t\t ' +
-              msg.value.to_address + '\t\t\t(' + this.findWalletName(msg.value.to_address) + ')'
-            );
-            break;
+        try {
+          let msg_ = JSON.parse(file).value.msg;
 
-          case 'cosmos-sdk/MsgDelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Delegate:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
-              msg.value.delegator_address + '\t\t(' + this.findWalletName(msg.value.delegator_address) + ')' +
-              '\nto:\t\t\t ' +
-              msg.value.validator_address
-            );
-            break;
+          switch (msg_[0].type) {
+            case 'cosmos-sdk/MsgSend':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.from_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Send:\t ' +
+                msg.value.amount[0].amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t ' +
+                msg.value.from_address + '\t\t(' + this.findWalletName(msg.value.from_address) + ')' +
+                ' \nto:\t\t ' +
+                msg.value.to_address + '\t\t\t(' + this.findWalletName(msg.value.to_address) + ')'
+              );
+              break;
 
-          case 'cosmos-sdk/MsgUndelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Unbond:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t ' +
-              msg.value.validator_address
-            );
-            break;
+            case 'cosmos-sdk/MsgDelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Delegate:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t\t ' +
+                msg.value.delegator_address + '\t\t(' + this.findWalletName(msg.value.delegator_address) + ')' +
+                '\nto:\t\t\t ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgBeginRedelegate':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            return (
-              'Redelagate:\t ' +
-              msg.value.amount.amount / Math.pow(10, 6) +
-              this.denom + '\nfrom:\t\t ' +
-              msg.value.validator_src_address +
-              ' \nto:\t\t\t ' +
-              msg.value.validator_dst_address
-            );
-            break;
+            case 'cosmos-sdk/MsgUndelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Unbond:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t ' +
+                msg.value.validator_address
+              );
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawDelegationReward':
-            var msg = msg_[0];
-            this.sign.onbehalf = msg.value.delegator_address;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            var output = 'Withdraw rewards ';
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgBeginRedelegate':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              return (
+                'Redelegate:\t ' +
+                msg.value.amount.amount / Math.pow(10, 6) +
+                this.denom + '\nfrom:\t\t ' +
+                msg.value.validator_src_address +
+                ' \nto:\t\t\t ' +
+                msg.value.validator_dst_address
+              );
+              break;
+
+            case 'cosmos-sdk/MsgWithdrawDelegationReward':
+              var msg = msg_[0];
+              this.sign.onbehalf = msg.value.delegator_address;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              var output = 'Withdraw rewards ';
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          case 'cosmos-sdk/MsgWithdrawValidatorCommission':
-            var msg = msg_[0];
-            this.sign.onbehalf = this.account.id;
-            this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
-            var output = 'Withdraw commissions';
-            if (!(msg_[1] === undefined)) {
-              if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
-                output = 'Withdraw rewards and commissions ';
+            case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+              var msg = msg_[0];
+              this.sign.onbehalf = this.account.id;
+              this.sign.onbehalf_name = this.findWalletName(this.sign.onbehalf)
+              var output = 'Withdraw commissions';
+              if (!(msg_[1] === undefined)) {
+                if (msg_[1].type == 'cosmos-sdk/MsgWithdrawValidatorCommission') {
+                  output = 'Withdraw rewards and commissions ';
+                }
               }
-            }
-            output = output + 'from ' + msg.value.validator_address;
-            return output;
-            break;
+              output = output + 'from ' + msg.value.validator_address;
+              return output;
+              break;
 
-          default:
-            return 'The file does not seem to contain a valid transaction structure.';
+            default:
+              return 'The file does not seem to contain a valid transaction structure. You might want to use Raw data signing instead.';
+          }
+        } catch (error) {
+          return 'The file does not seem to contain a valid transaction structure. You might want to use Raw data signing instead.';
         }
-      } catch (error) {
-        return 'The file does not seem to contain a valid transaction structure.';
+      }
+      else {
+        return file
       }
     },
     downloadSig() {
-      return util.download("signed_" + this.account.name + "_" + this.sign.file.name.replace(".json", "")  + ".json", document, this.sign.signature);
+      return util.download(this.sign.file.name.replace(".json", "") + "_signed_" + this.account.name  + ".json", document, this.sign.signature);
     },
 
-
     async singleSign(signingInstruction, key) {
-      const wallet = await Secp256k1Wallet.fromKey(key, "tki");
+      const wallet = await Secp256k1Wallet.fromKey(key, this.prefix);
       const pubkey = encodeSecp256k1Pubkey((await wallet.getAccounts())[0].pubkey);
       const address = (await wallet.getAccounts())[0].address;
 
@@ -325,8 +359,11 @@ export default {
       };
 
 
-      try{
-        const { bodyBytes: bb, signatures } = await signingClient.sign(
+      try {
+        const {
+          bodyBytes: bb,
+          signatures
+        } = await signingClient.sign(
           address,
           signingInstruction.msgs,
           signingInstruction.fee,
@@ -334,62 +371,144 @@ export default {
           signerData,
         );
 
-        return {"address": address, "signature": signatures[0], "transaction": bb, "signingInstruction": signingInstruction};
-      }
-      catch (err){
+        var bb64encoded = Buffer.from(bb).toString("base64")
+
+        return {
+          "address": address,
+          "pubKey": pubkey,
+          "signature": signatures[0],
+          "transaction": bb64encoded,
+          "signingInstruction": signingInstruction
+        };
+      } catch (err) {
         console.log(err);
       }
     },
 
+    translateTx(transaction){
+      switch (transaction.msg[0].type) {
+        case 'cosmos-sdk/MsgSend':
+          return {
+            typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+            value: {
+              fromAddress: transaction.msg[0].value.from_address,
+              toAddress: transaction.msg[0].value.to_address,
+              amount: transaction.msg[0].value.amount
+            }
+          }
+
+        break;
+
+        case 'cosmos-sdk/MsgDelegate':
+          return {
+            typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+            value: {
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
+              amount: transaction.msg[0].value.amount
+            }
+          }
+
+        break;
+
+        case 'cosmos-sdk/MsgUndelegate':
+          return {
+            typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+            value: {
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
+              amount: transaction.msg[0].value.amount
+            }
+          }
+
+        break;
+
+        case 'cosmos-sdk/MsgBeginRedelegate':
+          return {
+            typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+            value: {
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorSrcAddress: transaction.msg[0].value.validator_src_address,
+              validatorDstAddress: transaction.msg[0].value.validator_dst_address,
+              amount: transaction.msg[0].value.amount
+            }
+          }
+
+        break;
+
+        case 'cosmos-sdk/MsgWithdrawDelegationReward':
+          return {
+            typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+            value: {
+              delegatorAddress: transaction.msg[0].value.delegator_address,
+              validatorAddress: transaction.msg[0].value.validator_address,
+            }
+          }
+        break;
+
+        case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+          return {
+            typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+            value: {
+              validatorAddress: transaction.msg[0].value.validator_address,
+            }
+          }
+        break;
+
+        default:
+          return 'The file does not seem to contain a valid transaction structure.';
+      }
+    },
+
     async signTxFile() {
+      let signingInstruction
       let transaction = JSON.parse(this.sign.file_content).value;
+      if(!this.signRawData){
+        if(transaction.msg.length == 1) {
 
-      let account =
-        this.sign.onbehalf == '' ? this.account.id : this.sign.onbehalf;
+          let account = this.sign.onbehalf == '' ? this.account.id : this.sign.onbehalf;
 
-      if (transaction.hasOwnProperty('signatures')) {
-        delete transaction['signatures'];
-      }
+          if (transaction.hasOwnProperty('signatures')) {
+            delete transaction['signatures'];
+          }
 
-      const response = await services.auth.fetchAccount(account);
+          const response = await services.auth.fetchAccount(account);
 
-      let sequence_ = 0;
-      let account_number_ = '';
+          let sequence_ = 0;
+          let account_number_ = '';
 
-      if (response.data.result.value) {
-        let res = '';
-        if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
-          res = response.data.result.value.base_vesting_account.base_account;
-        } else {
-          res = response.data.result.value;
+          if (response.data.result.value) {
+            let res = '';
+            if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
+              res = response.data.result.value.base_vesting_account.base_account;
+            } else {
+              res = response.data.result.value;
+            }
+            sequence_ = res.sequence;
+            account_number_ = res.account_number;
+          }
+
+          const msg = this.translateTx(transaction)
+          const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
+
+          signingInstruction = {
+            accountNumber: parseInt(account_number_),
+            sequence: parseInt(sequence_),
+            chainId: this.chainId,
+            msgs: [msg],
+            fee: fees,
+            memo: transaction.memo,
+          };
         }
-        sequence_ = res.sequence;
-        account_number_ = res.account_number;
       }
-
-
-      var msg = {
-        typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-        value: {
-          fromAddress: transaction.msg[0].value.from_address,
-          toAddress: transaction.msg[0].value.to_address,
-          amount: transaction.msg[0].value.amount
-        }
+      else {
+        signingInstruction = JSON.parse(this.sign.file_content)
       }
-
-      const signingInstruction = {
-          accountNumber: parseInt(account_number_),
-          sequence: parseInt(sequence_),
-          chainId: this.chainId,
-          msgs: [msg],
-          fee: transaction.fee,
-          memo: transaction.memo,
-        };
 
       try {
-
         var CryptoJS = require('crypto-js');
         var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
+
         let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
         let signedTransactionme = await this.singleSign(signingInstruction, key)
         this.sign.signature = JSON.stringify(signedTransactionme);
@@ -414,6 +533,10 @@ export default {
         });
       }
     },
+
+    signDataFile(){
+    },
+
     findWalletName(address) {
       var wallet_ = this.selfWallets.filter(w => {
         if (w.address == address) {

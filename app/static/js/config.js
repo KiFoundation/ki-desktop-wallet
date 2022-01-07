@@ -10,7 +10,7 @@ export default {
     network: {
       network: 'Mainnet',
       blockchain: 'cosmos',
-      chainId: 'kichain-1',
+      chainId: 'kichain-2',
     },
   },
   domain: 'http://localhost/',

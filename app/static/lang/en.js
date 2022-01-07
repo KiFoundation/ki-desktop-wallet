@@ -74,6 +74,7 @@ export default {
   webwallet_for_multisig: 'For multisignature transactions',
   webwallet_copy_paste: 'Copy and paste its content here',
   webwallet_drag_drop: 'Drag and drop your transaction file here',
+  webwallet_drag_drop_data: 'Drag and drop your raw data file here',
   webwallet_drag_drop_sigs: 'Drag and drop your signature files here',
   webwallet_signing_file_label: 'Transaction file',
   webwallet_output: 'Output',
