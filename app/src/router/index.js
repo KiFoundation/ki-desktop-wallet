@@ -2,8 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 Vue.use(Router);
 
-import util from '@static/js/util';
-
 import publicRoutes from './public';
 import privateRoutes from './private';
 

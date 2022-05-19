@@ -130,6 +130,8 @@ import { tokenUtil } from '@static/js/token';
 
 export default {
   components: {
+    BRow,
+    BCol,
     TotalCard,
     ValidatorCard,
     BPagination,
@@ -147,8 +149,8 @@ export default {
   },
   computed: {
     ...mapState({
+      rewards: state => state.wallets.current.rewards,
       myValidators: state => state.wallets.current.validators,
-      rewards:  state => state.wallets.current.rewards,
       account: state => state.account,
     }),
     validators() {
@@ -160,7 +162,6 @@ export default {
         });
       return val
     },
-
     mergedRewards(){
       var pending = 0;
 

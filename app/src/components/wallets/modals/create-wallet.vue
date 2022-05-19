@@ -161,22 +161,18 @@
 </template>
 
 <script>
-import {
-  KeyPair,
-  signTx,
-  verifyTx,
-  createWalletFromMnemonic,
-  createBroadcastTx,
-} from '@tendermint/sig';
 
 import {
   BTooltip
 } from 'bootstrap-vue';
+import { BRow, BCol } from 'bootstrap-vue';
 
 import * as bip39 from 'bip39';
 
 export default {
   components: {
+    BRow,
+    BCol,
     BTooltip
   },
   props: {

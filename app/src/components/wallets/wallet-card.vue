@@ -60,6 +60,8 @@ import EditWalletForm from '@cmp/wallets/modals/edit-wallet';
 
 export default {
   components: {
+    BRow,
+    BCol,
     EditWalletForm,
     BAvatar,
   },

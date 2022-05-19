@@ -66,7 +66,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import {  BPagination, BPopover } from 'bootstrap-vue';
+import {  BPagination, BRow, BCol } from 'bootstrap-vue';
 import TransactionCard from '@cmp/tx/tx.card';
 
 export default {
@@ -90,6 +90,8 @@ export default {
   },
 
   components: {
+    BRow,
+    BCol, 
     BPagination,
     TransactionCard,
     // BPopover

@@ -189,6 +189,10 @@ import {
 
 
 export default {
+    components: {
+    BRow,
+    BCol,
+  },
   data() {
     return {
       denom: this.globalData.kichain.denom,
