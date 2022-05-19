@@ -224,6 +224,10 @@ i {
   padding-left: 24px;
 }
 
+.toast-body:first-letter {
+    text-transform: uppercase;
+}
+
 .dropdown-menu {
   min-width: 0;
   margin-top: 10px;

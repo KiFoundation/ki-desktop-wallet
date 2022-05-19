@@ -1,6 +1,123 @@
+import {
+  Secp256k1Wallet,
+  encodeSecp256k1Pubkey,
+} from "@cosmjs/amino";
+import {
+  SigningStargateClient,
+} from '@cosmjs/stargate'
+import {
+  TxRaw
+} from "cosmjs-types/cosmos/tx/v1beta1/tx";
+
 class Util {
+
   async init() {
     return false;
+  }
+  
+  async singleSign(signingInstruction, key, prefix) {
+    const wallet = await Secp256k1Wallet.fromKey(key, prefix);
+    const pubkey = encodeSecp256k1Pubkey((await wallet.getAccounts())[0].pubkey);
+    const address = (await wallet.getAccounts())[0].address;
+    const signingClient = await SigningStargateClient.offline(wallet);
+    const signerData = {
+      accountNumber: signingInstruction.accountNumber,
+      sequence: signingInstruction.sequence,
+      chainId: signingInstruction.chainId,
+    };
+    try {
+      const signedTx = await signingClient.sign(
+        address,
+        signingInstruction.msgs,
+        signingInstruction.fee,
+        signingInstruction.memo,
+        signerData,
+      );
+
+      const txBytes = TxRaw.encode(signedTx).finish();
+      const txBytesBase64 = Buffer.from(txBytes).toString('base64')
+  
+      return txBytesBase64
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  translateTx(msg){
+    switch (msg.type) {
+      case 'cosmos-sdk/MsgSend':
+        return {
+          typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+          value: {
+            fromAddress: msg.value.from_address,
+            toAddress: msg.value.to_address,
+            amount: msg.value.amount
+          }
+        }
+
+      break;
+
+      case 'cosmos-sdk/MsgDelegate':
+        return {
+          typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+          value: {
+            delegatorAddress: msg.value.delegator_address,
+            validatorAddress: msg.value.validator_address,
+            amount: msg.value.amount
+          }
+        }
+
+      break;
+
+      case 'cosmos-sdk/MsgUndelegate':
+        return {
+          typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+          value: {
+            delegatorAddress: msg.value.delegator_address,
+            validatorAddress: msg.value.validator_address,
+            amount: msg.value.amount
+          }
+        }
+
+      break;
+
+      case 'cosmos-sdk/MsgBeginRedelegate':
+        return {
+          typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
+          value: {
+            delegatorAddress: msg.value.delegator_address,
+            validatorSrcAddress: msg.value.validator_src_address,
+            validatorDstAddress: msg.value.validator_dst_address,
+            amount: msg.value.amount
+          }
+        }
+
+      break;
+
+      case 'cosmos-sdk/MsgWithdrawDelegationReward':
+        return {
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value: {
+            delegatorAddress: msg.value.delegator_address,
+            validatorAddress: msg.value.validator_address,
+          }
+        }
+      break;
+
+      case 'cosmos-sdk/MsgWithdrawValidatorCommission':
+        return {
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value: {
+            delegatorAddress: msg.value.delegator_address,
+            validatorAddress: msg.value.validator_address,
+          }
+        }
+      break;
+
+      default:
+        return 'The file does not seem to contain a valid transaction structure.';
+    }
   }
 
   timestampToDate(timestamp) {
@@ -23,7 +140,7 @@ class Util {
 
   stringToCapitalize(str) {
     var arr = str.toLowerCase().split('_');
-    arr = arr.map(function(val) {
+    arr = arr.map(function (val) {
       if (val == 'new') {
         val = 'place';
       }
@@ -297,8 +414,8 @@ class Util {
     var date_today = new Date();
     var date_today_s;
     date_today_s = ('0' + date_today.getDate()).slice(-2) +
-                   ('0' + (date_today.getMonth() + 1)).slice(-2) +
-                   date_today.getFullYear();
+      ('0' + (date_today.getMonth() + 1)).slice(-2) +
+      date_today.getFullYear();
     return date_today_s
   }
 }
