@@ -92,7 +92,7 @@
     </div>
 
     <footer class="copyright">
-      KiFoundation 2020
+      KiFoundation 2022
     </footer>
   </div>
 </template>

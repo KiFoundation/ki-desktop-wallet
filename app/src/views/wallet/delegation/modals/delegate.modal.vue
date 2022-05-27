@@ -148,6 +148,8 @@ export default {
       udenom: this.globalData.kichain.udenom,
       token: this.globalData.kichain.token,
       explorer: this.globalData.explorer,
+      prefix: this.globalData.kichain.prefix,
+
       delegate: {
         alert: '',
         validator: this.validator.operator_address,

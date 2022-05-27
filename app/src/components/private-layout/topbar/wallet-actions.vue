@@ -107,7 +107,7 @@ export default {
     }),
     ...mapState({
       currentWallet: state => state.wallets.current,
-      token_price: state => state.price,
+      token_price_raw: state => state.price,
     }),
   },
   mounted() {
@@ -117,7 +117,8 @@ export default {
       this.$bvModal.show("error-modal")
     }
     this.total_available = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6));
-    this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price);
+    this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price_raw);
+    this.token_price = tokenUtil.formatPrice(this.token_price_raw);
   },
   methods: {
     ...mapActions({
@@ -131,7 +132,7 @@ export default {
       await this.fetchAllValidators();
       await this.fetchWalletRewards();
       this.total_available = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6));
-      this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price);
+      this.total_usd = tokenUtil.formatShort(numeral(this.currentWalletBalancesAmount.available).value() * Math.pow(10,6) * this.token_price_raw);
       this.refreshing = false;
     },
     toggleCopiedTooltip() {},

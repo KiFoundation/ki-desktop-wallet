@@ -166,6 +166,7 @@ export default {
     return {
       explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
+      prefix: this.globalData.kichain.prefix,
       redelegate: {
         alert: '',
         to_validator: '',

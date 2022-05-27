@@ -4,7 +4,7 @@ import {
 
 export class TxService extends ApiService {
   async fetchTxsList(filter) {
-    return this.get(`/txs`, filter);
+    return this.get(`/cosmos/tx/v1beta1/txs`, filter);
   }
   async postTx(transaction) {
     return this.post('/txs?sync=true', transaction);

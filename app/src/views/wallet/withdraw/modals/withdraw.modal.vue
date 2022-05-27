@@ -133,6 +133,8 @@ export default {
     return {
       udenom: this.globalData.kichain.udenom,
       explorer: this.globalData.explorer,
+      prefix: this.globalData.kichain.prefix,
+
       withdraw: {
         alert: '',
         config: 0,
@@ -237,11 +239,7 @@ export default {
         msg.push(util.translateTx(tmsg))
       }
 
-      console.log(">>");
-      console.log(msg);
-
       const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
-
 
       if (this.multisig) {
         this.withdraw.output =

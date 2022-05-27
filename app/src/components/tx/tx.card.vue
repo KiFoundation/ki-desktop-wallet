@@ -5,7 +5,7 @@
 
         <b-col cols="2" class="flex-row d-flex align-items-center">
           <unicon name="location-arrow" :fill="colors.secondary" />
-          <h6 class="ml-2 text-truncate"><a :href="explorer+ '/transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
+          <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
         <b-col cols="1" style="padding-left:0px">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
@@ -48,10 +48,8 @@
 
 <script>
 import { BRow, BCol, BButton, BBadge, } from 'bootstrap-vue';
-import * as numeral from 'numeral';
 import { mapState } from 'vuex';
 import { tokenUtil } from '@static/js/token';
-import util from '@static/js/util';
 
 export default {
   data() {

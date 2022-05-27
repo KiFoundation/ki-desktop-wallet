@@ -14,7 +14,7 @@
         }"
       >
 
-      ≈ ${{total_usd}}  (${{ token_price }}/{{ globalData.kichain.token }})
+      ≈ ${{total_usd}}  (${{token_price}}/{{ globalData.kichain.token }})
       </p>
 
     </div>
@@ -86,7 +86,7 @@ export default {
     ...mapState({
       loadingWallet: state => state.wallets.loading,
       wallets: state => state.wallets.list,
-      token_price: state => state.price,
+      token_price_raw: state => state.price,
     }),
   },
   data() {
@@ -98,7 +98,6 @@ export default {
       token: '',
       total:0,
       total_usd:0,
-      // token_price:0.06
     };
   },
   mounted() {
@@ -230,8 +229,9 @@ export default {
           }
         }
       }
-      this.total_usd = tokenUtil.formatShort(total * this.token_price);
+      this.total_usd = tokenUtil.formatShort(total * this.token_price_raw);
       this.total = tokenUtil.formatShort(total)
+      this.token_price = tokenUtil.formatPrice(this.token_price_raw);
     }
   },
 };

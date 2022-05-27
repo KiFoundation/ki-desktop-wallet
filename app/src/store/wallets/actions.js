@@ -18,7 +18,7 @@ import { tokenUtil } from '@static/js/token';
 
 export const actions = {
   [HYDRATE_CURRENT_WALLET]: async (
-    { commit, state, getters, dispatch, rootState },
+    { commit, state},
     wallet,
   ) => {
     let walletTmp = (wallet && Object.assign({}, wallet)) || null;
@@ -30,8 +30,8 @@ export const actions = {
         wallet.address,
       );
 
-      let vesting =  account.data.result.type == "cosmos-sdk/ContinuousVestingAccount" ||   account.data.result.type == "cosmos-sdk/DelayedVestingAccount";
-      let vesting_delayed = account.data.result.type == "cosmos-sdk/DelayedVestingAccount";
+      let vesting =  account.data.result.type == "/cosmos.vesting.v1beta1.ContinuousVestingAccount" || account.data.result.type == "/cosmos.vesting.v1beta1.DelayedVestingAccount";
+      let vesting_delayed = account.data.result.type == "/cosmos.vesting.v1beta1.DelayedVestingAccount";
 
 
       // Start to fetch data
@@ -48,162 +48,164 @@ export const actions = {
         wallet.address,
       );
 
-      // Fetch the sent transactions
+      // // Fetch the sent transactions
       let transactions = []
       let transactionsRaw = []
 
       const responseWalletTransactionsSendPage = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "send" },
+        {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.bank.v1beta1.MsgSend'"]},
       );
+      
+      let limit = 100
+      let pages = Math.ceil(responseWalletTransactionsSendPage.data.pagination.total / limit)
 
-      let pages = responseWalletTransactionsSendPage.data.page_total
-      if (pages != 0){
-          for (var page =1; page<=pages; page++ ){
-            let responseWalletTransactionsSend = await services.tx.fetchTxsList(
-              {"message.sender" : wallet.address, "message.action": "send", "page":page },
-            );
+      for (var page =0; page<pages; page++ ){
+        console.log(limit * page);
+        let responseWalletTransactionsSend = await services.tx.fetchTxsList(
+          {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.bank.v1beta1.MsgSend'"], "pagination.offset": limit * page},
+        );
 
-            transactionsRaw = responseWalletTransactionsSend.data.txs
+        transactionsRaw = responseWalletTransactionsSend.data.tx_responses
 
-            for (var tx_key in transactionsRaw){
+        for (var tx_key in transactionsRaw){
 
-              var tx = transactionsRaw[tx_key]
+          var tx = transactionsRaw[tx_key]
 
-              let fee = 0
-              if (tx.tx.value.fee.amount.length > 0) {
-                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-              }
-              if(tx.tx.value.msg.length == 1){
+          let fee = 0
+          if (tx.tx.auth_info.fee.amount.length > 0) {
+            fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
+          }
+          console.log(fee);
 
-              transactions.push([tx.txhash, 'send',
-                tx.tx.value.msg[0].value.to_address,
-                tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
-                fee, tx.timestamp,tx.tx.value.msg[0].value.from_address,
-              ])
-            }
-            else {
-                transactions.push([tx.txhash, 'multiple',
-                  "",
-                  "",
-                  fee, tx.timestamp, wallet.address
-                ])
-              }
-            }
+          if(tx.tx.body.messages.length == 1){
+
+          transactions.push([tx.txhash, 'send',
+            tx.tx.body.messages[0].to_address,
+            tokenUtil.format(tx.tx.body.messages[0].amount[0].amount),
+            fee, tx.timestamp,tx.tx.body.messages[0].from_address,,
+          ])
+        }
+        else {
+            transactions.push([tx.txhash, 'multiple',
+              "",
+              "",
+              fee, tx.timestamp, wallet.address
+            ])
           }
         }
+      }
 
       // Fetch the recieved transactions
       const responseWalletTransactionsReceivePage = await services.tx.fetchTxsList(
-        {"transfer.recipient" : wallet.address, "message.action": "send" },
+         {events: [`transfer.recipient='${wallet.address}'`, "message.action='/cosmos.bank.v1beta1.MsgSend'"]},
       );
 
-      pages = responseWalletTransactionsReceivePage.data.page_total
-      if (pages != 0){
-          for (var page = 1; page<=pages; page++ ){
-            let responseWalletTransactionsReceive = await services.tx.fetchTxsList(
-              {"transfer.recipient" : wallet.address, "message.action": "send" , "page":page },
-            );
 
-            transactionsRaw = responseWalletTransactionsReceive.data.txs
+      pages = Math.ceil(responseWalletTransactionsReceivePage.data.pagination.total / limit)
 
-            for (var tx_key in transactionsRaw){
+      for (var page = 0; page<pages; page++ ){
+        let responseWalletTransactionsReceive = await services.tx.fetchTxsList(
+          {events: [`transfer.recipient='${wallet.address}'`, "message.action='/cosmos.bank.v1beta1.MsgSend'"], "pagination.offset": limit * page},
+        );
 
-              var tx = transactionsRaw[tx_key]
+        transactionsRaw = responseWalletTransactionsReceive.data.tx_responses
 
-              let fee = 0
-              if (tx.tx.value.fee.amount.length > 0) {
-                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-              }
+        for (var tx_key in transactionsRaw){
 
-              if(tx.tx.value.msg.length == 1){
-                transactions.push([tx.txhash, 'receive',
-                  tx.tx.value.msg[0].value.to_address,
-                  tokenUtil.format(tx.tx.value.msg[0].value.amount[0].amount),
-                  fee, tx.timestamp, tx.tx.value.msg[0].value.from_address,
-                ])
-              }
-              else {
-                transactions.push([tx.txhash, 'multiple',
-                  "",
-                  "",
-                  fee, tx.timestamp, ""
-                ])
-              }
-            }
+          var tx = transactionsRaw[tx_key]
+
+          let fee = 0
+          if (tx.tx.auth_info.fee.amount.length > 0) {
+            fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
+          }
+
+          if(tx.tx.body.messages.length == 1){
+              transactions.push([tx.txhash, 'receive',
+              tx.tx.body.messages[0].to_address,
+              tokenUtil.format(tx.tx.body.messages[0].amount[0].amount),
+              fee, tx.timestamp, tx.tx.body.messages[0].from_address,
+            ])
+          }
+          else {
+            transactions.push([tx.txhash, 'multiple',
+              "",
+              "",
+              fee, tx.timestamp, ""
+            ])
           }
         }
+      }
 
 
         // Fetch the delegate transactions
       const responseWalletTransactionsDelegatePage = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "delegate" },
+        {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgDelegate'"]},
       );
 
-      pages = responseWalletTransactionsDelegatePage.data.page_total
-      if (pages != 0){
-          for (var page = 1; page<=pages; page++ ){
-            let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
-              {"message.sender" : wallet.address, "message.action": "delegate" , "page":page },
-            );
+      pages = Math.ceil(responseWalletTransactionsDelegatePage.data.pagination.total / limit)
 
-            transactionsRaw = responseWalletTransactionsDelegate.data.txs
+      for (var page = 0; page<pages; page++ ){
+        let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+          {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgDelegate'"], "pagination.offset": limit * page},
+        );
 
-            for (var tx_key in transactionsRaw){
-              var tx = transactionsRaw[tx_key]
+        transactionsRaw = responseWalletTransactionsDelegate.data.tx_responses
 
-              let fee = 0
+        for (var tx_key in transactionsRaw){
+          var tx = transactionsRaw[tx_key]
 
-              if (tx.tx.value.fee.amount.length > 0) {
-                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-              }
+          let fee = 0
 
-              if(tx.tx.value.msg.length == 1){
-                transactions.push([tx.txhash, 'delegate',
-                  tx.tx.value.msg[0].value.validator_address,
-                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                  fee, tx.timestamp, tx.tx.value.msg[0].value.delegator_address
-                ])
-              }
-              else {
-                transactions.push([tx.txhash, 'multiple',
-                  "",
-                  "",
-                  fee, tx.timestamp, wallet.address
-                ])
-              }
-            }
+          if (tx.tx.auth_info.fee.amount[0].amount.length > 0) {
+            fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
+          }
+
+          if(tx.tx.body.messages.length == 1){
+            transactions.push([tx.txhash, 'delegate',
+              tx.tx.body.messages[0].validator_address,
+              tokenUtil.format(tx.tx.body.messages[0].amount.amount),
+              fee, tx.timestamp, tx.tx.body.messages[0].delegator_address
+            ])
+          }
+          else {
+            transactions.push([tx.txhash, 'multiple',
+              "",
+              "",
+              fee, tx.timestamp, wallet.address
+            ])
           }
         }
+      }
 
         // Fetch the redelegate transactions
       const responseWalletTransactionsRedelegatePage = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "begin_redelegate" },
+        {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgBeginRedelegate'"]},
       );
 
-      pages = responseWalletTransactionsRedelegatePage.data.page_total
+      pages = Math.ceil(responseWalletTransactionsRedelegatePage.data.pagination.total / limit)
       if (pages != 0){
-          for (var page = 1; page<=pages; page++ ){
+          for (var page = 0; page<pages; page++ ){
             let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
-              {"message.sender" : wallet.address, "message.action": "begin_redelegate" , "page":page },
+              {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgBeginRedelegate'"], "pagination.offset": limit * page},
             );
 
-            transactionsRaw = responseWalletTransactionsDelegate.data.txs
+            transactionsRaw = responseWalletTransactionsDelegate.data.tx_responses
 
             for (var tx_key in transactionsRaw){
               var tx = transactionsRaw[tx_key]
 
               let fee = 0
 
-              if (tx.tx.value.fee.amount.length > 0) {
-                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
+              if (tx.tx.auth_info.fee.amount[0].amount.length > 0) {
+                fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
               }
 
-              if(tx.tx.value.msg.length == 1){
+              if(tx.tx.body.messages.length == 1){
 
                 transactions.push([tx.txhash, 'redelegate',
-                  tx.tx.value.msg[0].value.validator_dst_address,
-                  tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                  fee, tx.timestamp, tx.tx.value.msg[0].value.validator_src_address
+                  tx.tx.body.messages[0].validator_dst_address,
+                  tokenUtil.format(tx.tx.body.messages[0].amount.amount),
+                  fee, tx.timestamp, tx.tx.body.messages[0].validator_src_address
                 ])}
               else {
                 transactions.push([tx.txhash, 'multiple',
@@ -218,40 +220,87 @@ export const actions = {
 
         // Fetch the undelegate transactions
       const responseWalletTransactionsUndelegatePage = await services.tx.fetchTxsList(
-        {"message.sender" : wallet.address, "message.action": "begin_unbonding" },
+        {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgUndelegate'"]},
       );
 
-      pages = responseWalletTransactionsUndelegatePage.data.page_total
-      if (pages != 0){
-          for (var page = 1; page<=pages; page++ ){
-            let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
-              {"message.sender" : wallet.address, "message.action": "begin_unbonding" , "page":page },
-            );
+      pages = Math.ceil(responseWalletTransactionsUndelegatePage.data.pagination.total / limit)
 
-            transactionsRaw = responseWalletTransactionsDelegate.data.txs
+      for (var page = 0; page<pages; page++ ){
+        let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+          {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.staking.v1beta1.MsgUndelegate'"], "pagination.offset": limit * page},
+        );
 
-            for (var tx_key in transactionsRaw){
-              var tx = transactionsRaw[tx_key]
+        transactionsRaw = responseWalletTransactionsDelegate.data.tx_responses
 
-              let fee = 0
+        for (var tx_key in transactionsRaw){
+          var tx = transactionsRaw[tx_key]
 
-              if (tx.tx.value.fee.amount.length > 0) {
-                fee = tx.tx.value.fee.amount[0].amount / Math.pow(10, 6)
-              }
+          let fee = 0
 
-              if(tx.tx.value.msg.length == 1){
-              transactions.push([tx.txhash, 'undelegate',
-                "",
-                tokenUtil.format(tx.tx.value.msg[0].value.amount.amount),
-                fee, tx.timestamp,tx.tx.value.msg[0].value.validator_address,
-              ])}
-                else {
-                    transactions.push([tx.txhash, 'multiple',
-                      "",
-                      "",
-                      fee, tx.timestamp, wallet.address
-                    ])
-              }
+          if (tx.tx.auth_info.fee.amount[0].amount.length > 0) {
+            fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
+          }
+
+          if(tx.tx.body.messages.length == 1){
+          transactions.push([tx.txhash, 'undelegate',
+            "",
+            tokenUtil.format(tx.tx.body.messages[0].amount.amount),
+            fee, tx.timestamp,tx.tx.body.messages[0].validator_address,
+          ])}
+            else {
+                transactions.push([tx.txhash, 'multiple',
+                  "",
+                  "",
+                  fee, tx.timestamp, wallet.address
+                ])
+          }
+        }
+      }
+
+        // Fetch the withdraw transactions
+        const responseWalletTransactionsWithdrawPage = await services.tx.fetchTxsList(
+          {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward'"]},
+        );
+  
+        pages = Math.ceil(responseWalletTransactionsWithdrawPage.data.pagination.total / limit)
+  
+        for (var page = 0; page<pages; page++ ){
+          let responseWalletTransactionsDelegate = await services.tx.fetchTxsList(
+            {events: [`message.sender='${wallet.address}'`, "message.action='/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward'"], "pagination.offset": limit * page},
+          );
+  
+          transactionsRaw = responseWalletTransactionsDelegate.data.tx_responses
+  
+          for (var tx_key in transactionsRaw){
+            var tx = transactionsRaw[tx_key]
+  
+            let fee = 0
+  
+            if (tx.tx.auth_info.fee.amount[0].amount.length > 0) {
+              fee = tx.tx.auth_info.fee.amount[0].amount / Math.pow(10, 6)
+            }
+            
+          
+            var amount = 0
+
+            for (var msg in tx.tx.body.messages){
+              amount += parseFloat(tx.logs[msg].events.filter(e => {
+                return e.type.includes('withdraw_rewards');
+              })[0].attributes[0].value.replace(state.app.denom, ''));  
+            }
+
+            if(tx.tx.body.messages.length == 1){
+            transactions.push([tx.txhash, 'withdraw',
+              "",
+              tokenUtil.formatShort(amount),
+              fee, tx.timestamp,tx.tx.body.messages[0].validator_address,
+            ])}
+              else {
+                  transactions.push([tx.txhash, 'withdraw +' + (tx.tx.body.messages.length  - 1) ,
+                    "",
+                    tokenUtil.formatShort(amount),
+                    fee, tx.timestamp, ""
+                  ])
             }
           }
         }
