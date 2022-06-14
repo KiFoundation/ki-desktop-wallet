@@ -8,7 +8,7 @@ npm install
 npm run package-mac
 
 # macos M1
-npm run package-mac-arm
+# npm run package-mac-arm
 
 # windows
 npm run package-win
