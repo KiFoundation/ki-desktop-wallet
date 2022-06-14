@@ -98,6 +98,7 @@ export default {
       token: '',
       total:0,
       total_usd:0,
+      token_price: 0.00
     };
   },
   mounted() {

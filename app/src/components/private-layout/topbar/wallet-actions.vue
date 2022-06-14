@@ -97,7 +97,8 @@ export default {
       total_usd:0,
       total_available:0,
       show_add: false,
-      copy_text: "Click to copy"
+      copy_text: "Click to copy",
+      token_price: 0.00
     };
   },
   computed: {
