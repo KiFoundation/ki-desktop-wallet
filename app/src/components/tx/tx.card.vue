@@ -32,7 +32,7 @@
             <h6 class="text-truncate" :title="transaction[2]">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6>
           </a>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="2" class="p-0">
           <span v-if="transaction[3] != ''">
             {{ globalData.kichain.token }} {{transaction[3]}}
           </span>
@@ -40,7 +40,8 @@
             -
           </span>
         </b-col>
-        <b-col cols="2"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
+        <b-col cols="1" class="p-0"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
+        <b-col cols="2" class="pr-0"><span style="font-size: 9pt;">{{formatDateTime(transaction[5])}}</span></b-col>
       </b-row>
     </b-col>
   </b-row>
@@ -49,7 +50,6 @@
 <script>
 import { BRow, BCol, BButton, BBadge, } from 'bootstrap-vue';
 import { mapState } from 'vuex';
-import { tokenUtil } from '@static/js/token';
 
 export default {
   data() {
@@ -81,8 +81,11 @@ export default {
     onSelecttransaction() {
       this.$emit('onSelecttransaction', this.transaction);
     },
-    formatAmount(amount) {
-      return tokenUtil.format(amount);
+    formatDateTime(timestamp) {
+      const date = new Date(Date.parse(timestamp))
+      const options = {year: '2-digit', month: 'short', day: 'numeric' };
+      const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+      return  date.toLocaleTimeString(undefined, timeOptions) + " " + date.toLocaleDateString(undefined, options) 
     },
   },
 };
