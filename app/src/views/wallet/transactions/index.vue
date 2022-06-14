@@ -12,7 +12,7 @@
               <b-col cols="2">To</b-col>
               <b-col cols="2" class="p-0">Amount</b-col>
               <b-col cols="1" class="p-0">Fees</b-col>
-              <b-col cols="2" >Time</b-col>
+              <b-col cols="2" />
             </b-row>
           </b-col>
         </b-row>

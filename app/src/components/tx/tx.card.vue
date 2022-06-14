@@ -12,7 +12,7 @@
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate'">
+        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate' || transaction[1]=='withdraw'">
           <a :href="explorer+ 'validator/' + transaction[6]" target="_blank" >
             <h6 class="ml-3 text-truncate" :title="transaction[6]">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6>
           </a>
@@ -41,7 +41,7 @@
           </span>
         </b-col>
         <b-col cols="1" class="p-0"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
-        <b-col cols="2" class="pr-0"><span style="font-size: 9pt;">{{formatDateTime(transaction[5])}}</span></b-col>
+        <b-col cols="2" class="pr-0" style="text-align: end;"><span style="font-size: 9pt;">{{formatDateTime(transaction[5])}}</span></b-col>
       </b-row>
     </b-col>
   </b-row>
