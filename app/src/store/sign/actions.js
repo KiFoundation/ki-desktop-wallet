@@ -33,7 +33,7 @@ export const actions = {
         const signMeta = {
           chain_id: state.app.chainId,
           account_number: account_number.toString(),
-          sequence: sequence.toString(),
+          sequence: sequence.toString() || "0",
         };
 
         // Decrypt privateKey
