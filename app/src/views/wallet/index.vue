@@ -131,8 +131,6 @@ export default {
       this.multisigv = this.multisig;
       this.offlinev = this.offline;
     }
-
-    console.log(this.offlinev);
   },
   methods: {
     ...mapActions({

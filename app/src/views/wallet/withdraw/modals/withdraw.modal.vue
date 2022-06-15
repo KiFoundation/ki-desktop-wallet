@@ -107,8 +107,7 @@
 
 <script>
 import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
-import * as numeral from 'numeral';
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import util from '@static/js/util';
 
@@ -133,6 +132,9 @@ export default {
   data() {
     return {
       udenom: this.globalData.kichain.udenom,
+      explorer: this.globalData.explorer,
+      prefix: this.globalData.kichain.prefix,
+
       withdraw: {
         alert: '',
         config: 0,
@@ -143,6 +145,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      chainId: state => state.app.chainId,
+    }),   
     currentWallet() {
       return this.$store.state.wallets.current;
     },
@@ -198,6 +203,7 @@ export default {
       const msg_withdraw_commision = {
         type: 'cosmos-sdk/MsgWithdrawValidatorCommission',
         value: {
+          delegator_address: this.account.id,
           validator_address: this.validator.operator_address,
         },
       };
@@ -215,6 +221,8 @@ export default {
         memo: '',
       };
 
+      var msg = []
+
       if (this.withdraw.config == 0) {
         transaction.msg = [msg_withdraw_reward];
       }
@@ -227,6 +235,12 @@ export default {
         transaction.msg = [msg_withdraw_reward, msg_withdraw_commision];
       }
 
+      for(var tmsg of transaction.msg){
+        msg.push(util.translateTx(tmsg))
+      }
+
+      const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
+
       if (this.multisig) {
         this.withdraw.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
@@ -236,26 +250,43 @@ export default {
 
       else {
         try {
-          await this.postTx({
-            transaction,
+         let res = await this.postTx({
+            transaction: {msg: msg, fees: fees, memo: transaction.memo, prefix: this.prefix, chainId: this.chainId} ,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+
+          console.log(res.data);
+          if (res.data.tx_response.code && res.data.tx_response.code != 0){
+            throw new TypeError(res.data.tx_response.raw_log)
+          }
+
+          const $txhashlink = this.$createElement(
+          'a',
+          {
+            attrs: {
+                href:  this.explorer + "transactions/" + res.data.tx_response.txhash,
+                target: "_blank"
+              }
+          },
+           res.data.tx_response.txhash.slice(0, 30) + "..."
+        )
+
+          this.$bvToast.toast([$txhashlink] , {
+            title: `Transaction success`,
             variant: 'success',
-            autoHideDelay: 2000,
-            noCloseButton: true,
+            autoHideDelay: 5000,
             solid: true,
             toaster: 'b-toaster-bottom-center',
           });
           this.$emit('onWithdrawSuccess');
         } catch (error) {
-          this.$bvToast.toast(error, {
-            variant: 'danger',
-            autoHideDelay: 2000,
-            solid: true,
-            noCloseButton: true,
-            toaster: 'b-toaster-bottom-center',
-          });
+          this.$bvToast.toast(error.message, {
+          title: `Transaction failed`,
+          variant: 'danger',
+          autoHideDelay: 5000,
+          solid: true,
+          toaster: 'b-toaster-bottom-center',
+        });
           this.$emit('onWithdrawError');
         }
       }

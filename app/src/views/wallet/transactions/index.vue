@@ -10,8 +10,9 @@
               <b-col cols="1" style="padding-left:0px">type</b-col>
               <b-col cols="2"><span class="ml-3">From</span></b-col>
               <b-col cols="2">To</b-col>
-              <b-col cols="3">Amount</b-col>
-              <b-col cols="2">Fees</b-col>
+              <b-col cols="2" class="p-0">Amount</b-col>
+              <b-col cols="1" class="p-0">Fees</b-col>
+              <b-col cols="2" />
             </b-row>
           </b-col>
         </b-row>
@@ -66,7 +67,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import {  BPagination, BPopover } from 'bootstrap-vue';
+import {  BPagination, BRow, BCol } from 'bootstrap-vue';
 import TransactionCard from '@cmp/tx/tx.card';
 
 export default {
@@ -90,6 +91,8 @@ export default {
   },
 
   components: {
+    BRow,
+    BCol, 
     BPagination,
     TransactionCard,
     // BPopover

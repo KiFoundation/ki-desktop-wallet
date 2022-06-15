@@ -92,7 +92,7 @@
     </div>
 
     <footer class="copyright">
-      KiFoundation 2020
+      KiFoundation 2022
     </footer>
   </div>
 </template>
@@ -252,7 +252,6 @@ export default {
     storeInWalletList(wallet_name) {
       // Store the wallet name in the wallet name list if it doesnot already exist
       if (localStorage.getItem('wallet_list')){
-        console.log("ok")
         const list = localStorage.getItem('wallet_list');
         localStorage.setItem(
           'wallet_list',

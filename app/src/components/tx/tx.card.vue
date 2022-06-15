@@ -5,14 +5,14 @@
 
         <b-col cols="2" class="flex-row d-flex align-items-center">
           <unicon name="location-arrow" :fill="colors.secondary" />
-          <h6 class="ml-2 text-truncate"><a :href="explorer+ '/transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
+          <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
         <b-col cols="1" style="padding-left:0px">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
             {{transaction[1]}}
           </b-badge>
         </b-col>
-        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate'">
+        <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate' || transaction[1]=='withdraw'">
           <a :href="explorer+ 'validator/' + transaction[6]" target="_blank" >
             <h6 class="ml-3 text-truncate" :title="transaction[6]">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6>
           </a>
@@ -32,7 +32,7 @@
             <h6 class="text-truncate" :title="transaction[2]">{{wallets_dict[transaction[2]]? wallets_dict[transaction[2]] : transaction[2] }}</h6>
           </a>
         </b-col>
-        <b-col cols="3">
+        <b-col cols="2" class="p-0">
           <span v-if="transaction[3] != ''">
             {{ globalData.kichain.token }} {{transaction[3]}}
           </span>
@@ -40,7 +40,8 @@
             -
           </span>
         </b-col>
-        <b-col cols="2"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
+        <b-col cols="1" class="p-0"><span>{{ globalData.kichain.token }} {{transaction[4]}}</span></b-col>
+        <b-col cols="2" class="pr-0" style="text-align: end;"><span style="font-size: 9pt;">{{formatDateTime(transaction[5])}}</span></b-col>
       </b-row>
     </b-col>
   </b-row>
@@ -48,10 +49,7 @@
 
 <script>
 import { BRow, BCol, BButton, BBadge, } from 'bootstrap-vue';
-import * as numeral from 'numeral';
 import { mapState } from 'vuex';
-import { tokenUtil } from '@static/js/token';
-import util from '@static/js/util';
 
 export default {
   data() {
@@ -83,8 +81,11 @@ export default {
     onSelecttransaction() {
       this.$emit('onSelecttransaction', this.transaction);
     },
-    formatAmount(amount) {
-      return tokenUtil.format(amount);
+    formatDateTime(timestamp) {
+      const date = new Date(Date.parse(timestamp))
+      const options = {year: '2-digit', month: 'short', day: 'numeric' };
+      const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' }
+      return  date.toLocaleTimeString(undefined, timeOptions) + " " + date.toLocaleDateString(undefined, options) 
     },
   },
 };

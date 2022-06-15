@@ -229,6 +229,7 @@ import {
 import {
   createAddress
 } from '@tendermint/sig';
+import { timingSafeEqual } from 'crypto';
 
 export default {
   components: {
@@ -245,6 +246,7 @@ export default {
   },
   data() {
     return {
+      prefix: this.globalData.kichain.prefix,
       workflow: ['Proceed', 'Import', 'Save'],
       step: 0,
       filter: 'no',
@@ -441,7 +443,7 @@ export default {
         if (!this.ms_address) {
           this.ms_address_correct = false;
         } else {
-          if (this.ms_address.substring(0, 3) != "ki1" || this.ms_address.length != 41) {
+          if (!this.ms_address.startsWith(this.prefix+"1") || this.ms_address.length != 39 + this.prefix.length) {
             this.ms_address_correct = false;
           } else {
             this.ms_address_correct = true;
@@ -453,7 +455,7 @@ export default {
         if (!this.offline_address) {
           this.offline_address_correct = false;
         } else {
-          if (this.offline_address.substring(0, 3) != "ki1" || this.offline_address.length != 41) {
+          if (!this.offline_address.startsWith(this.prefix+"1") || this.offline_address.length != 39 + this.prefix.length) {
             this.offline_address_correct = false;
           } else {
             this.offline_address_correct = true;

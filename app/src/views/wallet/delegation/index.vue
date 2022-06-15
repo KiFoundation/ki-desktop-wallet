@@ -152,6 +152,8 @@ import RedelegateModal from './modals/redelegate.modal';
 
 export default {
   components: {
+    BRow,
+    BCol,
     BButtonGroup,
     BButton,
     ValidatorCard,

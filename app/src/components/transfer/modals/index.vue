@@ -117,8 +117,6 @@
                   Download
                 </a>
               </span>
-
-
             </b-col>
           </b-row>
         </form>
@@ -129,13 +127,6 @@
 </template>
 
 <script>
-import {
-  KeyPair,
-  signTx,
-  verifyTx,
-  createWalletFromMnemonic,
-  createBroadcastTx,
-} from '@tendermint/sig';
 import { BRow, BCol, BContainer, BModal } from 'bootstrap-vue';
 import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
@@ -159,6 +150,7 @@ export default {
       selectedSet: 1,
       explorer: this.globalData.explorer,
       udenom: this.globalData.kichain.udenom,
+      prefix: this.globalData.kichain.prefix,
       unit: this.webCoin.unit,
       slider: null,
       thunk: null,
@@ -187,6 +179,7 @@ export default {
     ...mapState({
       wallets: state => state.wallets.list,
       account: state => state.account,
+      chainId: state => state.app.chainId,
     }),
 
     currentWallet() {
@@ -318,6 +311,9 @@ export default {
         memo: this.transfer.memo,
       };
 
+      const msg = [util.translateTx(transaction.msg[0])]
+      const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
+
       if (this.multisig) {
         this.transfer.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
@@ -327,19 +323,19 @@ export default {
       else {
         try {
         let res = await this.postTx({
-          transaction,
+          transaction: {msg: msg, fees: fees, memo: transaction.memo, prefix: this.prefix, chainId: this.chainId} ,
           password: this.wallet_pass_tmp,
         });
-
+        
         const $txhashlink = this.$createElement(
           'a',
           {
             attrs: {
-                href:  this.explorer + "transactions/" + res.data.txhash,
+                href:  this.explorer + "transactions/" + res.data.tx_response.txhash,
                 target: "_blank"
               }
           },
-           res.data.txhash.slice(0, 30) + "..."
+            res.data.tx_response.txhash.slice(0, 30) + "..."
         )
 
         this.$bvToast.toast([$txhashlink] , {

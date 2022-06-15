@@ -1,12 +1,7 @@
 <template>
-  <b-modal
-    :id="modalId"
-    tabindex="-1"
-    hide-footer
-    @show="resetData"
-  >
+  <b-modal :id="modalId" tabindex="-1" hide-footer @show="resetData">
     <div class="basic-form modal-body">
-      <div class="modal-header" >
+      <div class="modal-header">
         <h5 class="modal-title">
           Withdraw all rewards
         </h5>
@@ -15,28 +10,12 @@
         <div v-if="!multisig">
           <label>{{ $t('enter_password') }}</label>
           <div class="buttonInside">
-            <input
-              v-model="wallet_pass_tmp"
-              :type="password"
-              :class="[wallet_pass_tmp ? '' : withdraw.alert]"
-            />
-            <a
-              v-if="password == 'password'"
-              class="inside"
-              @click="password = 'text'"
-              ><img
-                src="static/img/icons/eye-on.png"
-                style="width:25px; opacity:0.2"
-            /></a>
+            <input v-model="wallet_pass_tmp" :type="password" :class="[wallet_pass_tmp ? '' : withdraw.alert]" />
+            <a v-if="password == 'password'" class="inside" @click="password = 'text'"><img
+                src="static/img/icons/eye-on.png" style="width:25px; opacity:0.2" /></a>
 
-            <a
-              v-if="password == 'text'"
-              class="inside"
-              @click="password = 'password'"
-              ><img
-                src="static/img/icons/eye-off.png"
-                style="width:25px; opacity:0.2"
-            /></a>
+            <a v-if="password == 'text'" class="inside" @click="password = 'password'"><img
+                src="static/img/icons/eye-off.png" style="width:25px; opacity:0.2" /></a>
           </div>
         </div>
         <li v-if="withdraw.output != ''" class="token">
@@ -45,11 +24,7 @@
         </li>
         <b-row align-v="center" align-h="center">
           <b-col class="text-center">
-            <button
-              class="btn btn-primary"
-              :disabled="tx.loading === true"
-              @click="sendWithdrawTx"
-            >
+            <button class="btn btn-primary" :disabled="tx.loading === true" @click="sendWithdrawTx">
               <div v-if="!tx.loading">
                 <span v-if="!multisig">
                   {{ $t('withdrawtx') }}
@@ -70,8 +45,10 @@
 <script>
 import { BRow, BCol, BSpinner, BModal } from 'bootstrap-vue';
 import * as numeral from 'numeral';
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
+import util from '@static/js/util';
+
 export default {
   components: {
     BRow,
@@ -96,6 +73,9 @@ export default {
   data() {
     return {
       udenom: this.globalData.kichain.udenom,
+      explorer: this.globalData.explorer,
+      prefix: this.globalData.kichain.prefix,
+
       withdraw: {
         alert: '',
         config: 0,
@@ -106,6 +86,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      chainId: state => state.app.chainId,
+    }),  
     currentWallet() {
       return this.$store.state.wallets.current;
     },
@@ -148,8 +131,8 @@ export default {
       }
 
       var msg_withdraw_reward = []
-      for ( var validator of this.validators ){
-        if (numeral(this.rewards[validator.operator_address]).value() > 2 ){
+      for (var validator of this.validators) {
+        if (numeral(this.rewards[validator.operator_address]).value() > 2) {
           msg_withdraw_reward.push({
             type: 'cosmos-sdk/MsgWithdrawDelegationReward',
             value: {
@@ -161,7 +144,7 @@ export default {
       }
 
       const limit = Math.max(200000, msg_withdraw_reward.length * 100000);
-      const fees = limit * 0.025
+      const fee = limit * 0.025
 
 
       const transaction = {
@@ -169,7 +152,7 @@ export default {
         fee: {
           amount: [{
             denom: this.udenom,
-            amount: fees.toString(),
+            amount: fee.toString(),
           }],
           gas: limit.toString(),
         },
@@ -177,6 +160,14 @@ export default {
       };
 
       transaction.msg = msg_withdraw_reward;
+
+      var msg = []
+
+      for (var tmsg of transaction.msg) {
+        msg.push(util.translateTx(tmsg))
+      }
+
+      const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
 
       if (this.multisig) {
         this.withdraw.output =
@@ -187,11 +178,32 @@ export default {
 
       else {
         try {
-          await this.postTx({
-            transaction,
+          if (msg.length == 0) {
+            throw new Error('Not enough rewards to withdraw');
+          }
+
+          let res = await this.postTx({
+            transaction: {msg: msg, fees: fees, memo: transaction.memo, prefix: this.prefix, chainId: this.chainId} ,
             password: this.wallet_pass_tmp,
           });
-          this.$bvToast.toast('Transaction sent with success', {
+
+          if (res.data.tx_response.code && res.data.tx_response.code != 0){
+            throw new TypeError(res.data.tx_response.raw_log)
+          }
+
+          const $txhashlink = this.$createElement(
+          'a',
+          {
+            attrs: {
+                href:  this.explorer + "transactions/" + res.data.tx_response.txhash,
+                target: "_blank"
+              }
+          },
+           res.data.tx_response.txhash.slice(0, 30) + "..."
+          )
+
+          this.$bvToast.toast([$txhashlink], {
+            title: `Transaction success`,
             variant: 'success',
             autoHideDelay: 2000,
             noCloseButton: true,
@@ -200,9 +212,9 @@ export default {
           });
           this.$emit('onWithdrawSuccess');
         } catch (error) {
-          this.$bvToast.toast(error, {
+          this.$bvToast.toast(error.message, {
             variant: 'danger',
-            autoHideDelay: 2000,
+            autoHideDelay: 5000,
             solid: true,
             noCloseButton: true,
             toaster: 'b-toaster-bottom-center',
@@ -215,4 +227,5 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

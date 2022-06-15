@@ -117,10 +117,8 @@
 
 <script>
 import { BRow, BCol, BSpinner, BModal, BBadge } from 'bootstrap-vue';
-import * as numeral from 'numeral';
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
-import { tokenUtil } from '@static/js/token';
 import FeesInput from '@cmp/tx/fees.input';
 import util from '@static/js/util';
 
@@ -150,6 +148,8 @@ export default {
       udenom: this.globalData.kichain.udenom,
       token: this.globalData.kichain.token,
       explorer: this.globalData.explorer,
+      prefix: this.globalData.kichain.prefix,
+
       delegate: {
         alert: '',
         validator: this.validator.operator_address,
@@ -167,7 +167,10 @@ export default {
       wallet_pass_tmp: '',
     };
   },
-  computed: {
+  computed: { 
+    ...mapState({
+      chainId: state => state.app.chainId,
+    }),
     currentWallet() {
       return this.$store.state.wallets.current;
     },
@@ -265,6 +268,9 @@ export default {
         memo: '',
       };
 
+      const msg = [util.translateTx(transaction.msg[0])]
+      const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
+
       if (this.multisig) {
         this.delegate.output =
           '{ "type": "cosmos-sdk/StdTx", "value":' +
@@ -275,7 +281,7 @@ export default {
       else{
       try {
         let res = await this.postTx({
-          transaction,
+          transaction: {msg: msg, fees: fees, memo: transaction.memo, prefix: this.prefix, chainId: this.chainId} ,
           password: this.wallet_pass_tmp,
         });
 
@@ -287,11 +293,11 @@ export default {
           'a',
           {
             attrs: {
-                href:  this.explorer + "transactions/" + res.data.txhash,
+                href:  this.explorer + "transactions/" + res.data.tx_response.txhash,
                 target: "_blank"
               }
           },
-           res.data.txhash.slice(0, 30) + "..."
+           res.data.tx_response.txhash.slice(0, 30) + "..."
         )
 
         this.$bvToast.toast([$txhashlink] , {

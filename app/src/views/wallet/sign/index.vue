@@ -189,6 +189,10 @@ import {
 
 
 export default {
+    components: {
+    BRow,
+    BCol,
+  },
   data() {
     return {
       denom: this.globalData.kichain.denom,
@@ -484,7 +488,7 @@ export default {
             } else {
               res = response.data.result.value;
             }
-            sequence_ = res.sequence;
+            sequence_ = res.sequence || "0";
             account_number_ = res.account_number;
           }
 

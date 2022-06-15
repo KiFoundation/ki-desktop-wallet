@@ -19,29 +19,6 @@
 </template>
 
 <script>
-import {
-  KeyPair,
-  signTx,
-  verifyTx,
-  createWalletFromMnemonic,
-  createBroadcastTx,
-} from '@tendermint/sig';
-import {
-  BContainer,
-  BModal,
-  BTooltip,
-} from 'bootstrap-vue';
-import {
-  mapState,
-  mapActions,
-  mapGetters
-} from 'vuex';
-
-import {
-  GET_CURRENT_WALLET_BALANCES_AMOUNT,
-  GET_CURRENT_WALLET_BALANCES_DENOM,
-  HYDRATE_CURRENT_WALLET,
-} from '@store/wallets';
 
 export default {
   components: {
