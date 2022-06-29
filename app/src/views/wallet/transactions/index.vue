@@ -12,7 +12,18 @@
               <b-col cols="2">To</b-col>
               <b-col cols="2" class="p-0">Amount</b-col>
               <b-col cols="1" class="p-0">Fees</b-col>
-              <b-col cols="2" />
+              <b-col cols="1" />
+              <b-col cols="" class="pr-0" style="text-align: end;">
+                <a
+                  role="button"
+                  class="d-flex flex-column"
+                  @click="downloadTxs()"
+                  title="Export transaction history"
+                >
+                  <unicon name="file-download-alt" fill="#2d1d67" 
+                  />
+                </a> 
+              </b-col>
             </b-row>
           </b-col>
         </b-row>
@@ -57,12 +68,7 @@
           {{ $t('webwallet_no_transactions') }}
         </div>
       </div>
-      <!-- <b-popover  triggers="hover" placement="bottom"> -->
-         <!-- {{transaction[6]}} -->
-       <!-- </b-popover> -->
     </div>
-
-    <!-- </section> -->
 </template>
 
 <script>
@@ -100,12 +106,44 @@ export default {
   computed: {
     ...mapState({
       transactions: state => state.wallets.current.transactions,
-      // wallets_dict: state => state.wallets.dict,
-      // validators_dict: state => state.wallets.current.validators_dict,
     }),
+    currentWallet() {
+      return this.$store.state.wallets.current;
+    },
 
   },
+  methods:{
+    downloadTxs(){
+      let filename = 'transaction_export_' + this.currentWallet.address + '.csv';
+      let csv_data = "TIMESTAMP,TX_HASH,TYPE,FROM,TO,AMOUNT,FEES\n"
+      for (var tx of this.transactions){
+        csv_data += [tx[5], tx[0], tx[1], tx[6], tx[2], tx[3], tx[4]].join(",")  + '\n'
+      }
+      
+      console.log(csv_data);
+      
+      let href =
+        'data:text/plain;charset=utf-8,' +
+        encodeURIComponent(csv_data);
+
+      var element = document.createElement('a');
+      element.setAttribute('href', href);
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
+  }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+  a:not([href]) {
+    color: var(--blueColor);
+    font-size: 8px;
+  }
+</style>
