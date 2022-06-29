@@ -418,6 +418,10 @@ class Util {
       date_today.getFullYear();
     return date_today_s
   }
+
+  shortenAddress(address_) {
+    return address_.slice(0, 9) + "..." + address_.slice(-5, address_.length);
+  }
 }
 
 let util = new Util();
