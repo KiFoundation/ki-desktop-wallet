@@ -5,7 +5,7 @@
 
         <b-col cols="2" class="flex-row d-flex align-items-center">
           <unicon name="location-arrow" :fill="colors.secondary" />
-          <h6 class="ml-2 text-truncate"><a :href="explorer+ 'transactions/' + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
+          <h6 class="ml-2 text-truncate"><a :href="explorer+  (network == 'Mainnet'? 'txs/' : 'transactions/') + transaction[0]" target="_blank" > {{ transaction[0] }}</a></h6>
         </b-col>
         <b-col cols="1" style="padding-left:0px">
           <b-badge :class="[ 'badge-'+transaction[1]]" :style="{ fontSize: '12px' }" >
@@ -13,7 +13,7 @@
           </b-badge>
         </b-col>
         <b-col cols="2" v-if="transaction[1]=='undelegate' || transaction[1]=='redelegate' || transaction[1]=='withdraw'">
-          <a :href="explorer+ 'validator/' + transaction[6]" target="_blank" >
+          <a :href="explorer+ 'validators/' + transaction[6]" target="_blank" >
             <h6 class="ml-3 text-truncate" :title="transaction[6]">{{validators_dict[transaction[6]] ? validators_dict[transaction[6]].moniker : transaction[6] }}</h6>
           </a>
         </b-col>
@@ -23,7 +23,7 @@
           </a>
         </b-col>
         <b-col cols="2" v-if="transaction[1]=='delegate' || transaction[1]=='undelegate' || transaction[1]=='redelegate'">
-          <a :href="explorer+ 'validator/' + transaction[2]" target="_blank" >
+          <a :href="explorer+ 'validators/' + transaction[2]" target="_blank" >
             <h6 class="text-truncate" :title="transaction[2]">{{validators_dict[transaction[2]] ? validators_dict[transaction[2]].moniker : transaction[2] }}</h6>
           </a>
         </b-col>
@@ -54,6 +54,7 @@ import { mapState } from 'vuex';
 export default {
   data() {
     return {
+      prefix: this.globalData.kichain.network.network,
       explorer:this.globalData.explorer
     }
   },
