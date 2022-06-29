@@ -107,9 +107,8 @@ class Util {
 
       case 'cosmos-sdk/MsgWithdrawValidatorCommission':
         return {
-          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission',
           value: {
-            delegatorAddress: msg.value.delegator_address,
             validatorAddress: msg.value.validator_address,
           }
         }
