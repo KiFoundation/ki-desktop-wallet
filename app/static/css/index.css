@@ -925,9 +925,16 @@ a.custom-card:hover {
   margin-right: 5px;
   font-size: 10px;
   border-radius: 50px;
+  background-color: #eeeeee;
+  color: #9c9c9c;
+}
+
+
+.badge-send {
   background-color: #f6f2ff;
   color: #9c6cff;
 }
+
 
 .badge-undelegate,
 .badge-redelegate,
@@ -941,7 +948,8 @@ a.custom-card:hover {
   color: #9c6cff;
 }
 
-.badge-receive {
+.badge-receive,
+.badge-withdraw {
     background-color: #b8e7bb;
     color: #55bf5a;
 }

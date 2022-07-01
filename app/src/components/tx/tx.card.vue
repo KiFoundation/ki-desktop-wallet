@@ -54,7 +54,7 @@ import { mapState } from 'vuex';
 export default {
   data() {
     return {
-      prefix: this.globalData.kichain.network.network,
+      network: this.globalData.kichain.network.network,
       explorer:this.globalData.explorer
     }
   },
