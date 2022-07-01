@@ -255,7 +255,6 @@ export default {
             password: this.wallet_pass_tmp,
           });
 
-          console.log(res.data);
           if (res.data.tx_response.code && res.data.tx_response.code != 0){
             throw new TypeError(res.data.tx_response.raw_log)
           }
