@@ -1,34 +1,29 @@
 {
-  "parser": "vue-eslint-parser",
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
   "parserOptions": {
     "parser": "babel-eslint",
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaVersion": 2018
   },
-  "extends": [
-    // add more generic rulesets here, such as:
-    // "eslint:recommended",
-    "plugin:vue/vue3-recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:vue/recommended"],
   "rules": {
-    // override/add rules settings here, such as:
-    // 'vue/no-unused-vars': 'error'
-    "vue/component-tags-order": [
-      "error",
-      {
-        "order": ["template", "script", "style"]
-      }
-    ],
-    "vue/html-self-closing": [
-      "error",
-      {
-        "html": {
-          "void": "always",
-          "normal": "always",
-          "component": "always"
-        },
-        "svg": "always",
-        "math": "always"
-      }
-    ]
-  }
+    "no-unused-vars": "warn",
+    "no-async-promise-executor": "warn",
+    "no-empty": "warn",
+    "no-redeclare": "warn",
+    "no-extra-semi": "warn",
+    "no-useless-escape": "warn",
+    "no-undef": "warn",
+    "no-global-assign": "warn",
+    "no-unreachable": "warn",
+    "no-prototype-builtins": "warn",
+    "no-dupe-keys": "warn",
+    "no-sparse-arrays": "warn"
+  },
+  "plugins": ["vue"]
 }
