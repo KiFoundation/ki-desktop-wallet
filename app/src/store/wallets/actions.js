@@ -133,7 +133,8 @@ export const actions = {
               ])
               break;
 
-            case "withdraw":
+            case "withdraw": 
+            {
               var amount = 0
               let withdraw_msg = tx.logs[0].events.filter(e => {
                 return e.type.includes('withdraw_rewards');
@@ -150,6 +151,7 @@ export const actions = {
                 fee, tx.timestamp, tx.tx.body.messages[0].validator_address,
               ])
               break;
+            }
 
             default:
               transactions.push([tx.txhash, type,
