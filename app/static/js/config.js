@@ -14,5 +14,5 @@ export default {
     },
   },
   domain: 'http://localhost/',
-  explorer: 'https://blockchain.ki/'
+  explorer: 'https://mintscan.io/'
 };
