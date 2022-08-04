@@ -152,30 +152,16 @@
 
 <script>
 import {
-  mapActions,
   mapState
 } from 'vuex';
 import {
   services
 } from '@services/index';
-import {
-  signTx,
-  createBroadcastTx
-} from '@tendermint/sig';
 import util from '@static/js/util';
 import {
   BRow,
   BCol,
-  BButton,
 } from 'bootstrap-vue';
-
-
-import {
-  MsgSend
-} from "cosmjs-types/cosmos/bank/v1beta1/tx";
-import {
-  TxRaw
-} from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {
   Secp256k1Wallet,
   encodeSecp256k1Pubkey,
@@ -184,9 +170,16 @@ import {
   SignerData,
   SigningStargateClient,
   StargateClient,
+  GasPrice
 } from '@cosmjs/stargate'
+// import{
+//   OfflineSigner
+// } from 'cosmjs/launchpad'
+import {
+    DirectSecp256k1Wallet,
+} from '@cosmjs/proto-signing'
 
-
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 export default {
     components: {
@@ -348,12 +341,10 @@ export default {
     downloadSig() {
       return util.download(this.sign.file.name.replace(".json", "") + "_signed_" + this.account.name  + ".json", document, this.sign.signature);
     },
-
     async singleSign(signingInstruction, key) {
       const wallet = await Secp256k1Wallet.fromKey(key, this.prefix);
       const pubkey = encodeSecp256k1Pubkey((await wallet.getAccounts())[0].pubkey);
       const address = (await wallet.getAccounts())[0].address;
-
       const signingClient = await SigningStargateClient.offline(wallet);
 
       const signerData = {
@@ -361,7 +352,6 @@ export default {
         sequence: signingInstruction.sequence,
         chainId: signingInstruction.chainId,
       };
-
 
       try {
         const {
@@ -388,99 +378,18 @@ export default {
         console.log(err);
       }
     },
-
-    translateTx(transaction){
-      switch (transaction.msg[0].type) {
-        case 'cosmos-sdk/MsgSend':
-          return {
-            typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-            value: {
-              fromAddress: transaction.msg[0].value.from_address,
-              toAddress: transaction.msg[0].value.to_address,
-              amount: transaction.msg[0].value.amount
-            }
-          }
-
-        break;
-
-        case 'cosmos-sdk/MsgDelegate':
-          return {
-            typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-            value: {
-              delegatorAddress: transaction.msg[0].value.delegator_address,
-              validatorAddress: transaction.msg[0].value.validator_address,
-              amount: transaction.msg[0].value.amount
-            }
-          }
-
-        break;
-
-        case 'cosmos-sdk/MsgUndelegate':
-          return {
-            typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
-            value: {
-              delegatorAddress: transaction.msg[0].value.delegator_address,
-              validatorAddress: transaction.msg[0].value.validator_address,
-              amount: transaction.msg[0].value.amount
-            }
-          }
-
-        break;
-
-        case 'cosmos-sdk/MsgBeginRedelegate':
-          return {
-            typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
-            value: {
-              delegatorAddress: transaction.msg[0].value.delegator_address,
-              validatorSrcAddress: transaction.msg[0].value.validator_src_address,
-              validatorDstAddress: transaction.msg[0].value.validator_dst_address,
-              amount: transaction.msg[0].value.amount
-            }
-          }
-
-        break;
-
-        case 'cosmos-sdk/MsgWithdrawDelegationReward':
-          return {
-            typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-            value: {
-              delegatorAddress: transaction.msg[0].value.delegator_address,
-              validatorAddress: transaction.msg[0].value.validator_address,
-            }
-          }
-        break;
-
-        case 'cosmos-sdk/MsgWithdrawValidatorCommission':
-          return {
-            typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-            value: {
-              validatorAddress: transaction.msg[0].value.validator_address,
-            }
-          }
-        break;
-
-        default:
-          return 'The file does not seem to contain a valid transaction structure.';
-      }
-    },
-
     async signTxFile() {
       let signingInstruction
       let transaction = JSON.parse(this.sign.file_content).value;
       if(!this.signRawData){
         if(transaction.msg.length == 1) {
-
           let account = this.sign.onbehalf == '' ? this.account.id : this.sign.onbehalf;
-
           if (transaction.hasOwnProperty('signatures')) {
             delete transaction['signatures'];
           }
-
           const response = await services.auth.fetchAccount(account);
-
           let sequence_ = 0;
           let account_number_ = '';
-
           if (response.data.result.value) {
             let res = '';
             if (response.data.result.type == 'cosmos-sdk/ContinuousVestingAccount' || response.data.result.type == 'cosmos-sdk/DelayedVestingAccount') {
@@ -491,10 +400,8 @@ export default {
             sequence_ = res.sequence || "0";
             account_number_ = res.account_number;
           }
-
           const msg = this.translateTx(transaction)
           const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
-
           signingInstruction = {
             accountNumber: parseInt(account_number_),
             sequence: parseInt(sequence_),
@@ -508,19 +415,15 @@ export default {
       else {
         signingInstruction = JSON.parse(this.sign.file_content)
       }
-
       try {
         var CryptoJS = require('crypto-js');
         var bytes = CryptoJS.AES.decrypt(this.key, this.wallet_pass_tmp);
-
         let key = Buffer.from(bytes.toString(CryptoJS.enc.Utf8), 'hex');
         let signedTransactionme = await this.singleSign(signingInstruction, key)
         this.sign.signature = JSON.stringify(signedTransactionme);
         this.wallet_pass_tmp = ''
-
       } catch (error) {
         let humanizedError;
-
         if (
           RegExp(
             `^RangeError: private key length is invalid|Malformed UTF-8 data`,
@@ -536,9 +439,6 @@ export default {
           toaster: 'b-toaster-bottom-center',
         });
       }
-    },
-
-    signDataFile(){
     },
 
     findWalletName(address) {

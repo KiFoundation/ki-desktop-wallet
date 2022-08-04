@@ -29,7 +29,7 @@
           color: colors.secondary,
         }"
       >
-        {{ wallet.address }}
+        {{ formatAddress(wallet.address) }}
       </h6>
     </b-col>
 
@@ -112,6 +112,9 @@ export default {
       this.$bvModal.hide('#edit-form-'+this.wallet.account);
       window.location.reload();
 
+    },
+    formatAddress(address){
+      return util.shortenAddress(address)
     },
     deleteWallet(){
       if(confirm("Do you really want to delete " + this.wallet.account+ " ?") ) {

@@ -107,9 +107,8 @@ class Util {
 
       case 'cosmos-sdk/MsgWithdrawValidatorCommission':
         return {
-          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission',
           value: {
-            delegatorAddress: msg.value.delegator_address,
             validatorAddress: msg.value.validator_address,
           }
         }
@@ -417,6 +416,10 @@ class Util {
       ('0' + (date_today.getMonth() + 1)).slice(-2) +
       date_today.getFullYear();
     return date_today_s
+  }
+
+  shortenAddress(address_) {
+    return address_.slice(0, 9) + "..." + address_.slice(-5, address_.length);
   }
 }
 

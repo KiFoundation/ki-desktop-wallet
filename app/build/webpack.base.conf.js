@@ -2,8 +2,9 @@
 const path = require('path');
 const utils = require('./utils');
 const config = require('../config');
-const vueLoaderConfig = require('./vue-loader.conf');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
@@ -36,19 +37,12 @@ module.exports = {
       jquery: 'jquery',
     },
   },
-  plugins: [
-    new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
-    }),
-  ],
   module: {
     rules: [
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: vueLoaderConfig,
+        include: [resolve('src')],
       },
       {
         test: /\.js|.jsx$/,
@@ -95,6 +89,18 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new VueLoaderPlugin(),
+    new HtmlWebpackPlugin({
+      template: 'index.html',
+      chunksSortMode: 'dependency',
+    }),
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
+    }),
+  ],
   node: {
     // prevent webpack from injecting useless setImmediate polyfill because Vue
     // source contains it (although only uses it if it's native).
