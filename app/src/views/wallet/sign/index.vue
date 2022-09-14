@@ -172,14 +172,6 @@ import {
   StargateClient,
   GasPrice
 } from '@cosmjs/stargate'
-// import{
-//   OfflineSigner
-// } from 'cosmjs/launchpad'
-import {
-    DirectSecp256k1Wallet,
-} from '@cosmjs/proto-signing'
-
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 export default {
     components: {
@@ -400,7 +392,7 @@ export default {
             sequence_ = res.sequence || "0";
             account_number_ = res.account_number;
           }
-          const msg = this.translateTx(transaction)
+          const msg = util.translateTx(transaction.msg[0])
           const fees = transaction.fee.amount[0].amount === '0' ? { "amount": [], "gas": transaction.fee.gas } : transaction.fee
           signingInstruction = {
             accountNumber: parseInt(account_number_),
