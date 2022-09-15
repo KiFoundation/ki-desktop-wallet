@@ -25,6 +25,6 @@
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
     "electron-packager": "^15.1.0",
-    "minimist": ">=0.2.1"
+    "minimist": ">=1.2.6"
   }
 }
