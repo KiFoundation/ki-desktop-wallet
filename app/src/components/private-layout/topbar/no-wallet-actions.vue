@@ -204,8 +204,8 @@ export default {
         const responseBalances = await services.wallet.fetchBalancesList(
           this.wallets[w].address,
         );
-        if(responseBalances.data.result[0]){
-          total += parseInt(responseBalances.data.result[0].amount)
+        if(responseBalances.data.result.length){
+          total += parseInt(responseBalances.data.result.find(balance => balance.denom === 'uxdki').amount);
         }
 
         const responseDelegations = await services.wallet.fetchDelegatorsDelegationsList(

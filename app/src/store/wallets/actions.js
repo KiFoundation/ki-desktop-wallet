@@ -349,8 +349,8 @@ export const actions = {
       }
 
 
-      if (responseBalances.data.result[0]) {
-        available = parseInt(responseBalances.data.result[0].amount)
+      if (responseBalances.data.result.length) {
+        available = parseInt(responseBalances.data.result.find(balance => balance.denom === 'uxki').amount);
       }
 
       if (responseDelegation.data.result[0]) {
