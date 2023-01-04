@@ -350,7 +350,7 @@ export const actions = {
 
 
       if (responseBalances.data.result.length) {
-        available = parseInt(responseBalances.data.result.find(balance => balance.denom === 'uxki').amount);
+        available = parseInt(responseBalances.data.result.find(balance => balance.denom === config.kichain.udenom).amount);
       }
 
       if (responseDelegation.data.result[0]) {
