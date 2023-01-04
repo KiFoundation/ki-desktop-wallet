@@ -13,6 +13,7 @@ export const FETCH_WALLET_BALANCES = 'FETCH_WALLET_BALANCES';
 export const FETCH_WALLET_VALIDATORS = 'FETCH_WALLET_VALIDATORS';
 export const FETCH_WALLET_REWARDS = 'FETCH_WALLET_REWARDS';
 
+import config from '@static/js/config';
 import util from '@static/js/util';
 import { tokenUtil } from '@static/js/token';
 
