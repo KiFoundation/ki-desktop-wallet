@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "allowJs": false,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitThis": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "types": [
+      "vite/client",
+    ],
+    "paths": {
+      "@static/*": [
+        "public/*"
+      ],
+      "@cmp/*": [
+        "components/*"
+      ],
+      "@helpers/*": [
+        "helpers/*"
+      ],
+      "@views/*": [
+        "views/*"
+      ],
+      "@services/*": [
+        "services/*"
+      ],
+      "@router/*": [
+        "router/*"
+      ],
+      "@store/*": [
+        "store/*"
+      ],
+      "types": [
+        "types/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "@vue/tsconfig/tsconfig.json"
+}
