@@ -25,7 +25,7 @@
     "linux": {
         "icon": "assets/icons/linux/icon.png",
         "target": [
-            "snap"
+            "deb"
         ]
     },
     "files": [

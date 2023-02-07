@@ -4,7 +4,8 @@
   "version": "0.4.5",
   "private": true,
   "description": "ki-wallet",
-  "author": "Ki Foundation",
+  "email": "contact@foundation.ki",
+  "author": "Ki Foundation<contact@foundation.ki>",
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "build": "node scripts/build.production.js",
