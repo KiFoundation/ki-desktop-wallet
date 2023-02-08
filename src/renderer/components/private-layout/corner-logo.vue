@@ -6,7 +6,7 @@
       name: 'home',
     }"
   >
-    <BImg :src="logo" fluid :style="{ height: '50%' }" />
+    <img src="/img/chain/kichain_icon@2x.png" :style="{ height: '50%', objectFit: 'contain' }" alt="" />
   </router-link>
 </template>
 

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 import publicRoutes from './public';
 import privateRoutes from './private';
@@ -9,38 +9,44 @@ import PrivateLayout from '@cmp/private-layout/index.vue';
 export const routes = [...publicRoutes, ...privateRoutes];
 
 const router = createRouter({
-  history: import.meta.env.IS_ELECTRON ? createWebHashHistory() : createWebHistory(),
+  history: createWebHashHistory(),
   linkExactActiveClass: 'active',
   routes: [
     {
       path: '/',
       component: PublicLayout,
+      name: 'publicHome',
+      meta: {
+        public: true,
+      },
       children: [
         ...publicRoutes,
         {
           path: '/',
+          name: 'privateHome',
           component: PrivateLayout,
+          meta: {
+            public: false,
+          },
           children: [...privateRoutes],
         },
       ],
     },
     {
       path: '/:pathMatch(.*)*',
-      redirect: {
-        name: 'login',
-      },
+      redirect: '/',
     },
   ],
 });
 
-router.beforeResolve(async (to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const identity = await localStorage.getItem('identity_kichain');
-  var proceed = identity;
-
-  if (!to.meta.public && !proceed) {
-    next({
-      name: 'login',
-    });
+  if (to.matched.some((record) => record.meta.public === false)) {
+    if (identity) {
+      next();
+    } else {
+      next('/login');
+    }
   } else {
     next();
   }

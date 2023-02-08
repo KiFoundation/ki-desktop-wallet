@@ -1,5 +1,7 @@
-import { app, BrowserWindow, ipcMain, session } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
+
+app.setName('Ki Desktop Wallet Dev');
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -10,17 +12,17 @@ function createWindow() {
       preload: join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: true,
-      devTools: !app.isPackaged,
+      webSecurity: false,
     },
     show: false,
   });
 
-  if (process.env.NODE_ENV === 'development') {
+  /* if (process.env.NODE_ENV === 'development') {
     const rendererPort = process.argv[2];
     mainWindow.loadURL(`http://localhost:${rendererPort}`);
-  } else {
-    mainWindow.loadFile(join(app.getAppPath(), 'renderer', 'index.html'));
-  }
+  } else { */
+  mainWindow.loadFile(join(app.getAppPath(), '..', 'renderer', 'index.html'));
+  // }
 
   return mainWindow;
 }
@@ -57,6 +59,11 @@ function createMainWindow() {
     splashScreen.destroy();
     mainWindow.show();
     mainWindow.focus();
+  });
+
+  mainWindow.webContents.on('did-fail-load', () => {
+    console.log('did-fail-load');
+    mainWindow.loadFile(join(app.getAppPath(), '..', 'renderer', 'index.html'));
   });
 }
 

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { BSpinner, BContainer, BRow } from 'bootstrap-vue';
+import { BSpinner } from 'bootstrap-vue';
 import { mapMutations, mapState, mapActions } from 'vuex';
 import { SET_WALLETS_LIST, SET_WALLETS_DICT, SET_CATEGORY_LIST } from '@store/wallets';
 import { SET_ACCOUNT, GET_PRICE } from '@store/account';
@@ -83,6 +83,7 @@ export default {
       await this.getPrice();
       this.isLoading = false;
     };
+
     bootstrap();
   },
   mounted() {
@@ -112,7 +113,6 @@ export default {
         }
 
         const identity = localStorage.getItem('identity_kichain');
-
         if (identity) {
           let identity_j;
           try {

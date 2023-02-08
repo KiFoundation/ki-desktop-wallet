@@ -101,7 +101,7 @@ import { mapState, mapActions } from 'vuex';
 import { POST_TX } from '@store/tx';
 import FeesInput from '@cmp/tx/fees.input.vue';
 import util from '@helpers/util';
-import { availableTokens, getTokenNameByDenom } from '@helpers/token';
+import { availableTokens } from '@helpers/token';
 
 export default {
   inject: ['globalData', 'webCoin'],
@@ -339,17 +339,25 @@ export default {
     },
 
     setTokens(flag) {
-      var available_tokens = parseFloat(this.currentWallet.balances.available.replace(/,/g, ''));
+      let availableTokens;
+      var availableXKI_tokens = parseFloat(this.currentWallet.balances.available.replace(/,/g, ''));
+      var availableUSDC_tokens = parseFloat(this.currentWallet.balances.availableUSDC.replace(/,/g, ''));
+
+      if (this.transfer.token === this.globalData.kichain.udenom) {
+        availableTokens = availableXKI_tokens;
+      } else {
+        availableTokens = availableUSDC_tokens;
+      }
 
       if (flag == 0) {
         //all
-        this.transfer.amount = available_tokens - 1 > 0 ? available_tokens - 1 : 0;
+        this.transfer.amount = availableTokens - 1 > 0 ? availableTokens - 1 : 0;
       }
 
       if (flag == 1) {
         //half
         this.transfer.amount =
-          available_tokens > 1 ? Number(Math.round(available_tokens / 2 + 'e6') + 'e-6') : 0;
+          availableTokens > 1 ? Number(Math.round(availableTokens / 2 + 'e6') + 'e-6') : 0;
       }
     },
     download() {

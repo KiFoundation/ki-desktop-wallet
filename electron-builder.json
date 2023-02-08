@@ -8,8 +8,7 @@
     "nsis": {
         "oneClick": false,
         "perMachine": false,
-        "allowToChangeInstallationDirectory": true,
-        "shortcutName": "Ki Desktop Wallet"
+        "allowToChangeInstallationDirectory": true
     },
     "win": {
         "icon": "assets/icons/win/icon.ico",
