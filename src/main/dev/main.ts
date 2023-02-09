@@ -62,7 +62,6 @@ function createMainWindow() {
   });
 
   mainWindow.webContents.on('did-fail-load', () => {
-    console.log('did-fail-load');
     mainWindow.loadFile(join(app.getAppPath(), '..', 'renderer', 'index.html'));
   });
 }

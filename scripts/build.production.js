@@ -20,7 +20,7 @@ function buildRenderer() {
 
 function replaceVersionInHTML() {
   const htmlFiles = [
-    Path.join(__dirname, '..', 'build', 'main', 'static', 'splashscreen.html'),
+    Path.join(__dirname, '..', 'build', 'main', 'static', 'splashscreen-template.html'),
     Path.join(__dirname, '..', 'build', 'renderer', 'index.html'),
   ];
 
@@ -32,7 +32,7 @@ function replaceVersionInHTML() {
       }
       var result = data.replace(/%VERSION%/g, version);
 
-      FileSystem.writeFile(htmlPath, result, 'utf8', function (err) {
+      FileSystem.writeFile(htmlPath.replace('-template', ''), result, 'utf8', function (err) {
         if (err) return console.log(err);
       });
     });
