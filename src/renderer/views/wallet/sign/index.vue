@@ -191,6 +191,12 @@ export default {
       this.signRawData = !this.signRawData;
       this.sign.summary = this.parseMessage(this.sign.file_content);
     },
+    getDenomFormatted(denom: string) {
+      if (denom === this.globalData.kichain.denom) {
+        return this.globalData.kichain.denom;
+      }
+      return 'usdc';
+    },
     parseMessage(file) {
       if (!this.signRawData) {
         try {
@@ -204,7 +210,7 @@ export default {
               return (
                 'Send:\t ' +
                 msg.value.amount[0].amount / Math.pow(10, 6) +
-                this.denom +
+                this.getDenomFormatted(msg.value.amount[0].denom) +
                 '\nfrom:\t ' +
                 msg.value.from_address +
                 '\t\t(' +
@@ -225,7 +231,7 @@ export default {
               return (
                 'Delegate:\t ' +
                 msg.value.amount.amount / Math.pow(10, 6) +
-                this.denom +
+                this.getDenomFormatted(msg.value.amount.denom) +
                 '\nfrom:\t\t ' +
                 msg.value.delegator_address +
                 '\t\t(' +
@@ -243,7 +249,7 @@ export default {
               return (
                 'Unbond:\t ' +
                 msg.value.amount.amount / Math.pow(10, 6) +
-                this.denom +
+                this.getDenomFormatted(msg.value.amount.denom) +
                 '\nfrom:\t ' +
                 msg.value.validator_address
               );
@@ -256,7 +262,7 @@ export default {
               return (
                 'Redelegate:\t ' +
                 msg.value.amount.amount / Math.pow(10, 6) +
-                this.denom +
+                this.getDenomFormatted(msg.value.amount.denom) +
                 '\nfrom:\t\t ' +
                 msg.value.validator_src_address +
                 ' \nto:\t\t\t ' +

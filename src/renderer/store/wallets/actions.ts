@@ -15,6 +15,7 @@ export const FETCH_WALLET_REWARDS = 'FETCH_WALLET_REWARDS';
 
 import { getTokenNameByDenom, tokenUtil } from '@helpers/token';
 import util from '@helpers/util';
+import config from '@helpers/config';
 
 export const actions = {
   [HYDRATE_CURRENT_WALLET]: async ({ commit, state }, wallet) => {
@@ -141,7 +142,7 @@ export const actions = {
 
             case 'withdraw': {
               let amount = 0;
-              const denom = state.app.token;
+              const denom = config.kichain.token;
 
               let withdraw_msg = tx.logs[0].events.filter((e) => {
                 return e.type.includes('withdraw_rewards');
@@ -169,14 +170,33 @@ export const actions = {
             }
 
             default:
-              transactions.push([tx.txhash, type, '', '', fee, tx.timestamp, wallet.address, '']);
+              transactions.push([
+                tx.txhash,
+                type,
+                '',
+                '',
+                fee,
+                tx.timestamp,
+                wallet.address,
+                '',
+                config.kichain.token,
+              ]);
               break;
           }
         } else {
-          transactions.push([tx.txhash, 'multiple', '', '', fee, tx.timestamp, wallet.address, '']);
+          transactions.push([
+            tx.txhash,
+            'multiple',
+            '',
+            '',
+            fee,
+            tx.timestamp,
+            wallet.address,
+            '',
+            config.kichain.token,
+          ]);
         }
       }
-
       // Fetch the recieved transactions
       transactionsRaw = [];
 

@@ -111,9 +111,10 @@ export default {
   methods: {
     downloadTxs() {
       let filename = 'transaction_export_' + this.currentWallet.address + '.csv';
-      let csv_data = 'TIMESTAMP,TX_HASH,TYPE,FROM,TO,AMOUNT,FEES\n';
+      let csv_data = 'TIMESTAMP,TX_HASH,TYPE,FROM,TO,AMOUNT,CURRENCY,FEES\n';
       for (var tx of this.transactions) {
-        csv_data += [tx[5], tx[0], tx[1], tx[6], tx[2], tx[3].replaceAll(',', ''), tx[4]].join(',') + '\n';
+        csv_data +=
+          [tx[5], tx[0], tx[1], tx[6], tx[2], tx[3].replaceAll(',', ''), tx[7], tx[4]].join(',') + '\n';
       }
 
       let href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv_data);

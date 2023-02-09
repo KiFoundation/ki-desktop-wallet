@@ -1,15 +1,11 @@
 <template>
   <div class="d-flex w-100 h-100 justify-content-between align-items-center">
-    <div
-      class="d-flex justify-content-center ml-3 flex-column"
-      :style="{ gap: '0.3rem' }"
-      v-if="!loadingWallet"
-    >
+    <div class="d-flex justify-content-center ml-3 flex-column" :style="{ gap: '0.3rem' }">
       <h5>Total Balance</h5>
-
       <div class="d-flex justify-content-center" :style="{ gap: '3rem' }">
         <Balance
           :amount="total"
+          :loading="loading"
           :amount-currency="globalData?.kichain?.denom?.toUpperCase() || ''"
           :dollar-amount="total_usd ?? 0"
           :token-price="token_price ?? 0"
@@ -18,14 +14,12 @@
         <Balance
           v-if="totalUSDC !== 0"
           :amount="totalUSDC"
+          :loading="loading"
           :amount-currency="'USDC'"
           :dollar-amount="totalUSDC"
         />
       </div>
     </div>
-    <span v-else>
-      <b-spinner type="grow" variant="light" />
-    </span>
     <div class="d-flex flex-row">
       <div class="pr-4">
         <a
@@ -99,6 +93,7 @@ export default {
       totalUSDC: 0,
       total_usd: 0,
       token_price: 0.0,
+      loading: true,
     };
   },
   mounted() {
@@ -197,6 +192,7 @@ export default {
     },
 
     async getTotalBalance() {
+      this.loading = true;
       let total = 0;
       let totalUSDC = 0;
 
@@ -245,6 +241,8 @@ export default {
       this.total = tokenUtil.formatShort(total);
       this.totalUSDC = tokenUtil.formatShort(totalUSDC);
       this.token_price = tokenUtil.formatPrice(this.token_price_raw);
+
+      this.loading = false;
     },
   },
 };
