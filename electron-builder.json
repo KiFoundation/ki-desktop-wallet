@@ -1,0 +1,57 @@
+{
+    "directories": {
+        "output": "dist"
+    },
+    "mac": {
+        "icon": "assets/icons/mac/icon.icns"
+    },
+    "nsis": {
+        "oneClick": false,
+        "perMachine": false,
+        "allowToChangeInstallationDirectory": true
+    },
+    "win": {
+        "icon": "assets/icons/win/icon.ico",
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ]
+    },
+    "linux": {
+        "icon": "assets/icons/linux/icon.png",
+        "target": [
+            "deb"
+        ]
+    },
+    "files": [
+        "build/main/**/*",
+        {
+            "from": "build/renderer",
+            "to": "renderer",
+            "filter": [
+                "**/*"
+            ]
+        },
+        {
+            "from": "src/main/static",
+            "to": "static",
+            "filter": [
+                "**/*"
+            ]
+        },
+        "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+        "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+        "!**/node_modules/*.d.ts",
+        "!**/node_modules/.bin",
+        "!src",
+        "!config",
+        "!README.md",
+        "!scripts",
+        "!build/renderer",
+        "!dist"
+    ]
+}
