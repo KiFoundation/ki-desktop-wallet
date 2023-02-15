@@ -12,7 +12,7 @@
           :token-price-currency="globalData?.kichain?.token || ''"
         />
         <Balance
-          v-if="totalUSDC !== 0"
+          v-if="totalUSDC !== '0.00'"
           :amount="totalUSDC"
           :loading="loading"
           :amount-currency="'USDC'"

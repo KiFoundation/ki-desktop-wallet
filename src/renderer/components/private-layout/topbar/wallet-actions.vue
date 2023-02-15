@@ -51,9 +51,9 @@
           :token-price="token_price ?? 0"
           :token-price-currency="globalData?.kichain?.token || ''"
         />
-
+        
         <Balance
-          v-if="total_available_usdc !== 0"
+          v-if="total_available_usdc !== '0.00'"
           :loading="loading"
           :amount-size="'1.05rem'"
           :amount="total_available_usdc"
