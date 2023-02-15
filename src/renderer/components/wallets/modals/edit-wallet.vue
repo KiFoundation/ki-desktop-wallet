@@ -24,7 +24,7 @@
                 {{ $t('webwallet_edit_title') }}
                 <strong :style="{ fontWeight: '600' }">{{ wallet.account }}</strong>
               </h5>
-              <img src="/img/icons/delete.png" width="28px" class="delete" @click="deleteWallet" />
+              <img src="/img/icons/delete.png" width="22" class="delete" @click="deleteWallet" />
             </div>
             <div class="mnemonic-form">
               <div v-if="step == 0">

@@ -20,7 +20,6 @@ import config from '@helpers/config';
 export const actions = {
   [HYDRATE_CURRENT_WALLET]: async ({ commit, state }, wallet) => {
     let walletTmp = (wallet && Object.assign({}, wallet)) || null;
-    console.log({ wallet });
     if (walletTmp) {
       commit(START_HYDRATE);
 
