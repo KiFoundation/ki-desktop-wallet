@@ -146,29 +146,6 @@
                     ≈ ${{ balancesUSD.available }}
                   </p>
                 </div>
-                <div>
-                  <p
-                    :style="{
-                      color: 'var(--secondary)',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                    }"
-                  >
-                    Available USDC
-                  </p>
-                  <h6 :style="{ fontWeight: 'bolder' }">
-                    {{ currentWalletBalancesAmount.availableUSDC }} USDC
-                  </h6>
-                  <p
-                    :style="{
-                      color: 'var(--secondary)',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                    }"
-                  >
-                    ≈ ${{ currentWalletBalancesAmount.availableUSDC }}
-                  </p>
-                </div>
               </div>
             </div>
           </b-col>
