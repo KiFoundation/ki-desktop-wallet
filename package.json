@@ -10,11 +10,11 @@
     "dev": "node scripts/dev-server.js",
     "build": "node scripts/build.production.js",
     "build:win": "node scripts/build.production.js && electron-builder --win -c.productName='Ki Desktop Wallet'",
-    "build:mac": "node scripts/build.production.js && electron-builder --mac -c.productName='Ki Desktop Wallet'",
+    "build:mac": "node scripts/build.production.js && electron-builder --mac --universal -c.productName='Ki Desktop Wallet'",
     "build:linux": "node scripts/build.production.js && electron-builder --linux -c.productName='Ki Desktop Wallet'",
     "build:all": "node scripts/build.production.js && electron-builder -mwl -c.productName='Ki Desktop Wallet'",
     "build:preprod": "node scripts/build.preprod.js",
-    "build:mac:preprod": "NODE_ENV=preprod node scripts/build.preprod.js && electron-builder --mac -c.productName='Ki Desktop Wallet Test'",
+    "build:mac:preprod": "NODE_ENV=preprod node scripts/build.preprod.js && electron-builder --mac --universal -c.productName='Ki Desktop Wallet Test'",
     "build:win:preprod": "NODE_ENV=preprod node scripts/build.preprod.js && electron-builder --win -c.productName='Ki Desktop Wallet Test'",
     "build:linux:preprod": "NODE_ENV=preprod node scripts/build.preprod.js && electron-builder --linux -c.productName='Ki Desktop Wallet Test'",
     "build:all:preprod": "NODE_ENV=preprod node scripts/build.preprod.js && electron-builder -mwl -c.productName='Ki Desktop Wallet Test'"
