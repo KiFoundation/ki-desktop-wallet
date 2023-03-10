@@ -192,7 +192,7 @@ export default {
       this.sign.summary = this.parseMessage(this.sign.file_content);
     },
     getDenomFormatted(denom: string) {
-      if (denom === this.globalData.kichain.denom) {
+      if (denom === this.globalData.kichain.udenom) {
         return this.globalData.kichain.denom;
       }
       return 'usdc';
