@@ -1,7 +1,7 @@
 {
   "name": "ki-desktop-wallet",
   "description": "The KiChain wallet",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "main": "build/main/main.js",
   "email": "contact@foundation.ki",
