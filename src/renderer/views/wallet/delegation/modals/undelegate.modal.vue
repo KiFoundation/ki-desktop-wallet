@@ -293,7 +293,7 @@ export default {
             'a',
             {
               attrs: {
-                href: this.explorer + 'transactions/' + res.data.tx_response.txhash,
+                href: this.explorer + 'ki-chain/txs/' + res.data.tx_response.txhash,
                 target: '_blank',
               },
             },

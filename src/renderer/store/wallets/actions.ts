@@ -142,31 +142,36 @@ export const actions = {
             case 'withdraw': {
               let amount = 0;
               const denom = config.kichain.token;
-
-              let withdraw_msg = tx.logs[0].events.filter((e) => {
-                return e.type.includes('withdraw_rewards');
-              });
-
-              if (withdraw_msg.length > 0 && withdraw_msg[0].attributes) {
-                const amountWithDenomMatch = String(withdraw_msg[0].attributes[0].value).match(
-                  new RegExp(/(\d+)(\w+)/)
-                );
-                const [_, withdrawAmount, withdrawDenom] = amountWithDenomMatch;
-                amount += withdrawAmount;
+              
+              if (tx.logs.length == 0) {
+                continue;
               }
+              else{
+                let withdraw_msg = tx.logs[0].events.filter((e) => {
+                  return e.type.includes('withdraw_rewards');
+                });
 
-              transactions.push([
-                tx.txhash,
-                'withdraw',
-                '',
-                tokenUtil.formatShort(amount),
-                fee,
-                tx.timestamp,
-                tx.tx.body.messages[0].validator_address,
-                denom,
-              ]);
-              break;
-            }
+                if (withdraw_msg.length > 0 && withdraw_msg[0].attributes) {
+                  const amountWithDenomMatch = String(withdraw_msg[0].attributes[0].value).match(
+                    new RegExp(/(\d+)(\w+)/)
+                  );
+                  const [_, withdrawAmount, withdrawDenom] = amountWithDenomMatch;
+                  amount += withdrawAmount;
+                }
+
+                transactions.push([
+                  tx.txhash,
+                  'withdraw',
+                  '',
+                  tokenUtil.formatShort(amount),
+                  fee,
+                  tx.timestamp,
+                  tx.tx.body.messages[0].validator_address,
+                  denom,
+                ]);
+              }
+            break;
+          }
 
             default:
               transactions.push([
